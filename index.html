@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3c629">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <title>Container Van Locator</title>
+  <style>
+    :root {
+      --ink: #252a2e;
+      --muted: #72797d;
+      --line: #e5e7e4;
+      --paper: #ffffff;
+      --canvas: #f6f7f5;
+      --yellow: #f3c629;
+      --yellow-soft: #fff6d4;
+      --green: #306d50;
+      --green-soft: #e9f3ed;
+      --red: #a3473e;
+      --shadow: 0 8px 24px rgba(28, 35, 32, .055);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--canvas);
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; background: var(--canvas); font-size: 14px; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 226px minmax(0, 1fr); }
+    .sidebar { background: #fff; border-right: 1px solid var(--line); padding: 22px 14px 16px; display: flex; flex-direction: column; }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 9px 24px; }
+    .brand-mark { width: 34px; height: 34px; border-radius: 10px; background: var(--yellow); display: grid; place-items: center; color: #342c0d; }
+    .brand-mark svg { width: 21px; height: 21px; }
+    .brand-name { font-size: 14px; line-height: 1.25; font-weight: 720; letter-spacing: -.25px; }
+    .brand-sub { font-size: 10px; color: var(--muted); margin-top: 3px; letter-spacing: .06em; text-transform: uppercase; }
+    .nav-label { padding: 2px 10px 8px; color: #9a9e9b; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+    .nav { display: grid; gap: 4px; }
+    .nav-btn { border: 0; background: transparent; color: #5e6568; display: flex; align-items: center; gap: 11px; text-align: left; width: 100%; padding: 10px 11px; border-radius: 8px; font-size: 13px; font-weight: 570; }
+    .nav-btn svg { width: 17px; height: 17px; color: #858b8b; }
+    .nav-btn:hover { background: #f7f7f4; color: var(--ink); }
+    .nav-btn.active { background: var(--yellow-soft); color: #3d3415; font-weight: 680; }
+    .nav-btn.active svg { color: #665518; }
+    .sidebar-spacer { flex: 1; min-height: 34px; }
+    .storage-card { background: #f7f8f6; border: 1px solid #eceeeb; border-radius: 9px; padding: 11px 12px; margin: 0 2px 12px; }
+    .storage-top { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 650; }
+    .storage-dot { width: 7px; height: 7px; background: #63a879; border-radius: 50%; }
+    .storage-copy { margin: 5px 0 0 14px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .sidebar-foot { font-size: 10px; color: #929794; padding: 0 10px; }
+    .main { min-width: 0; }
+    .topbar { min-height: 62px; background: #fff; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 10px 30px; position: sticky; top: 0; z-index: 5; }
+    .crumb { color: #89908f; font-size: 11px; }
+    .crumb strong { color: #4d5558; font-weight: 600; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .search-wrap { position: relative; width: min(290px, 30vw); }
+    .search-icon { position: absolute; left: 11px; top: 10px; width: 15px; height: 15px; color: #8b918f; pointer-events: none; }
+    .search { height: 36px; width: 100%; border: 1px solid #e2e5e2; background: #fbfcfb; border-radius: 7px; padding: 0 11px 0 34px; color: var(--ink); outline: none; font-size: 12px; }
+    .search:focus, input:focus, select:focus { border-color: #d2ad23; box-shadow: 0 0 0 3px rgba(243,198,41,.17); outline: none; }
+    .kbd { position: absolute; right: 9px; top: 10px; font-size: 9px; color: #a3a8a5; border: 1px solid #e4e7e4; border-radius: 3px; padding: 1px 4px; }
+    .search-results { display: none; position: absolute; top: 42px; right: 0; width: min(420px, 82vw); max-height: 390px; overflow: auto; background: #fff; border: 1px solid var(--line); border-radius: 9px; box-shadow: var(--shadow); padding: 6px; z-index: 20; }
+    .search-results.open { display: block; }
+    .result-heading { padding: 7px 9px; color: #969c99; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+    .result { padding: 9px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-radius: 6px; }
+    .result:hover { background: #f7f8f5; }
+    .result strong { font-size: 12px; }
+    .result small { display: block; color: var(--muted); margin-top: 3px; font-size: 10px; }
+    .result-loc { flex-shrink: 0; color: #635316; background: var(--yellow-soft); border-radius: 5px; padding: 5px 7px; font-size: 10px; font-weight: 650; }
+    .search-empty { padding: 15px 10px; color: var(--muted); font-size: 12px; }
+    .top-status { display: flex; align-items: center; gap: 7px; color: #707875; font-size: 11px; white-space: nowrap; }
+    .status-light { width: 7px; height: 7px; border-radius: 50%; background: #64a77a; }
+    .content { max-width: 1480px; margin: 0 auto; padding: 28px 30px 42px; }
+    .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 20px; }
+    .eyebrow { color: #979e9a; text-transform: uppercase; font-size: 10px; letter-spacing: .12em; font-weight: 720; margin-bottom: 6px; }
+    h1 { margin: 0; font-size: 22px; line-height: 1.25; letter-spacing: -.5px; font-weight: 700; }
+    .page-desc { margin: 5px 0 0; font-size: 12px; color: var(--muted); }
+    .head-actions { display: flex; gap: 8px; align-items: center; }
+    .btn { border: 1px solid #dedfda; border-radius: 7px; padding: 8px 12px; background: #fff; color: #4c5555; font-size: 11px; font-weight: 630; display: inline-flex; gap: 7px; align-items: center; justify-content: center; transition: .15s ease; white-space: nowrap; }
+    .btn svg { width: 14px; height: 14px; }
+    .btn:hover { border-color: #c7c9c3; background: #fafbf9; }
+    .btn.primary { background: var(--yellow); color: #362e10; border-color: var(--yellow); }
+    .btn.primary:hover { background: #e9bd20; }
+    .btn.small { padding: 6px 9px; font-size: 10px; }
+    .btn.text { border-color: transparent; background: transparent; padding-left: 7px; padding-right: 7px; color: #747c7a; }
+    .btn.danger { color: var(--red); }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 18px; }
+    .stat { background: var(--paper); border: 1px solid var(--line); border-radius: 9px; padding: 14px 16px 13px; min-height: 83px; }
+    .stat-label { display: flex; align-items: center; justify-content: space-between; color: #7e8682; font-size: 10px; font-weight: 600; }
+    .stat-icon { width: 24px; height: 24px; background: #f8f8f5; color: #8a8f89; display: grid; place-items: center; border-radius: 6px; }
+    .stat-icon svg { width: 14px; height: 14px; }
+    .stat-value { font-size: 21px; font-weight: 680; letter-spacing: -.5px; margin-top: 6px; }
+    .stat-foot { color: #929894; font-size: 9px; margin-top: 1px; }
+    .panel { background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 2px 5px rgba(30,40,35,.018); }
+    .panel-head { min-height: 51px; padding: 12px 16px; border-bottom: 1px solid #eff0ed; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .panel-title { font-size: 12px; font-weight: 680; }
+    .panel-sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .panel-meta { color: #939a96; font-size: 10px; }
+    .dropzone { margin: 14px 16px; border: 1px dashed #d8dbd5; border-radius: 8px; min-height: 78px; display: flex; align-items: center; gap: 12px; padding: 13px 15px; background: #fcfdfa; transition: .15s ease; }
+    .dropzone.dragover { background: var(--yellow-soft); border-color: #d6b02b; }
+    .drop-icon { width: 35px; height: 35px; border-radius: 8px; background: var(--yellow-soft); color: #796519; display: grid; place-items: center; flex: 0 0 auto; }
+    .drop-icon svg { width: 18px; height: 18px; }
+    .drop-copy { flex: 1; min-width: 0; }
+    .drop-copy strong { display: block; font-size: 11px; font-weight: 650; }
+    .drop-copy span { display: block; font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .drop-hint { font-size: 9px; color: #9ba09c; margin: 0 4px; }
+    .file-input { display: none; }
+    .table-tools { min-height: 43px; border-top: 1px solid #eff0ed; padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .table-info { color: #838b87; font-size: 10px; }
+    .filter-line { display: flex; align-items: center; gap: 7px; }
+    .filter-select { border: 1px solid #e3e5e1; background: #fff; border-radius: 5px; height: 27px; padding: 0 23px 0 8px; font-size: 10px; color: #59615f; }
+    .table-scroll { overflow: auto; max-height: 57vh; }
+    table { width: 100%; border-collapse: collapse; min-width: 740px; }
+    th { position: sticky; top: 0; z-index: 1; background: #fafbf9; color: #89918d; text-align: left; text-transform: uppercase; letter-spacing: .07em; font-size: 9px; font-weight: 700; padding: 9px 14px; border-bottom: 1px solid #eceeeb; }
+    td { padding: 8px 14px; border-bottom: 1px solid #f0f1ee; font-size: 11px; color: #515957; }
+    tr:last-child td { border-bottom: 0; }
+    td.van-cell { color: #303638; font-weight: 680; letter-spacing: .01em; }
+    td.consignee { max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .loc-pill { display: inline-flex; align-items: center; gap: 5px; background: #f3f5f2; border-radius: 5px; padding: 4px 7px; font-size: 10px; color: #58605b; white-space: nowrap; }
+    .loc-pill.assigned { background: var(--green-soft); color: #38674c; }
+    .loc-pill.pending { background: #f5f5f1; color: #929790; }
+    .assign-cell { display: flex; align-items: center; gap: 5px; }
+    .assign-select { height: 28px; border: 1px solid #e3e6e1; border-radius: 5px; color: #59615e; background: #fff; font-size: 10px; padding: 0 22px 0 7px; min-width: 78px; }
+    .assign-select.block { min-width: 68px; }
+    .pagination { display: flex; align-items: center; gap: 6px; }
+    .page-btn { border: 1px solid #e4e6e2; border-radius: 5px; background: #fff; min-width: 25px; height: 25px; font-size: 10px; color: #5d6560; }
+    .page-btn:disabled { opacity: .4; cursor: default; }
+    .page-num { color: #89908c; font-size: 10px; padding: 0 4px; }
+    .empty-state { padding: 34px 20px; text-align: center; }
+    .empty-illustration { width: 46px; height: 46px; display: grid; place-items: center; margin: 0 auto 11px; border-radius: 13px; background: #fff6d7; color: #76641d; }
+    .empty-illustration svg { width: 23px; height: 23px; }
+    .empty-state strong { font-size: 12px; display: block; }
+    .empty-state p { font-size: 10px; color: var(--muted); margin: 5px 0 12px; }
+    .yard-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(350px, .82fr); gap: 14px; align-items: start; }
+    .bay-strip { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 9px; padding: 13px; }
+    .bay-card { background: #fff; border: 1px solid #e7e9e5; border-radius: 8px; padding: 10px; min-width: 0; cursor: pointer; text-align: left; transition: .15s ease; }
+    .bay-card:hover { border-color: #d4ba55; transform: translateY(-1px); }
+    .bay-card.selected { border-color: #d1aa20; box-shadow: 0 0 0 2px rgba(243,198,41,.2); background: #fffdf5; }
+    .bay-card-top { display: flex; justify-content: space-between; align-items: center; }
+    .bay-letter { font-size: 16px; line-height: 1; font-weight: 700; }
+    .bay-tag { color: #9a9f9a; font-size: 9px; }
+    .bay-count { margin-top: 7px; color: #69716d; font-size: 10px; }
+    .meter { height: 4px; border-radius: 3px; background: #eef0eb; margin-top: 8px; overflow: hidden; }
+    .meter-fill { height: 100%; background: var(--yellow); border-radius: inherit; }
+    .yard-lower { margin-top: 14px; display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; }
+    .blocks { display: grid; grid-template-columns: repeat(5, minmax(70px, 1fr)); gap: 8px; padding: 13px; }
+    .block-card { min-height: 75px; border: 1px solid #e7e9e5; border-radius: 7px; padding: 9px; background: #fff; cursor: pointer; text-align: left; transition: .15s ease; }
+    .block-card:hover { border-color: #d6be62; background: #fffefa; }
+    .block-card.selected { border-color: #c9a31b; box-shadow: 0 0 0 2px rgba(243,198,41,.17); }
+    .block-name { font-size: 11px; font-weight: 700; }
+    .block-card-foot { display: flex; justify-content: space-between; align-items: center; gap: 4px; color: #8c938f; font-size: 9px; margin-top: 11px; }
+    .block-card-foot strong { color: #5a625d; font-size: 10px; font-weight: 650; }
+    .block-bar { height: 3px; background: #eef0ec; border-radius: 2px; margin-top: 6px; overflow: hidden; }
+    .block-bar span { display: block; height: 100%; background: #e6c340; }
+    .yard-side { display: grid; gap: 14px; }
+    .inventory-head { display: flex; align-items: center; gap: 8px; }
+    .block-badge { background: var(--yellow-soft); color: #655515; padding: 4px 7px; border-radius: 5px; font-size: 10px; font-weight: 700; }
+    .inventory-list { padding: 4px 14px 10px; max-height: 350px; overflow: auto; }
+    .inventory-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 1px; border-bottom: 1px solid #f0f1ee; }
+    .inventory-row:last-child { border-bottom: 0; }
+    .inventory-primary { min-width: 0; }
+    .inventory-primary strong { display: block; font-size: 11px; }
+    .inventory-primary span { display: block; color: #858d88; font-size: 10px; margin-top: 3px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .move-control { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+    .move-label { color: #9aa09b; font-size: 9px; }
+    .stack-plan { padding: 13px 14px 14px; }
+    .stack-caption { display: flex; justify-content: space-between; color: #858d88; font-size: 9px; margin-bottom: 11px; }
+    .stack-bays { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; align-items: end; }
+    .stack-lane { text-align: center; }
+    .stack-pile { height: 78px; display: flex; flex-direction: column-reverse; justify-content: flex-start; align-items: center; gap: 2px; padding-bottom: 1px; }
+    .container-box { display: block; height: 15px; width: min(100%, 55px); border: 1px solid #d4b842; border-radius: 2px; background: repeating-linear-gradient(90deg, #fff5c7 0 8px, #f6e9ac 8px 10px); }
+    .container-box.back { border-color: #b4b9b5; background: repeating-linear-gradient(90deg,#eef0ed 0 8px,#e3e6e2 8px 10px); }
+    .stack-label { font-size: 9px; color: #636c67; font-weight: 650; margin-top: 5px; }
+    .stack-height { font-size: 8px; color: #9ca19e; margin-top: 2px; }
+    .yard-note { color: #919793; font-size: 9px; padding: 0 14px 12px; line-height: 1.5; }
+    .shift-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+    .shift-bays { display: flex; align-items: center; gap: 6px; }
+    .shift-bay-btn { min-width: 72px; border: 1px solid #e1e4df; border-radius: 7px; padding: 8px 10px; background: #fff; color: #5e6661; font-size: 11px; font-weight: 620; }
+    .shift-bay-btn:hover { border-color: #d3b64d; }
+    .shift-bay-btn.active { background: var(--yellow-soft); border-color: #d7b737; color: #4b3f12; }
+    .shift-toolbar-note { display: flex; align-items: center; gap: 6px; color: #8a918d; font-size: 10px; }
+    .shift-toolbar-note svg { width: 14px; height: 14px; }
+    .shift-scroll-actions { display: flex; gap: 5px; }
+    .shift-scroll-btn { border: 1px solid #e3e5e1; border-radius: 5px; background: #fff; color: #66706a; width: 28px; height: 27px; font-size: 14px; line-height: 1; }
+    .shift-scroll-btn:hover { background: #f8f9f6; }
+    .shift-scroller { overflow-x: auto; padding: 13px; scrollbar-color: #c6cbc5 #f3f4f1; scrollbar-width: thin; }
+    .shift-columns { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(138px, 1fr); grid-template-rows: 1fr; gap: 8px; width: max-content; min-width: 100%; align-items: stretch; }
+    .shift-block { width: 154px; min-height: 300px; display: flex; flex-direction: column; border: 1px solid #e5e8e3; border-radius: 8px; background: #fafbf9; padding: 8px; transition: background .15s, border-color .15s, box-shadow .15s; }
+    .shift-block.drag-over { background: #fff7d8; border-color: #d1ad32; box-shadow: 0 0 0 2px rgba(243,198,41,.18); }
+    .shift-block-head { padding: 2px 1px 9px; border-bottom: 1px solid #e8eae6; }
+    .shift-block-top { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+    .shift-block-name { font-size: 11px; font-weight: 700; }
+    .shift-count { color: #87908a; font-size: 9px; white-space: nowrap; }
+    .shift-count.full { color: #a3473e; font-weight: 650; }
+    .shift-meter { height: 3px; background: #e9ece7; border-radius: 4px; overflow: hidden; margin-top: 7px; }
+    .shift-meter span { display: block; height: 100%; background: var(--yellow); }
+    .shift-vans { display: grid; align-content: start; gap: 5px; padding-top: 8px; flex: 1; }
+    .shift-van { min-width: 0; border: 1px solid #e5e8e3; background: #fff; border-radius: 6px; padding: 7px 5px 6px 7px; cursor: grab; box-shadow: 0 1px 1px rgba(20,30,25,.025); }
+    .shift-van:active { cursor: grabbing; }
+    .shift-van.dragging { opacity: .45; }
+    .shift-van-code { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; font-weight: 700; color: #343c38; }
+    .shift-van-consignee { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #8a918c; font-size: 9px; margin-top: 3px; }
+    .shift-van-actions { display: flex; justify-content: space-between; gap: 4px; margin-top: 6px; }
+    .shift-nudge { border: 1px solid #eceeea; border-radius: 4px; height: 22px; min-width: 34px; padding: 0 5px; background: #fafbf9; color: #68716c; font-size: 10px; line-height: 1; }
+    .shift-nudge:hover:not(:disabled) { border-color: #d8bf5a; background: #fff9e3; color: #4c4115; }
+    .shift-nudge:disabled { opacity: .35; cursor: default; }
+    .shift-empty { border: 1px dashed #dfe3dc; border-radius: 5px; padding: 12px 5px; color: #a0a69f; font-size: 9px; text-align: center; }
+    .shift-footer { padding: 10px 14px; border-top: 1px solid #eff0ed; color: #8b928d; font-size: 9px; line-height: 1.5; }
+    .guide-note { border: 1px solid #eee2b9; background: #fffaf0; color: #776b42; border-radius: 7px; padding: 9px 11px; font-size: 10px; line-height: 1.5; margin-bottom: 14px; }
+    .modal-backdrop { position: fixed; inset: 0; display: none; place-items: center; background: rgba(28,32,30,.38); z-index: 50; padding: 18px; }
+    .modal-backdrop.open { display: grid; }
+    .modal { width: min(440px, 100%); background: #fff; border-radius: 11px; box-shadow: 0 20px 70px rgba(0,0,0,.2); overflow: hidden; }
+    .modal.wide { width: min(860px, 100%); }
+    .modal-head { padding: 16px 18px 12px; border-bottom: 1px solid #eff0ed; display: flex; justify-content: space-between; align-items: flex-start; }
+    .modal-head h2 { font-size: 14px; margin: 0; }
+    .modal-head p { color: var(--muted); font-size: 10px; margin: 4px 0 0; }
+    .icon-btn { border: 0; background: transparent; color: #8a908d; font-size: 18px; line-height: 1; padding: 0 2px; }
+    .modal-body { padding: 15px 18px 18px; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 10px; color: #68716d; font-weight: 650; margin-bottom: 5px; }
+    .field input, .field select { border: 1px solid #dfe3df; border-radius: 6px; height: 35px; width: 100%; padding: 0 9px; color: #48504d; background: #fff; font-size: 11px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 17px; }
+    .modal-info { font-size: 10px; color: #8c938e; line-height: 1.5; margin-top: -2px; }
+    .ocr-progress { height: 5px; background: #f0f1ed; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+    .ocr-progress span { height: 100%; width: 0; display: block; background: var(--yellow); transition: width .2s ease; }
+    .photo-review-top { display: flex; align-items: center; gap: 11px; margin-bottom: 12px; color: #747c77; font-size: 10px; line-height: 1.5; }
+    .photo-review-top img { width: 72px; height: 54px; flex: 0 0 auto; object-fit: cover; border: 1px solid var(--line); border-radius: 5px; background: #f6f7f5; }
+    .photo-review-list { max-height: 48vh; overflow: auto; border: 1px solid #eceeeb; border-radius: 7px; }
+    .photo-table { min-width: 570px; }
+    .photo-table th { top: 0; }
+    .photo-table td { padding: 5px 8px; }
+    .photo-table input { border: 1px solid #e3e6e1; border-radius: 4px; height: 29px; padding: 0 7px; width: 100%; font-size: 10px; }
+    .photo-table .row-num { width: 34px; color: #a0a5a1; text-align: center; }
+    .shared-banner { display: none; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid #ead47e; background: #fff8dc; padding: 10px 13px; border-radius: 8px; margin-bottom: 14px; }
+    .shared-banner.show { display: flex; }
+    .shared-banner strong { display: block; font-size: 11px; }
+    .shared-banner span { display: block; font-size: 10px; color: #786c41; margin-top: 3px; }
+    .toast { position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 16px); opacity: 0; pointer-events: none; background: #29312d; color: white; padding: 10px 14px; border-radius: 7px; z-index: 70; box-shadow: var(--shadow); font-size: 11px; transition: .2s ease; }
+    .toast.show { transform: translate(-50%,0); opacity: 1; }
+    .hidden { display: none !important; }
+    @media (max-width: 1050px) {
+      .content { padding: 22px 20px 35px; }
+      .topbar { padding: 10px 20px; }
+      .yard-layout { grid-template-columns: 1fr; }
+      .yard-side { grid-template-columns: 1fr 1fr; }
+      .shift-block { width: 145px; }
+    }
+    @media (max-width: 760px) {
+      .app { display: block; }
+      .sidebar { padding: 5px 8px calc(5px + env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--line); display: flex; flex-direction: row; align-items: center; gap: 0; position: fixed; inset: auto 0 0; z-index: 30; background: rgba(255,255,255,.97); box-shadow: 0 -5px 18px rgba(28,35,32,.06); backdrop-filter: blur(12px); }
+      .brand, .nav-label, .sidebar-spacer, .storage-card, .sidebar-foot { display: none; }
+      .nav { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 4px; width: 100%; }
+      .nav-btn { width: 100%; min-height: 52px; padding: 6px 4px 5px; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; gap: 3px; font-size: 10px; line-height: 1.1; }
+      .nav-btn svg { width: 18px; height: 18px; }
+      .topbar { position: sticky; top: 0; z-index: 10; min-height: 55px; padding: 7px 12px; }
+      .crumb, .top-status { display: none; }
+      .top-actions { width: 100%; }
+      .search-wrap { width: 100%; }
+      .search { height: 42px; font-size: 15px; border-radius: 9px; }
+      .search-icon { top: 13px; }
+      .kbd { display: none; }
+      .search-results { top: 48px; width: 100%; max-height: min(55dvh, 420px); }
+      .result { min-height: 52px; }
+      .content { padding: 17px 12px calc(84px + env(safe-area-inset-bottom)); }
+      .page-head { align-items: flex-start; flex-direction: column; margin-bottom: 15px; }
+      .head-actions { align-self: stretch; }
+      .head-actions .btn { flex: 1; min-height: 44px; padding: 9px 8px; font-size: 11px; white-space: normal; }
+      .stats { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+      .stat { padding: 11px 12px; min-height: 78px; }
+      .stat-value { font-size: 19px; }
+      .dropzone { margin: 10px; padding: 10px; flex-wrap: wrap; min-height: 90px; }
+      .drop-hint { display: none; }
+      .dropzone .btn { margin-left: auto; }
+      .table-tools { padding: 9px 10px; min-height: 48px; }
+      .filter-line { display: flex; }
+      .filter-select { height: 38px; font-size: 13px; }
+      .table-scroll { max-height: none; overflow: visible; }
+      table { min-width: 0; width: 100%; }
+      thead { display: none; }
+      tbody { display: grid; gap: 8px; padding: 8px; }
+      tbody tr { position: relative; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 4px 8px; padding: 10px; border: 1px solid #e8eae6; border-radius: 8px; background: #fff; }
+      tbody td { min-width: 0; padding: 0; border: 0; font-size: 11px; }
+      tbody td.van-cell { grid-column: 1; grid-row: 1; font-size: 12px; }
+      tbody td.consignee { grid-column: 1 / -1; grid-row: 2; max-width: none; overflow: visible; white-space: normal; line-height: 1.4; }
+      tbody td:nth-child(3) { grid-column: 1 / -1; grid-row: 3; margin: 2px 0; }
+      tbody td:nth-child(4) { grid-column: 1 / -1; grid-row: 4; }
+      tbody td:nth-child(5) { grid-column: 2; grid-row: 1; }
+      .assign-cell { gap: 7px; }
+      .assign-select { height: 42px; min-width: 0; flex: 1; padding: 0 24px 0 9px; font-size: 14px; border-radius: 7px; }
+      .assign-select.block { min-width: 0; }
+      .remove-record { min-height: 40px; }
+      .bay-strip { display: flex; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; padding: 9px; gap: 7px; }
+      .bay-card { flex: 0 0 92px; scroll-snap-align: start; padding: 9px 8px; }
+      .bay-letter { font-size: 14px; }
+      .bay-count { font-size: 9px; }
+      .blocks { grid-template-columns: repeat(2,minmax(0,1fr)); padding: 9px; gap: 7px; }
+      .block-card { min-height: 78px; padding: 10px; }
+      .inventory-list { padding: 4px 12px 12px; max-height: 45dvh; }
+      .inventory-row { min-height: 58px; }
+      .move-block { max-width: 112px; }
+      .yard-side { grid-template-columns: 1fr; }
+      .shift-toolbar { align-items: flex-start; flex-direction: column; }
+      .shift-bays { width: 100%; }
+      .shift-bay-btn { flex: 1; min-width: 0; min-height: 44px; font-size: 12px; }
+      .shift-toolbar-note { align-self: flex-start; line-height: 1.4; }
+      .shift-block { width: 154px; min-height: 260px; }
+      .shift-scroller { padding: 9px; overscroll-behavior-x: contain; scroll-snap-type: x proximity; }
+      .shift-block { scroll-snap-align: start; }
+      .shift-scroll-btn { width: 40px; height: 40px; font-size: 19px; }
+      .shift-nudge { min-width: 58px; min-height: 42px; padding: 0 6px; font-size: 12px; border-radius: 7px; touch-action: manipulation; }
+      .shift-van { padding: 9px 7px; }
+      .shift-van-code { font-size: 11px; }
+      .shift-van-consignee { font-size: 10px; }
+      .shift-footer { font-size: 10px; }
+      .modal-backdrop { align-items: end; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
+      .modal, .modal.wide { width: 100%; max-height: 92dvh; overflow: auto; border-radius: 14px 14px 9px 9px; }
+      .modal-head { padding: 17px 16px 13px; }
+      .modal-body { padding: 14px 16px calc(18px + env(safe-area-inset-bottom)); }
+      .field input, .field select { height: 44px; font-size: 15px; }
+      .modal-actions .btn { min-height: 44px; }
+      .content h1 { font-size: 20px; }
+      .shared-banner { align-items: flex-start; flex-direction: column; }
+      .shared-banner .head-actions { width: 100%; }
+      .toast { bottom: calc(76px + env(safe-area-inset-bottom)); max-width: calc(100vw - 28px); text-align: center; }
+    }
+    @media (max-width: 420px) {
+      .content { padding-left: 10px; padding-right: 10px; }
+      .page-head { gap: 10px; }
+      .page-desc { max-width: 38ch; line-height: 1.45; }
+      .stats { gap: 7px; }
+      .stat { padding: 10px; }
+      .stat-label { font-size: 9px; }
+      .stat-foot { font-size: 9px; line-height: 1.3; }
+      .panel-head { padding: 11px 12px; }
+      .panel-sub { max-width: 31ch; line-height: 1.4; }
+      .table-tools { gap: 6px; }
+      .table-info { font-size: 9px; }
+      .filter-line { gap: 4px; }
+      .filter-select { max-width: 132px; }
+      .shift-block { width: 148px; }
+      .shift-columns { gap: 6px; }
+      .shift-nudge { min-width: 54px; }
+      .photo-review-list { max-height: 42dvh; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7.5h12.5l2 3.2H21v6.8h-2.2M3 7.5v10h2.2m0 0a2 2 0 1 0 4 0m-4 0h4m0 0h6m0 0a2 2 0 1 0 4 0M3 10h12m-8-2.5v2.5m4-2.5v2.5m4-2.5v2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 10.7v3.6H21" stroke-linecap="round"/></svg></div>
+        <div><div class="brand-name">Container Van Locator</div><div class="brand-sub">Yard operations</div></div>
+      </div>
+      <div class="nav-label">Workspace</div>
+      <nav class="nav" aria-label="Main navigation">
+        <button class="nav-btn active" data-page="loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3.8h8l4 4v12.4H6z" stroke-linejoin="round"/><path d="M14 3.8v4h4M9 12h6M9 15.5h6" stroke-linecap="round"/></svg>Loading list</button>
+        <button class="nav-btn" data-page="yard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="4" width="7" height="6.5" rx="1"/><rect x="13.5" y="4" width="7" height="6.5" rx="1"/><rect x="3.5" y="13.5" width="7" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="7" height="6.5" rx="1"/></svg>Yard view</button>
+        <button class="nav-btn" data-page="shift"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h15m0 0-3-3m3 3-3 3M20 17H5m0 0 3-3m-3 3 3 3" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10v4m5-4v4m5-4v4" stroke-linecap="round"/></svg>Quick shift</button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="storage-card"><div class="storage-top"><i class="storage-dot"></i> Saved on this device</div><div class="storage-copy">Your yard list stays in this browser. Use a share link to send a snapshot.</div></div>
+      <div class="sidebar-foot">Container Van Locator · Free edition</div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="crumb">Yard operations <span style="margin:0 6px;color:#c4c8c4">/</span><strong id="crumbPage">Loading list</strong></div>
+        <div class="top-actions">
+          <div class="search-wrap">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4.2 4.2" stroke-linecap="round"/></svg>
+            <input id="globalSearch" class="search" type="search" placeholder="Search van or consignee…" autocomplete="off" aria-label="Search by van number or consignee">
+            <span class="kbd">/</span><div id="searchResults" class="search-results"></div>
+          </div>
+          <div class="top-status"><span class="status-light"></span> Local workspace</div>
+        </div>
+      </header>
+      <div class="content">
+        <div id="sharedBanner" class="shared-banner">
+          <div><strong>Shared yard snapshot loaded</strong><span id="sharedCount"></span></div>
+          <div class="head-actions"><button id="saveShared" class="btn small primary">Save to this device</button><button id="dismissShared" class="btn small">Dismiss</button></div>
+        </div>
+        <section id="loadingPage"></section>
+        <section id="yardPage" class="hidden"></section>
+        <section id="shiftPage" class="hidden"></section>
+      </div>
+    </main>
+  </div>
+  <input class="file-input" type="file" id="fileInput" accept=".xlsx,.xls,.csv,.tsv,.json,.png,.jpg,.jpeg,.webp" multiple>
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true"></div>
+  <div id="toast" class="toast" role="status"></div>
+  <!-- SheetJS is used only to read Excel workbooks. CSV import works without a network connection. -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script>
+    (() => {
+      const STORAGE_KEY = 'container-van-locator-v1';
+      const BAY_NAMES = ['A', 'B', 'C', 'D', 'E'];
+      const BLOCKS = Array.from({ length: 10 }, (_, i) => String(i + 1).padStart(2, '0'));
+      const PAGE_SIZE = 15;
+      const state = { records: [], page: 'loading', loadingPage: 1, selectedBay: 'A', selectedBlock: '01', loadingFilter: 'all', pendingRows: null, pendingFile: '', sharedSnapshot: false, photoObjectUrl: null, ocrRunning: false };
+      let tesseractLoadPromise = null;
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+      const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const norm = value => String(value ?? '').trim().toLocaleLowerCase().replace(/[\s_\-./()]+/g, '');
+      function combineConsignees(first, second) {
+        const values = [...String(first || '').split(';'), ...String(second || '').split(';')].map(v => v.trim()).filter(Boolean);
+        const seen = new Set(); return values.filter(v => { const key = norm(v); if (!key || seen.has(key)) return false; seen.add(key); return true; }).join('; ');
+      }
+      const icon = (name) => ({
+        upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4.5 14.5v4A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5v-4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v12m0 0 4.5-4.5M12 16l-4.5-4.5M4.5 17.5v2A1.5 1.5 0 0 0 6 21h12a1.5 1.5 0 0 0 1.5-1.5v-2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="2.4"/><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="19" r="2.4"/><path d="m8.1 10.8 7.8-4.5M8.1 13.2l7.8 4.5" stroke-linecap="round"/></svg>',
+        van: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h12.5l2.5 4h3v6h-2.5m-13 0H3zM6 17a2 2 0 1 0 4 0m7 0a2 2 0 1 0 4 0M3 10.5h13m-9-3.5v3.5m4-3.5v3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.2"/></svg>',
+        clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2" stroke-linecap="round"/></svg>',
+        bays: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="8" height="7" rx="1"/><rect x="13" y="4" width="8" height="7" rx="1"/><rect x="3" y="13" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/></svg>'
+      }[name] || '');
+      function loadSaved() {
+        try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); if (saved && Array.isArray(saved.records)) state.records = cleanRecords(saved.records); } catch { state.records = []; }
+      }
+      function cleanRecords(records) {
+        const seen = new Map();
+        for (const raw of records) {
+          const van = String(raw.van ?? raw.vanNumber ?? '').trim();
+          if (!van) continue;
+          const key = norm(van);
+          const item = { id: key, van, consignee: String(raw.consignee ?? '').trim(), bay: BAY_NAMES.includes(raw.bay) ? raw.bay : '', block: raw.bay && BLOCKS.includes(String(raw.block).padStart(2, '0')) ? String(raw.block).padStart(2, '0') : '' };
+          const old = seen.get(key);
+          if (old) { old.consignee = combineConsignees(old.consignee, item.consignee); if (item.bay && item.block) { old.bay = item.bay; old.block = item.block; } }
+          else seen.set(key, item);
+        }
+        return Array.from(seen.values());
+      }
+      function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ records: state.records, updated: new Date().toISOString() })); } catch { toast('This list is too large for browser storage. Export a backup to keep it safe.'); } }
+      function assignedRecords() { return state.records.filter(r => r.bay && r.block); }
+      function formatLocation(record) { return record.bay && record.block ? `Bay ${record.bay} · Block ${record.block}` : ''; }
+      function blockCount(bay, block, exceptId = '') { return state.records.filter(r => r.id !== exceptId && r.bay === bay && r.block === block).length; }
+      function firstOpenBlock(bay, exceptId = '') { return BLOCKS.find(b => blockCount(bay, b, exceptId) < 10) || ''; }
+      function render() { renderLoading(); renderYard(); renderShift(); updateNav(); }
+      function updateNav() {
+        $$('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.page === state.page));
+        $('#loadingPage').classList.toggle('hidden', state.page !== 'loading');
+        $('#yardPage').classList.toggle('hidden', state.page !== 'yard');
+        $('#shiftPage').classList.toggle('hidden', state.page !== 'shift');
+        $('#crumbPage').textContent = state.page === 'loading' ? 'Loading list' : state.page === 'yard' ? 'Yard view' : 'Quick shift';
+      }
+      function renderLoading() {
+        const total = state.records.length, placed = assignedRecords().length, pending = total - placed;
+        const visible = state.records.filter(r => state.loadingFilter === 'all' || (state.loadingFilter === 'placed' ? !!r.bay : !r.bay));
+        const pages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE)); state.loadingPage = Math.min(state.loadingPage, pages);
+        const start = (state.loadingPage - 1) * PAGE_SIZE;
+        const rows = visible.slice(start, start + PAGE_SIZE);
+        const tableBody = rows.length ? rows.map(r => `<tr>
+          <td class="van-cell">${escapeHtml(r.van)}</td><td class="consignee" title="${escapeHtml(r.consignee)}">${escapeHtml(r.consignee || '—')}</td>
+          <td><span class="loc-pill ${r.bay ? 'assigned' : 'pending'}">${r.bay ? escapeHtml(formatLocation(r)) : 'Not assigned'}</span></td>
+          <td><div class="assign-cell"><select class="assign-select" aria-label="Assign ${escapeHtml(r.van)} to a bay" data-field="bay" data-id="${escapeHtml(r.id)}"><option value="">Choose bay</option>${BAY_NAMES.map(b => `<option value="${b}" ${r.bay === b ? 'selected' : ''}>Bay ${b}</option>`).join('')}</select><select class="assign-select block" aria-label="Choose a block" data-field="block" data-id="${escapeHtml(r.id)}" ${r.bay ? '' : 'disabled'}><option value="">Block</option>${BLOCKS.map(b => `<option value="${b}" ${r.block === b ? 'selected' : ''}>${b}</option>`).join('')}</select></div></td>
+          <td><button class="btn text small danger remove-record" data-id="${escapeHtml(r.id)}" title="Remove van">Remove</button></td></tr>`).join('') : '';
+        $('#loadingPage').innerHTML = `
+          <div class="page-head"><div><div class="eyebrow">Inventory intake</div><h1>Loading list</h1><p class="page-desc">Import the loading guide, then assign each van to its yard location.</p></div><div class="head-actions"><button class="btn" id="exportBtn">${icon('download')}Backup</button><button class="btn primary" id="shareBtn">${icon('share')}Share snapshot</button></div></div>
+          <div class="stats">
+            <div class="stat"><div class="stat-label">Vans in list <span class="stat-icon">${icon('van')}</span></div><div class="stat-value">${total.toLocaleString()}</div><div class="stat-foot">Imported from loading guides</div></div>
+            <div class="stat"><div class="stat-label">Assigned <span class="stat-icon">${icon('pin')}</span></div><div class="stat-value">${placed.toLocaleString()}</div><div class="stat-foot">With a bay and block location</div></div>
+            <div class="stat"><div class="stat-label">Awaiting location <span class="stat-icon">${icon('clock')}</span></div><div class="stat-value">${pending.toLocaleString()}</div><div class="stat-foot">Ready to be placed in the yard</div></div>
+            <div class="stat"><div class="stat-label">Yard capacity <span class="stat-icon">${icon('bays')}</span></div><div class="stat-value">500</div><div class="stat-foot">5 bays · 10 blocks per bay</div></div>
+          </div>
+          <div class="guide-note">Locations are tracked by bay and block. The yard view includes a reference diagram for the four stack rows (3 / 3 / 3 / 4 high).</div>
+          <div class="panel">
+            <div class="panel-head"><div><div class="panel-title">Loading guide data</div><div class="panel-sub">Van number and consignee are read from your file.</div></div><span class="panel-meta">${total.toLocaleString()} ${total === 1 ? 'van' : 'vans'}</span></div>
+            <div class="dropzone" id="dropzone"><div class="drop-icon">${icon('upload')}</div><div class="drop-copy"><strong>Drop a loading guide here</strong><span>Excel / CSV, or select several guide photos · JPG, PNG, WEBP</span></div><span class="drop-hint">or</span><button class="btn small" id="browseBtn">Browse files</button></div>
+            <div class="table-tools"><div class="table-info">${visible.length ? `Showing ${start + 1}–${Math.min(start + PAGE_SIZE, visible.length)} of ${visible.length}` : 'No rows to show'}</div><div class="filter-line"><span class="table-info">Show</span><select id="loadingFilter" class="filter-select"><option value="all" ${state.loadingFilter === 'all' ? 'selected' : ''}>All vans</option><option value="pending" ${state.loadingFilter === 'pending' ? 'selected' : ''}>Awaiting location</option><option value="placed" ${state.loadingFilter === 'placed' ? 'selected' : ''}>Assigned</option></select></div></div>
+            ${total ? `<div class="table-scroll"><table><thead><tr><th>Van number</th><th>Consignee</th><th>Current location</th><th>Assign bay / block</th><th></th></tr></thead><tbody>${tableBody || '<tr><td colspan="5"><div class="empty-state"><strong>No matching vans</strong><p>Change the list filter to see other records.</p></div></td></tr>'}</tbody></table></div>
+              <div class="table-tools"><div class="table-info">Changes save automatically in this browser.</div><div class="pagination"><button class="page-btn" id="prevPage" ${state.loadingPage <= 1 ? 'disabled' : ''}>‹</button><span class="page-num">${state.loadingPage} / ${pages}</span><button class="page-btn" id="nextPage" ${state.loadingPage >= pages ? 'disabled' : ''}>›</button></div></div>` : `<div class="empty-state"><div class="empty-illustration">${icon('van')}</div><strong>No loading guide uploaded</strong><p>Upload a spreadsheet or CSV to start locating vans.</p><button class="btn small" id="emptyBrowse">${icon('upload')}Choose a file</button></div>`}
+          </div>`;
+        bindLoadingEvents();
+      }
+      function bindLoadingEvents() {
+        $('#browseBtn')?.addEventListener('click', () => $('#fileInput').click());
+        $('#emptyBrowse')?.addEventListener('click', () => $('#fileInput').click());
+        $('#exportBtn')?.addEventListener('click', exportBackup);
+        $('#shareBtn')?.addEventListener('click', shareSnapshot);
+        $('#loadingFilter')?.addEventListener('change', e => { state.loadingFilter = e.target.value; state.loadingPage = 1; renderLoading(); });
+        $('#prevPage')?.addEventListener('click', () => { state.loadingPage--; renderLoading(); });
+        $('#nextPage')?.addEventListener('click', () => { state.loadingPage++; renderLoading(); });
+        $$('.assign-select').forEach(sel => sel.addEventListener('change', e => {
+          const rec = state.records.find(r => r.id === e.target.dataset.id); if (!rec) return;
+          if (e.target.dataset.field === 'bay') {
+            const newBay = e.target.value;
+            if (!newBay) { rec.bay = ''; rec.block = ''; }
+            else {
+              const nextBlock = rec.block && blockCount(newBay, rec.block, rec.id) < 10 ? rec.block : firstOpenBlock(newBay, rec.id);
+              if (!nextBlock) { toast(`Bay ${newBay} is full across all blocks`); renderLoading(); return; }
+              rec.bay = newBay; rec.block = nextBlock;
+            }
+          } else {
+            const nextBlock = e.target.value;
+            if (nextBlock && blockCount(rec.bay, nextBlock, rec.id) >= 10) { toast(`Bay ${rec.bay}, Block ${nextBlock} has reached its 10-van target`); renderLoading(); return; }
+            rec.block = nextBlock;
+          }
+          save(); render();
+        }));
+        $$('.remove-record').forEach(btn => btn.addEventListener('click', () => { state.records = state.records.filter(r => r.id !== btn.dataset.id); save(); render(); toast('Van removed from this list'); }));
+        const dz = $('#dropzone');
+        if (dz) { dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); }); dz.addEventListener('dragleave', () => dz.classList.remove('dragover')); dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); handleSelectedFiles(e.dataTransfer.files); }); }
+      }
+      function bayItems(bay, block) { return state.records.filter(r => r.bay === bay && (!block || r.block === block)); }
+      function renderYard() {
+        const bayCounts = Object.fromEntries(BAY_NAMES.map(b => [b, bayItems(b).length]));
+        const blocksHtml = BLOCKS.map(block => {
+          const count = bayItems(state.selectedBay, block).length;
+          return `<button class="block-card ${state.selectedBlock === block ? 'selected' : ''}" data-block="${block}"><div class="block-name">Block ${block}</div><div class="block-card-foot"><span>${count ? 'In use' : 'Empty'}</span><strong>${count} / 10</strong></div><div class="block-bar"><span style="width:${Math.min(100, count * 10)}%"></span></div></button>`;
+        }).join('');
+        const selectedItems = bayItems(state.selectedBay, state.selectedBlock).sort((a,b) => a.van.localeCompare(b.van, undefined, { numeric: true }));
+        const inventory = selectedItems.length ? selectedItems.map(r => `<div class="inventory-row"><div class="inventory-primary"><strong>${escapeHtml(r.van)}</strong><span title="${escapeHtml(r.consignee)}">${escapeHtml(r.consignee || 'No consignee listed')}</span></div><div class="move-control"><span class="move-label">Move to</span><select class="assign-select block move-block" data-id="${escapeHtml(r.id)}" aria-label="Move ${escapeHtml(r.van)} to another block">${BLOCKS.map(b => `<option value="${b}" ${r.block === b ? 'selected' : ''}>${b}</option>`).join('')}</select></div></div>`).join('') : `<div class="empty-state" style="padding:25px 10px"><strong>This block is empty</strong><p>Assign vans from the loading list to Bay ${state.selectedBay}, Block ${state.selectedBlock}.</p><button class="btn small open-loading">Go to loading list</button></div>`;
+        const stackLanes = [3,3,3,4].map((height,i) => `<div class="stack-lane"><div class="stack-pile">${Array.from({ length: height }, (_, j) => `<i class="container-box ${j === height - 1 && i === 3 ? '' : ''}" title="Reference stack position"></i>`).join('')}</div><div class="stack-label">Stack ${i + 1}</div><div class="stack-height">${height} high</div></div>`).join('');
+        $('#yardPage').innerHTML = `
+          <div class="page-head"><div><div class="eyebrow">Yard inventory</div><h1>Yard view</h1><p class="page-desc">Select a bay and block to review or move its vans.</p></div><div class="head-actions"><button class="btn" id="yardExport">${icon('download')}Backup</button><button class="btn primary" id="yardShare">${icon('share')}Share snapshot</button></div></div>
+          <div class="panel"><div class="panel-head"><div><div class="panel-title">Bay overview</div><div class="panel-sub">Choose a bay to view its ten blocks.</div></div><span class="panel-meta">${assignedRecords().length} vans placed</span></div><div class="bay-strip">${BAY_NAMES.map(b => `<button class="bay-card ${state.selectedBay === b ? 'selected' : ''}" data-bay="${b}"><div class="bay-card-top"><span class="bay-letter">${b}</span><span class="bay-tag">BAY</span></div><div class="bay-count">${bayCounts[b]} vans · 10 blocks</div><div class="meter"><div class="meter-fill" style="width:${Math.min(100, bayCounts[b] / 100 * 100)}%"></div></div></button>`).join('')}</div></div>
+          <div class="yard-lower"><div class="panel"><div class="panel-head"><div><div class="panel-title">Bay ${state.selectedBay} blocks</div><div class="panel-sub">Block occupancy is shown against a ten-van working target.</div></div><span class="panel-meta">${bayCounts[state.selectedBay]} vans total</span></div><div class="blocks">${blocksHtml}</div></div>
+            <div class="yard-side"><div class="panel"><div class="panel-head"><div class="inventory-head"><span class="panel-title">Block inventory</span><span class="block-badge">Bay ${state.selectedBay} · ${state.selectedBlock}</span></div><span class="panel-meta">${selectedItems.length} vans</span></div><div class="inventory-list">${inventory}</div></div>
+            <div class="panel"><div class="panel-head"><div><div class="panel-title">Stack arrangement reference</div><div class="panel-sub">One block · viewed from the front</div></div></div><div class="stack-plan"><div class="stack-caption"><span>FRONT</span><span>REAR</span></div><div class="stack-bays">${stackLanes}</div></div><div class="yard-note">Reference only: three stacks are 3 high and the rear stack is 4 high. Van locations in this app are tracked by block.</div></div></div>
+          </div>`;
+        $$('.bay-card').forEach(btn => btn.addEventListener('click', () => { state.selectedBay = btn.dataset.bay; state.selectedBlock = '01'; renderYard(); }));
+        $$('.block-card').forEach(btn => btn.addEventListener('click', () => { state.selectedBlock = btn.dataset.block; renderYard(); }));
+        $$('.move-block').forEach(sel => sel.addEventListener('change', e => { const rec = state.records.find(r => r.id === e.target.dataset.id); if (!rec) return; if (blockCount(rec.bay, e.target.value, rec.id) >= 10) { toast(`Block ${e.target.value} has reached its 10-van target`); renderYard(); return; } rec.block = e.target.value; save(); render(); toast(`${rec.van} moved to Block ${rec.block}`); }));
+        $$('.open-loading').forEach(btn => btn.addEventListener('click', () => setPage('loading')));
+        $('#yardExport')?.addEventListener('click', exportBackup); $('#yardShare')?.addEventListener('click', shareSnapshot);
+      }
+      function renderShift() {
+        const bay = state.selectedBay;
+        const total = bayItems(bay).length;
+        const touchLayout = window.matchMedia('(max-width: 760px)').matches;
+        const shiftHelp = touchLayout ? 'Tap the arrows to move a van one block at a time.' : 'Drag a van to a block, or use its left/right arrows.';
+        const shiftDetail = touchLayout ? 'Use the left and right buttons on each van to change blocks.' : 'Arrows move one adjacent block at a time. Drag and drop can move directly to another block.';
+        const columns = BLOCKS.map((block,index) => {
+          const records = bayItems(bay, block).sort((a,b) => a.van.localeCompare(b.van, undefined, { numeric: true }));
+          const vans = records.length ? records.map(record => {
+            const leftBlock = BLOCKS[index - 1] || '';
+            const rightBlock = BLOCKS[index + 1] || '';
+            const leftDisabled = !leftBlock || blockCount(bay, leftBlock, record.id) >= 10;
+            const rightDisabled = !rightBlock || blockCount(bay, rightBlock, record.id) >= 10;
+            return `<div class="shift-van" draggable="true" data-shift-id="${escapeHtml(record.id)}" title="Drag this van to another block"><span class="shift-van-code">${escapeHtml(record.van)}</span><span class="shift-van-consignee" title="${escapeHtml(record.consignee)}">${escapeHtml(record.consignee || 'No consignee listed')}</span><div class="shift-van-actions"><button class="shift-nudge shift-left" data-id="${escapeHtml(record.id)}" data-to="${leftBlock}" aria-label="Move ${escapeHtml(record.van)} left to Block ${leftBlock || 'none'}" ${leftDisabled ? 'disabled' : ''}>← ${leftBlock}</button><button class="shift-nudge shift-right" data-id="${escapeHtml(record.id)}" data-to="${rightBlock}" aria-label="Move ${escapeHtml(record.van)} right to Block ${rightBlock || 'none'}" ${rightDisabled ? 'disabled' : ''}>${rightBlock} →</button></div></div>`;
+          }).join('') : '<div class="shift-empty">Drop van here</div>';
+          return `<div class="shift-block" data-shift-block="${block}"><div class="shift-block-head"><div class="shift-block-top"><span class="shift-block-name">Block ${block}</span><span class="shift-count ${records.length >= 10 ? 'full' : ''}">${records.length}/10</span></div><div class="shift-meter"><span style="width:${Math.min(100,records.length*10)}%"></span></div></div><div class="shift-vans">${vans}</div></div>`;
+        }).join('');
+        $('#shiftPage').innerHTML = `
+          <div class="page-head"><div><div class="eyebrow">Fast yard moves</div><h1>Quick shift</h1><p class="page-desc">Move vans sideways between block columns within the same bay.</p></div><div class="head-actions"><button class="btn" id="shiftExport">${icon('download')}Backup</button><button class="btn primary" id="shiftShare">${icon('share')}Share snapshot</button></div></div>
+          <div class="shift-toolbar"><div class="shift-bays">${BAY_NAMES.map(b => `<button class="shift-bay-btn ${bay === b ? 'active' : ''}" data-shift-bay="${b}">Bay ${b}</button>`).join('')}</div><div class="shift-toolbar-note">${shiftHelp} · ${total} vans in Bay ${bay}</div></div>
+          <div class="panel"><div class="panel-head"><div><div class="panel-title">Bay ${bay} · side-by-side blocks</div><div class="panel-sub">${shiftDetail}</div></div><div class="shift-scroll-actions"><button class="shift-scroll-btn" id="scrollBlocksLeft" aria-label="Scroll blocks left">‹</button><button class="shift-scroll-btn" id="scrollBlocksRight" aria-label="Scroll blocks right">›</button></div></div><div class="shift-scroller" id="shiftColumnsScroller" tabindex="0"><div class="shift-columns">${columns}</div></div><div class="shift-footer">Ten-van working target per block. Moves that would exceed the target are disabled.${touchLayout ? ' Swipe across the columns to see all blocks.' : ' Drop a van on any block column to change its location.'}</div></div>`;
+        $$('[data-shift-bay]').forEach(button => button.addEventListener('click', () => { state.selectedBay = button.dataset.shiftBay; state.selectedBlock = '01'; renderShift(); }));
+        $$('.shift-left, .shift-right').forEach(button => button.addEventListener('click', () => shiftVan(button.dataset.id, button.dataset.to)));
+        $$('.shift-van[draggable="true"]').forEach(card => {
+          card.addEventListener('dragstart', event => { draggedVanId = card.dataset.shiftId; event.dataTransfer.setData('text/plain', draggedVanId); event.dataTransfer.effectAllowed = 'move'; card.classList.add('dragging'); });
+          card.addEventListener('dragend', () => { draggedVanId = ''; card.classList.remove('dragging'); $$('.shift-block').forEach(block => block.classList.remove('drag-over')); });
+        });
+        $$('.shift-block').forEach(block => {
+          block.addEventListener('dragover', event => { event.preventDefault(); event.dataTransfer.dropEffect = 'move'; block.classList.add('drag-over'); });
+          block.addEventListener('dragleave', event => { if (!block.contains(event.relatedTarget)) block.classList.remove('drag-over'); });
+          block.addEventListener('drop', event => { event.preventDefault(); block.classList.remove('drag-over'); const id = event.dataTransfer.getData('text/plain') || draggedVanId; if (id) shiftVan(id, block.dataset.shiftBlock); });
+        });
+        $('#scrollBlocksLeft')?.addEventListener('click', () => $('#shiftColumnsScroller').scrollBy({ left: -Math.round($('#shiftColumnsScroller').clientWidth * .8), behavior: 'smooth' }));
+        $('#scrollBlocksRight')?.addEventListener('click', () => $('#shiftColumnsScroller').scrollBy({ left: Math.round($('#shiftColumnsScroller').clientWidth * .8), behavior: 'smooth' }));
+        $('#shiftExport')?.addEventListener('click', exportBackup); $('#shiftShare')?.addEventListener('click', shareSnapshot);
+      }
+      function shiftVan(id, destination) {
+        const record = state.records.find(r => r.id === id);
+        if (!record || !BLOCKS.includes(destination) || record.block === destination) return;
+        if (blockCount(record.bay, destination, record.id) >= 10) { toast(`Bay ${record.bay}, Block ${destination} has reached its 10-van target`); renderShift(); return; }
+        record.block = destination; state.selectedBlock = destination; save(); render(); toast(`${record.van} moved to Bay ${record.bay}, Block ${destination}`);
+      }
+      let draggedVanId = '';
+      function setPage(page) { state.page = page; updateNav(); if (page === 'yard') renderYard(); else if (page === 'shift') renderShift(); else renderLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      function toast(message) { const el = $('#toast'); el.textContent = message; el.classList.add('show'); clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.remove('show'), 2600); }
+      function exportBackup() {
+        const blob = new Blob([JSON.stringify({ app: 'Container Van Locator', version: 1, exportedAt: new Date().toISOString(), records: state.records }, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `container-van-locator-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href); toast('Backup downloaded');
+      }
+      function bytesToBase64Url(bytes) { let binary = ''; for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000)); return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/,''); }
+      async function shareSnapshot() {
+        if (!state.records.length) { toast('Upload a loading guide before sharing a snapshot'); return; }
+        let url = '';
+        try {
+          const data = new TextEncoder().encode(JSON.stringify({ v: 1, records: state.records }));
+          let bytes = data;
+          if ('CompressionStream' in window) { const stream = new Blob([data]).stream().pipeThrough(new CompressionStream('gzip')); bytes = new Uint8Array(await new Response(stream).arrayBuffer()); }
+          url = `${location.href.split('#')[0]}#share=${bytesToBase64Url(bytes)}`;
+          if (url.length > 100000) { toast('This list is too large for a link. Download a backup instead.'); return; }
+          if (navigator.share) {
+            try { await navigator.share({ title: 'Container Van Locator', text: 'View this yard snapshot', url }); toast('Share sheet opened'); return; }
+            catch (error) { if (error?.name === 'AbortError') return; }
+          }
+          await navigator.clipboard.writeText(url); toast('Share link copied to clipboard');
+        } catch { if (url) openShareFallback(url); else toast('Could not create a share link in this browser'); }
+      }
+      function openShareFallback(url) {
+        modal(`<div class="modal-head"><div><h2>Share yard snapshot</h2><p>Copy this link and send it to your team.</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="field"><label for="shareLink">Share link</label><input id="shareLink" value="${escapeHtml(url)}" readonly></div><div class="modal-actions"><button class="btn primary" id="copyLink">Copy link</button></div></div>`);
+        $('#copyLink').addEventListener('click', async () => { $('#shareLink').select(); try { await navigator.clipboard.writeText(url); } catch { document.execCommand('copy'); } toast('Link copied'); closeModal(); });
+      }
+      async function decodeShared() {
+        const hash = location.hash.slice(1); const match = hash.match(/(?:^|&)share=([^&]+)/); if (!match) return;
+        try {
+          const s = match[1].replace(/-/g, '+').replace(/_/g, '/'); const binary = atob(s + '='.repeat((4 - s.length % 4) % 4)); const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+          let text;
+          if (bytes[0] === 0x1f && bytes[1] === 0x8b && 'DecompressionStream' in window) text = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+          else text = new TextDecoder().decode(bytes);
+          const parsed = JSON.parse(text); if (!Array.isArray(parsed.records)) throw new Error('Invalid snapshot');
+          state.records = cleanRecords(parsed.records); state.sharedSnapshot = true;
+          $('#sharedCount').textContent = `${state.records.length} vans · this snapshot is ready to view.`; $('#sharedBanner').classList.add('show');
+        } catch { toast('Could not read this shared snapshot link'); }
+      }
+      function modal(html, wide = false) { const el = $('#modalBackdrop'); el.innerHTML = `<div class="modal ${wide ? 'wide' : ''}">${html}</div>`; el.classList.add('open'); $$('.close-modal', el).forEach(b => b.addEventListener('click', closeModal)); el.addEventListener('click', e => { if (e.target === el) closeModal(); }, { once: true }); }
+      function closeModal() { if (state.ocrRunning) return; $('#modalBackdrop').classList.remove('open'); if (state.photoObjectUrl) { URL.revokeObjectURL(state.photoObjectUrl); state.photoObjectUrl = null; } }
+      function parseDelimited(text, delimiter) {
+        const rows = []; let row = [], cell = '', quoted = false;
+        for (let i=0;i<text.length;i++) { const ch=text[i]; if (quoted) { if (ch==='"' && text[i+1]==='"') { cell+='"'; i++; } else if (ch==='"') quoted=false; else cell+=ch; }
+          else if (ch==='"') quoted=true; else if (ch===delimiter) { row.push(cell); cell=''; } else if (ch==='\n') { row.push(cell.replace(/\r$/,'')); rows.push(row); row=[]; cell=''; } else cell+=ch; }
+        if (cell.length || row.length) { row.push(cell.replace(/\r$/,'')); rows.push(row); }
+        return rows.filter(r => r.some(c => String(c).trim()));
+      }
+      function isPhotoFile(file) { return /\.(png|jpe?g|webp)$/i.test(file.name); }
+      function handleSelectedFiles(fileList) {
+        const files = Array.from(fileList || []); if (!files.length) return;
+        if (files.every(isPhotoFile)) { importPhotos(files); return; }
+        if (files.length === 1) { importFile(files[0]); return; }
+        toast('Select one spreadsheet or a batch of loading guide photos'); $('#fileInput').value = '';
+      }
+      async function importFile(file) {
+        const ext = file.name.toLowerCase().split('.').pop(); let rows;
+        try {
+          if (ext === 'json') {
+            const backup = JSON.parse(await file.text());
+            if (!backup || !Array.isArray(backup.records)) { toast('This JSON file is not a Container Van Locator backup'); return; }
+            const imported = cleanRecords(backup.records); if (!imported.length) { toast('No van records found in this backup'); return; }
+            const byId = new Map(state.records.map(r => [r.id, r])); let added = 0, updated = 0;
+            for (const item of imported) { const prior = byId.get(item.id); if (prior) { prior.consignee = combineConsignees(prior.consignee, item.consignee); if (item.bay && item.block) { prior.bay = item.bay; prior.block = item.block; } updated++; } else { byId.set(item.id, item); added++; } }
+            state.records = Array.from(byId.values()); state.loadingPage = 1; state.loadingFilter = 'all'; save(); render(); $('#fileInput').value = ''; toast(`Backup restored · ${added} added${updated ? ` · ${updated} updated` : ''}`); return;
+          }
+          if (isPhotoFile(file)) { await importPhotos([file]); return; }
+          if (ext === 'csv' || ext === 'tsv') rows = parseDelimited(await file.text(), ext === 'tsv' ? '\t' : ',');
+          else {
+            if (!window.XLSX) { toast('Excel reader did not load. Use a CSV export or reconnect to the internet.'); return; }
+            const wb = XLSX.read(await file.arrayBuffer(), { type: 'array', cellDates: false });
+            const all = wb.SheetNames.map(name => ({ name, rows: XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: '', raw: false }) }));
+            const firstDetected = all.map(s => ({ ...s, map: detectColumns(s.rows) })).find(s => s.map);
+            if (firstDetected) rows = firstDetected.rows;
+            else rows = all[0]?.rows || [];
+            state.pendingWorkbook = all;
+          }
+          state.pendingFile = file.name; state.pendingRows = rows;
+          const mapping = detectColumns(rows);
+          if (mapping) completeImport(rows, mapping.van, mapping.consignee, mapping.headerRow, file.name);
+          else showColumnPicker(rows, file.name);
+        } catch (err) { console.error(err); toast('Could not read this file. Check that it is a valid spreadsheet or CSV.'); }
+      }
+      function loadTesseract() {
+        if (window.Tesseract) return Promise.resolve(window.Tesseract);
+        if (tesseractLoadPromise) return tesseractLoadPromise;
+        tesseractLoadPromise = new Promise((resolve, reject) => {
+          const script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'; script.async = true;
+          script.onload = () => window.Tesseract ? resolve(window.Tesseract) : reject(new Error('OCR library did not start'));
+          script.onerror = () => { tesseractLoadPromise = null; reject(new Error('Could not load the OCR library')); };
+          document.head.appendChild(script);
+        });
+        return tesseractLoadPromise;
+      }
+      function updateOcrProgress(message, progress) {
+        const status = $('#ocrStatus'); if (status) status.textContent = message;
+        const fill = $('#ocrProgressFill'); if (fill) fill.style.width = `${Math.round(Math.max(0, Math.min(1, progress || 0)) * 100)}%`;
+      }
+      function orderPhotoFiles(files) {
+        const tagged = files.map((file,index) => ({ file, index, stamp: file.name.match(/\d{8}[_-]?\d{6}/)?.[0] || '' }));
+        const allStamped = tagged.length > 1 && tagged.every(item => item.stamp);
+        if (allStamped) tagged.sort((a,b) => a.stamp.localeCompare(b.stamp));
+        return tagged.map(item => item.file);
+      }
+      async function importPhotos(files) {
+        const ordered = orderPhotoFiles(files); let currentPage = 0;
+        state.ocrRunning = true;
+        modal(`<div class="modal-head"><div><h2>Reading ${ordered.length === 1 ? 'loading guide photo' : `${ordered.length} loading guide photos`}</h2><p>Using the Container No. and Consignee Name columns from this report layout.</p></div></div><div class="modal-body"><div id="ocrStatus" class="modal-info">Loading the free OCR reader…</div><div class="ocr-progress"><span id="ocrProgressFill"></span></div><p class="modal-info" style="margin-top:10px">${ordered.length > 1 ? 'Photos with timestamp names are processed in time order. ' : ''}A clear, straight-on photo gives the best result.</p></div>`);
+        let worker;
+        try {
+          const Tesseract = await loadTesseract();
+          worker = await Tesseract.createWorker('eng', 1, { logger: message => updateOcrProgress(`Reading photo ${Math.min(currentPage + 1, ordered.length)} of ${ordered.length}…`, (currentPage + (message.progress || 0)) / ordered.length) });
+          const extracted = [];
+          for (currentPage = 0; currentPage < ordered.length; currentPage++) {
+            updateOcrProgress(`Reading photo ${currentPage + 1} of ${ordered.length}…`, currentPage / ordered.length);
+            const result = await worker.recognize(ordered[currentPage], {}, { tsv: true });
+            extracted.push(...parsePhotoOcr(result.data || {}).items);
+          }
+          const grouped = groupPhotoItems(extracted);
+          if (!grouped.length) throw new Error('No container numbers could be recognized in the report column. Try a sharper, well-lit photo or use a spreadsheet/CSV file.');
+          showPhotoReview(grouped, ordered);
+        } catch (error) {
+          modal(`<div class="modal-head"><div><h2>Photo could not be read</h2><p>${ordered.length} ${ordered.length === 1 ? 'photo' : 'photos'} selected</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><p class="modal-info">${escapeHtml(error.message || 'The OCR reader could not process this image.')}</p><div class="modal-actions"><button class="btn close-modal">Close</button></div></div>`);
+        } finally { if (worker) { try { await worker.terminate(); } catch {} } state.ocrRunning = false; $('#fileInput').value = ''; }
+      }
+      function parsePhotoOcr(data) {
+        const raw = String(data.tsv || ''); const lines = [];
+        const words = raw.split(/\r?\n/).slice(1).map(line => {
+          const c = line.split('\t'); if (c.length < 12 || c[0] !== '5') return null;
+          const text = String(c[11] || '').trim(); if (!text) return null;
+          return { text, left: Number(c[6]) || 0, top: Number(c[7]) || 0, width: Number(c[8]) || 0, height: Number(c[9]) || 0, confidence: Number(c[10]) || 0 };
+        }).filter(w => w && w.confidence >= 8);
+        if (!words.length) return { items: [] };
+        const heights = words.map(w => w.height).filter(h => h > 0).sort((a,b) => a-b);
+        const tolerance = Math.max(6, (heights[Math.floor(heights.length / 2)] || 12) * .7);
+        words.sort((a,b) => (a.top + a.height / 2) - (b.top + b.height / 2) || a.left - b.left);
+        for (const word of words) {
+          const cy = word.top + word.height / 2; let line = null;
+          for (let i = lines.length - 1; i >= 0; i--) { if (Math.abs(lines[i].cy - cy) <= tolerance) { line = lines[i]; break; } }
+          if (!line) { line = { cy, words: [] }; lines.push(line); }
+          line.words.push(word); line.cy = line.words.reduce((sum,w) => sum + w.top + w.height / 2, 0) / line.words.length;
+        }
+        lines.sort((a,b) => a.cy - b.cy); lines.forEach(line => line.words.sort((a,b) => a.left - b.left));
+        const pageWidth = Number(data.width) || Math.max(...words.map(w => w.left + w.width));
+        const containerEnd = pageWidth * .177, consigneeStart = pageWidth * .36, consigneeEnd = pageWidth * .52;
+        const center = w => w.left + w.width / 2;
+        const items = []; const medianHeight = heights[Math.floor(heights.length / 2)] || 12; const continuationGap = Math.max(18, medianHeight * 1.7);
+        for (const line of lines) {
+          const vanWords = line.words.filter(w => center(w) <= containerEnd);
+          const compact = vanWords.map(w => w.text).join('').toUpperCase().replace(/[^A-Z0-9]/g, '');
+          const match = compact.match(/([A-Z0-9]{4})([0-9OQ]{7})/);
+          const consigneeWords = line.words.filter(w => center(w) >= consigneeStart && center(w) < consigneeEnd && !(center(w) > consigneeStart + (consigneeEnd - consigneeStart) * .66 && w.confidence < 58 && /^[A-Z0-9]{1,4}$/i.test(w.text)));
+          const consignee = consigneeWords.map(w => w.text).join(' ').trim();
+          if (match) {
+            const prefix = match[1].replace(/0/g, 'O').replace(/1/g, 'I'); const digits = match[2].replace(/[OQ]/g, '0');
+            items.push({ container: `${prefix} ${digits.slice(0,6)}-${digits[6]}`, consignee, y: line.cy });
+          } else if (consignee && items.length && line.cy - items[items.length - 1].lastY <= continuationGap) {
+            const last = items[items.length - 1]; last.consignee = `${last.consignee} ${consignee}`.trim(); last.lastY = line.cy;
+          }
+        }
+        return { items: items.map(({container,consignee}) => ({container,consignee})) };
+      }
+      function groupPhotoItems(items) {
+        const grouped = new Map();
+        for (const item of items) {
+          const key = norm(item.container); if (!key) continue;
+          const prior = grouped.get(key);
+          if (prior) prior.consignee = combineConsignees(prior.consignee, item.consignee);
+          else grouped.set(key, { container: item.container, consignee: item.consignee || '' });
+        }
+        return Array.from(grouped.values());
+      }
+      function showPhotoReview(items, files) {
+        if (state.photoObjectUrl) URL.revokeObjectURL(state.photoObjectUrl);
+        state.photoObjectUrl = URL.createObjectURL(files[0]);
+        const rows = items.map((item,i) => `<tr><td class="row-num">${i + 1}</td><td><input class="photo-container" aria-label="Container number for row ${i + 1}" value="${escapeHtml(item.container)}"></td><td><input class="photo-consignee" aria-label="Consignee for row ${i + 1}" value="${escapeHtml(item.consignee)}"></td></tr>`).join('');
+        const sourceNames = files.map(f => f.name).join(', ');
+        modal(`<div class="modal-head"><div><h2>Review extracted rows</h2><p>${items.length} unique containers from ${files.length} ${files.length === 1 ? 'photo' : 'photos'}</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="photo-review-top"><img src="${state.photoObjectUrl}" alt="Uploaded loading guide photo"><span>Extracted from the <b>Container No.</b> and <b>Consignee Name</b> columns. Repeated containers are grouped, with multiple consignees separated by semicolons. Check each row before downloading or importing.</span></div><div class="photo-review-list"><table class="photo-table"><thead><tr><th>#</th><th>Container</th><th>Consignee</th></tr></thead><tbody>${rows}</tbody></table></div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button id="downloadPhotoCsv" class="btn">Download CSV</button><button id="commitPhotoImport" class="btn primary">Add to locator</button></div><div class="modal-info" style="margin-top:10px">Source pages: ${escapeHtml(sourceNames)}</div></div>`, true);
+        $('#downloadPhotoCsv').addEventListener('click', () => {
+          const current = readPhotoReviewRows(); downloadGuideCsv(current); toast(`${current.length} rows exported as Container,Consignee CSV`);
+        });
+        $('#commitPhotoImport').addEventListener('click', () => {
+          const current = readPhotoReviewRows();
+          mergeGuideItems(current.map(item => ({ van: item.container, consignee: item.consignee })), files.length === 1 ? files[0].name : `${files.length} guide photos`);
+        });
+      }
+      function readPhotoReviewRows() {
+        const containers = $$('.photo-container'), consignees = $$('.photo-consignee');
+        return containers.map((input,i) => ({ container: input.value.trim(), consignee: consignees[i].value.trim() })).filter(item => item.container);
+      }
+      function downloadGuideCsv(items) {
+        const cell = value => { const text = String(value ?? ''); return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text; };
+        const csv = ['Container,Consignee', ...items.map(item => `${cell(item.container)},${cell(item.consignee)}`)].join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `loading-guide-${new Date().toISOString().slice(0,10)}.csv`; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      }
+      function detectColumns(rows) {
+        const vanNames = ['vannumber','vanno','vanno.','containernumber','containerno','containerno.','containerid','container','van'];
+        const consigneeNames = ['consignee','consigneename','customer','receiver','shipper'];
+        for (let i=0;i<Math.min(rows.length,30);i++) {
+          const vals = (rows[i] || []).map(norm); let van = -1, consignee = -1;
+          vals.forEach((v,j) => { if (van < 0 && vanNames.includes(v)) van = j; if (consignee < 0 && consigneeNames.includes(v)) consignee = j; });
+          if (van >= 0 && consignee >= 0) return { van, consignee, headerRow: i };
+        }
+        return null;
+      }
+      function showColumnPicker(rows, fileName) {
+        const previewRow = rows[Math.min(rows.length - 1, 0)] || [];
+        const opts = previewRow.map((v,i) => `<option value="${i}">${escapeHtml(String(v || `Column ${i + 1}`).slice(0,60))}</option>`).join('');
+        const guessVan = previewRow.findIndex(v => /van|container/i.test(v)); const guessCons = previewRow.findIndex(v => /consignee|customer|receiver/i.test(v));
+        modal(`<div class="modal-head"><div><h2>Choose loading guide columns</h2><p>${escapeHtml(fileName)} · ${rows.length} rows detected</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><p class="modal-info">We couldn’t recognize both headers automatically. Choose the row containing the column names, then map the two fields.</p><div class="field"><label for="headerRow">Header row</label><input type="number" min="1" value="1" id="headerRow"></div><div class="field"><label for="vanColumn">Van number column</label><select id="vanColumn">${opts}</select></div><div class="field"><label for="consigneeColumn">Consignee column</label><select id="consigneeColumn">${opts}</select></div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button id="confirmImport" class="btn primary">Import rows</button></div></div>`);
+        if (guessVan >= 0) $('#vanColumn').value = String(guessVan); if (guessCons >= 0 && guessCons !== guessVan) $('#consigneeColumn').value = String(guessCons);
+        $('#confirmImport').addEventListener('click', () => { const headerRow = Math.max(1, Number($('#headerRow').value) || 1)-1; completeImport(rows, Number($('#vanColumn').value), Number($('#consigneeColumn').value), headerRow, fileName); closeModal(); });
+      }
+      function completeImport(rows, vanIndex, consigneeIndex, headerRow, fileName) {
+        const items = [];
+        for (let i = headerRow + 1; i < rows.length; i++) { const row = rows[i] || []; const van = String(row[vanIndex] ?? '').trim(); if (!van) continue; items.push({ van, consignee: String(row[consigneeIndex] ?? '').trim() }); }
+        mergeGuideItems(items, fileName);
+      }
+      function mergeGuideItems(items, fileName) {
+        if (!items.length) { toast('No van numbers found in the selected column'); return; }
+        const byId = new Map(state.records.map(r => [r.id, r])); let added = 0, updated = 0;
+        for (const item of items) { const id = norm(item.van); const prior = byId.get(id); if (prior) { prior.consignee = combineConsignees(prior.consignee, item.consignee); updated++; } else { byId.set(id, { id, van: item.van, consignee: item.consignee, bay: '', block: '' }); added++; } }
+        state.records = Array.from(byId.values()); state.loadingPage = 1; state.loadingFilter = 'all'; state.sharedSnapshot = false; save(); render(); closeModal(); $('#fileInput').value = '';
+        toast(`${added} added${updated ? ` · ${updated} updated` : ''} from ${fileName}`);
+      }
+      function showSearch(query) {
+        const results = $('#searchResults'); const q = norm(query);
+        if (q.length < 2) { results.classList.remove('open'); return; }
+        const matches = state.records.filter(r => norm(r.van).includes(q) || norm(r.consignee).includes(q)).slice(0,12);
+        results.innerHTML = `<div class="result-heading">${matches.length ? `Search results · ${matches.length}${state.records.filter(r => norm(r.van).includes(q) || norm(r.consignee).includes(q)).length > 12 ? '+' : ''}` : 'No matching vans'}</div>${matches.length ? matches.map(r => `<div class="result" data-id="${escapeHtml(r.id)}"><div><strong>${escapeHtml(r.van)}</strong><small>${escapeHtml(r.consignee || 'No consignee listed')}</small></div><span class="result-loc">${r.bay ? escapeHtml(formatLocation(r)) : 'Not assigned'}</span></div>`).join('') : '<div class="search-empty">Try another van number or consignee name.</div>'}`;
+        results.classList.add('open');
+        $$('.result', results).forEach(el => el.addEventListener('click', () => { const rec = state.records.find(r => r.id === el.dataset.id); if (rec?.bay) { state.selectedBay = rec.bay; state.selectedBlock = rec.block; setPage('yard'); } else setPage('loading'); $('#globalSearch').value = rec?.van || ''; results.classList.remove('open'); }));
+      }
+      $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => setPage(btn.dataset.page)));
+      $('#fileInput').addEventListener('change', e => handleSelectedFiles(e.target.files));
+      $('#globalSearch').addEventListener('input', e => showSearch(e.target.value));
+      $('#globalSearch').addEventListener('focus', e => showSearch(e.target.value));
+      document.addEventListener('click', e => { if (!e.target.closest('.search-wrap')) $('#searchResults').classList.remove('open'); });
+      document.addEventListener('keydown', e => { if (e.key === '/' && !/input|textarea|select/i.test(document.activeElement.tagName)) { e.preventDefault(); $('#globalSearch').focus(); } if (e.key === 'Escape') closeModal(); });
+      $('#saveShared').addEventListener('click', () => { save(); state.sharedSnapshot = false; $('#sharedBanner').classList.remove('show'); history.replaceState(null, '', location.href.split('#')[0]); toast('Shared snapshot saved on this device'); render(); });
+      $('#dismissShared').addEventListener('click', () => { state.sharedSnapshot = false; loadSaved(); $('#sharedBanner').classList.remove('show'); history.replaceState(null, '', location.href.split('#')[0]); render(); });
+      if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('./sw.js').catch(() => {});
+      loadSaved(); render(); decodeShared().then(() => { if (state.sharedSnapshot) { state.page = 'yard'; state.selectedBay = BAY_NAMES.find(b => bayItems(b).length) || 'A'; const firstBlock = BLOCKS.find(b => bayItems(state.selectedBay,b).length); state.selectedBlock = firstBlock || '01'; render(); } });
+    })();
+  </script>
+</body>
+</html>
