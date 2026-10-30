@@ -1,18 +1,24 @@
 # Container Van Locator
 
-A free, static yard locator for desktop, laptop, and Android phones.
+A free, static yard locator for desktop, laptop, Android phones, and tablets.
 
-## Use
+## Features
 
-Open the published site over HTTPS. Upload a loading guide as Excel (`.xlsx` or `.xls`), CSV, TSV, or report photos (`.jpg`, `.jpeg`, `.png`, or `.webp`). Spreadsheet imports read the van number and consignee columns. Photo imports target **Container No.** and **Consignee Name**, skip Seal No. and Shipper Name, and show a review step before importing. The app can also export reviewed photo rows as `Container,Consignee` CSV.
+- Five bays (A–E), ten blocks per bay, and 11 positions per block.
+- Block names combine the bay and block number, such as A1.
+- Four physical stack lanes with capacities 3 / 3 / 3 / 2. Each van gets an exact stack and level; accessible position numbers recalculate after a move.
+- Yard view that highlights a searched van in its exact stack position.
+- Quick shift columns that keep their horizontal working position after a move.
+- Status dates for CY Stripped and Withdrawn, with a History page for incoming full vans, withdrawals, status changes, and location moves.
+- Import Excel, CSV, TSV, and loading guide photos. Photo review can export a CSV with van number, consignee, vessel, and voyage.
+- Additional guides add new vans and update consignee, vessel, and voyage on existing records while keeping their yard location and status.
+- Print-ready Picking Tags with a manually entered FL operator.
+- Automatic save in the current browser, JSON backups, and point-in-time share links.
+- Android touch layout and a landscape tablet layout. The app supports home-screen installation.
 
-- Five bays (A–E), ten blocks per bay, ten-van working target per block
-- Yard view with block inventory and 3 / 3 / 3 / 4 stack reference
-- Quick shift with side-by-side block columns and adjacent move buttons
-- Search by van number or consignee
-- Automatic save in the current browser and JSON backup download
-- Shareable yard snapshots
-- Android bottom navigation, touch targets, native sharing, and home-screen install support
+## Storage and sharing
+
+The app has no server or shared database yet. Records and history save in each browser. A share link is a point-in-time snapshot, not live syncing. Back up the list before moving it to another device.
 
 ## Android
 
@@ -21,5 +27,3 @@ Open the HTTPS site in Chrome on Android, open the menu, and choose **Install ap
 ## Publish
 
 The GitHub Actions workflow in `.github/workflows/deploy.yml` publishes the site from the repository root whenever `main` changes. In repository **Settings → Pages**, set the build source to **GitHub Actions** once. GitHub Pages is free for public repositories.
-
-The app has no server or shared database. Yard records save in each browser; a snapshot link is a point-in-time view and its data is encoded in the URL fragment.
