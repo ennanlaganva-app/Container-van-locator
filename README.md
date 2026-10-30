@@ -10,6 +10,8 @@ A free, static yard locator for desktop, laptop, Android phones, and tablets.
 - Yard view that highlights a searched van in its exact stack position.
 - Quick shift follows the yard map and moves vans between any two blocks, including across bays and between front/back sections. The current working scroll position stays in place after a move.
 - Search results include direct Bay/side and block assignment.
+- Add existing vans manually during setup, including consignee details and the exact open stack and level in any bay/side and block. Existing loading-list records update in place, and each added opening-stock van is recorded in History.
+- A separate [Quick Move edition](https://ennanlaganva-app.github.io/Container-van-locator/quick-move/) uses step-by-step buttons for source block, van, and destination block; the original column-based Quick shift remains in the main version.
 - App guide page with a complete walkthrough of loading guide import, photo review, bay assignment, stack numbering, quick shifting, statuses, History, picking tags, backup, and snapshot sharing.
 - Status dates for CY Stripped and Withdrawn, with a History page for incoming full vans, withdrawals, status changes, and location moves.
 - Import Excel, CSV, TSV, and loading guide photos. Photo reading targets the report's Container No. and Consignee Name columns, enlarges and improves contrast, and opens a review before updating records. Incomplete or check-digit-invalid container numbers are highlighted and must be corrected before import or export.
@@ -24,7 +26,7 @@ Older Bay D/E locations are mapped to their front/back sections. Older Bay C loc
 
 ## Storage and sharing
 
-The app has no server or shared database yet. Records and history save in each browser. A share link is a point-in-time snapshot, not live syncing. Back up the list before moving it to another device. Incoming vans are currently added by importing an additional loading guide; the dedicated Actual arrivals page is paused.
+The app has no server or shared database yet. Records and history save in each browser. A share link is a point-in-time snapshot, not live syncing. Back up the list before moving it to another device. Use Add vans to record existing physical yard stock manually. The dedicated Actual arrivals page is paused.
 
 ## Android
 

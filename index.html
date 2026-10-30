@@ -187,6 +187,8 @@
     .stack-slot-number { font-size: 8px; color: #887627; line-height: 1; font-weight: 700; }
     .stack-slot-van { display: block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 7px; line-height: 1.1; font-weight: 700; }
     .stack-slot.empty .stack-slot-number { color: #aeb4ac; }
+    .stack-slot.manual-occupied { border-color: #d6dbd6; background: #eef1ed; color: #868e88; cursor: not-allowed; }
+    .stack-slot.manual-current { border-color: #8cae91; background: #eef7ed; color: #405f45; }
     .stack-lane { text-align: center; }
     .stack-pile { height: 78px; display: flex; flex-direction: column-reverse; justify-content: flex-start; align-items: center; gap: 2px; padding-bottom: 1px; }
     .container-box { display: block; height: 15px; width: min(100%, 55px); border: 1px solid #d4b842; border-radius: 2px; background: repeating-linear-gradient(90deg, #fff5c7 0 8px, #f6e9ac 8px 10px); }
@@ -300,6 +302,13 @@
     .history-time { white-space: nowrap; color: var(--muted); font-size: 10px; }
     .tag-paper { display: none; }
     .guide-note { border: 1px solid #eee2b9; background: #fffaf0; color: #776b42; border-radius: 7px; padding: 9px 11px; font-size: 10px; line-height: 1.5; margin-bottom: 14px; }
+    .manual-layout { display: grid; grid-template-columns: minmax(250px,.78fr) minmax(0,1.22fr); gap: 13px; align-items: start; }
+    .manual-form { display: grid; gap: 11px; padding: 14px; }
+    .manual-form .field { margin: 0; }
+    .manual-slot-panel { padding-bottom: 10px; }
+    .manual-selection { padding: 10px 13px; border-top: 1px solid var(--line); color: #665619; background: #fff9e2; font-size: 10px; line-height: 1.45; }
+    .manual-selection strong { color: #38321f; }
+    .manual-slot-note { padding: 0 13px 8px; color: var(--muted); font-size: 9px; line-height: 1.45; }
     .modal-backdrop { position: fixed; inset: 0; display: none; place-items: center; background: rgba(28,32,30,.38); z-index: 50; padding: 18px; }
     .modal-backdrop.open { display: grid; }
     .modal { width: min(440px, 100%); background: #fff; border-radius: 11px; box-shadow: 0 20px 70px rgba(0,0,0,.2); overflow: hidden; }
@@ -341,14 +350,15 @@
       .yard-side { grid-template-columns: 1fr 1fr; }
       .shift-block { width: 145px; }
       .guide-steps { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .manual-layout { grid-template-columns: 1fr; }
     }
     @media (max-width: 760px) {
       .app { display: block; }
       .sidebar { padding: 5px 8px calc(5px + env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--line); display: flex; flex-direction: row; align-items: center; gap: 0; position: fixed; inset: auto 0 0; height: auto; align-self: auto; overflow: visible; z-index: 30; background: rgba(255,255,255,.97); box-shadow: 0 -5px 18px rgba(28,35,32,.06); backdrop-filter: blur(12px); }
       .brand, .nav-label, .sidebar-spacer, .storage-card, .sidebar-foot { display: none; }
-      .nav { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 3px; width: 100%; }
-      .nav-btn { width: 100%; min-height: 52px; padding: 6px 2px 5px; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; gap: 3px; font-size: 9px; line-height: 1.1; }
-      .nav-btn svg { width: 18px; height: 18px; }
+      .nav { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 2px; width: 100%; }
+      .nav-btn { width: 100%; min-height: 52px; padding: 6px 1px 5px; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; gap: 3px; font-size: 8px; line-height: 1.1; }
+      .nav-btn svg { width: 17px; height: 17px; }
       .topbar { position: sticky; top: 0; z-index: 10; min-height: 55px; padding: 7px 12px; }
       .crumb, .top-status { display: none; }
       .top-actions { width: 100%; }
@@ -419,6 +429,8 @@
       .guide-section { padding: 13px; }
       .guide-toc { gap: 5px; }
       .guide-toc a { padding: 6px 8px; }
+      .manual-layout { grid-template-columns: minmax(0,1fr); }
+      .manual-form { gap: 9px; }
       .shift-destination-block { width: 154px; min-height: 260px; scroll-snap-align: start; }
       .shift-destination-columns { gap: 6px; }
       .shift-move-any { min-height: 38px !important; padding: 5px 8px !important; font-size: 10px !important; }
@@ -501,6 +513,7 @@
         <button class="nav-btn active" data-page="loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3.8h8l4 4v12.4H6z" stroke-linejoin="round"/><path d="M14 3.8v4h4M9 12h6M9 15.5h6" stroke-linecap="round"/></svg>Loading list</button>
         <button class="nav-btn" data-page="yard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="4" width="7" height="6.5" rx="1"/><rect x="13.5" y="4" width="7" height="6.5" rx="1"/><rect x="3.5" y="13.5" width="7" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="7" height="6.5" rx="1"/></svg>Yard view</button>
         <button class="nav-btn" data-page="shift"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h15m0 0-3-3m3 3-3 3M20 17H5m0 0 3-3m-3 3 3 3" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10v4m5-4v4m5-4v4" stroke-linecap="round"/></svg>Quick shift</button>
+        <button class="nav-btn" data-page="manual"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5.5h16v13H4z" stroke-linejoin="round"/><path d="M8 9h8M8 12h4m4 0v5m-2.5-2.5h5" stroke-linecap="round"/></svg>Add vans</button>
         <button class="nav-btn" data-page="help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 4.3 1.7c-1.2 1.1-1.9 1.5-1.9 3M12 17.5v.1" stroke-linecap="round"/></svg>App guide</button>
         <button class="nav-btn" data-page="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10" stroke-linecap="round"/><circle cx="18" cy="18" r="3.4"/><path d="M18 16.5V18l1.1.8" stroke-linecap="round"/></svg>History</button>
       </nav>
@@ -528,16 +541,17 @@
         <section id="loadingPage"></section>
         <section id="yardPage" class="hidden"></section>
         <section id="shiftPage" class="hidden"></section>
+        <section id="manualPage" class="hidden"></section>
         <section id="historyPage" class="hidden"></section>
         <section id="helpPage" class="hidden">
           <div class="page-head"><div><div class="eyebrow">How to use the workspace</div><h1>App guide</h1><p class="page-desc">A practical walkthrough of importing a loading guide, locating vans, updating yard positions, and sharing your records.</p></div></div>
-          <div class="guide-intro"><strong>What this app does.</strong> Container Van Locator turns loading-guide records into a searchable yard list. Assign each van to its bay and block, see its stack position, and record moves and withdrawal status. The dedicated Actual arrivals page is paused for now; add incoming vans by importing an additional loading guide, then assign their locations from the list or search.</div>
-          <nav class="guide-toc" aria-label="Guide topics"><a href="#guide-start">Getting started</a><a href="#guide-import">Import guide</a><a href="#guide-yard">Yard map</a><a href="#guide-search">Search and assign</a><a href="#guide-shift">Move vans</a><a href="#guide-status">Status and history</a><a href="#guide-picking">Picking tags</a><a href="#guide-share">Save and share</a></nav>
+          <div class="guide-intro"><strong>What this app does.</strong> Container Van Locator turns loading-guide records into a searchable yard list. Assign each van to its bay and block, see its stack position, and record moves and withdrawal status. The dedicated Actual arrivals page is paused. Use Add vans to enter containers already physically in the yard; use an additional loading guide to record new arrivals.</div>
+          <nav class="guide-toc" aria-label="Guide topics"><a href="#guide-start">Getting started</a><a href="#guide-import">Import guide</a><a href="#guide-existing">Existing yard stock</a><a href="#guide-yard">Yard map</a><a href="#guide-search">Search and assign</a><a href="#guide-shift">Move vans</a><a href="#guide-status">Status and history</a><a href="#guide-picking">Picking tags</a><a href="#guide-share">Save and share</a></nav>
 
           <section class="panel guide-section" id="guide-start"><h2>1. A complete yard workflow</h2><p>Follow these steps when a new loading guide arrives or when you need to update van locations.</p><div class="guide-steps">
             <div class="guide-step"><i class="guide-step-number">1</i><strong>Import the guide</strong><span>Upload an Excel/CSV file or select loading-guide photos on the Loading list page.</span></div>
             <div class="guide-step"><i class="guide-step-number">2</i><strong>Check the records</strong><span>Review photo extraction, van numbers, consignee names, and any LCL labels.</span></div>
-            <div class="guide-step"><i class="guide-step-number">3</i><strong>Assign a location</strong><span>Choose the bay or side and block beside each van, or assign it from search.</span></div>
+            <div class="guide-step"><i class="guide-step-number">3</i><strong>Enter existing yard stock</strong><span>Use Add vans to record vans already placed and select each exact stack spot.</span></div>
             <div class="guide-step"><i class="guide-step-number">4</i><strong>Confirm in Yard view</strong><span>Open the bay and block to see each van in its exact stack slot.</span></div>
             <div class="guide-step"><i class="guide-step-number">5</i><strong>Keep the yard current</strong><span>Use Quick shift when vans move, and update status after stripping or withdrawal.</span></div>
             <div class="guide-step"><i class="guide-step-number">6</i><strong>Back up or share</strong><span>Download a JSON backup or send a point-in-time snapshot link to a teammate.</span></div>
@@ -550,23 +564,25 @@
             <div class="guide-detail"><strong>Multiple consignees · LCL</strong><p>When a van has two or more distinct consignee names, they are combined under that van and marked <b>LCL</b>. The Consignee Finder CSV export writes a separate row for each consignee, with the same van number and LCL type.</p></div>
           </div><div class="walkthrough-note">The photo CSV uses <b>Container, Consignee, Type, Bay Location, Checked</b>, with Vessel and Voyage appended. Handwritten yard notes on a photo are not used to assign the location; assign the bay and block in this app after import.</div><h3>Adding a later guide</h3><p>Import the additional guide from Loading list. New van numbers are added; matching numbers have consignee, vessel, voyage, and load type refreshed. Their existing yard location and status are kept. New rows wait for a location assignment.</p><h3>Where incoming records appear</h3><p>For now, use an updated loading guide to add incoming vans. The paused Actual arrivals page is not available for direct on-the-spot entry. New guide records appear in the <strong>Incoming full</strong> History filter.</p></section>
 
-          <section class="panel guide-section" id="guide-yard"><h2>3. Yard map, blocks, and stack numbering</h2><p>Choose a bay in <strong>Yard view</strong>, then select one of its block tiles to see the vans and the visual stack.</p><div class="guide-grid">
+          <section class="panel guide-section" id="guide-existing"><h2>3. Enter vans already in the yard</h2><p>Use <strong>Add vans</strong> during setup to record containers that are physically in a bay before you begin regular operation.</p><ol><li>Enter the complete van number, including its check digit. If the number already exists in the Loading list, its consignee and voyage details are filled in automatically.</li><li>For a new number, add the consignee and optional vessel and voyage. Multiple consignee names can be separated with semicolons and are marked LCL.</li><li>Choose the bay/side and block, then tap the exact open tile in the stack diagram. Each tile shows the recalculated position number, stack, and level; occupied spots are disabled.</li><li>Choose <strong>Add van to this location</strong>. The record and a time-stamped “Existing stock added” entry are saved in History.</li></ol><p>The screen can be used repeatedly to build the opening stock list. You can later search any van, change its location, print a picking tag, or update its status.</p><button class="btn small guide-action" data-go-page="manual">Open Add vans</button></section>
+
+          <section class="panel guide-section" id="guide-yard"><h2>4. Yard map, blocks, and stack numbering</h2><p>Choose a bay in <strong>Yard view</strong>, then select one of its block tiles to see the vans and the visual stack.</p><div class="guide-grid">
             <div class="guide-detail"><strong>Bay and block layout</strong><p>Bay A has 11 blocks, Bay B has 12, Bay C has 7, Bay D has 5 front and 5 back blocks, and Bay E has 7 front and 7 back blocks. D/E labels show their side, for example <b>D-F1</b> and <b>E-B1</b>. The whole yard has 54 sections/blocks and up to 594 van slots.</p></div>
             <div class="guide-detail"><strong>Four stack lanes</strong><p>Each block has four lanes with capacities <b>3 / 3 / 3 / 2</b>, for 11 vans maximum. The yard diagram labels FRONT and REAR. Use the displayed stack and level along with the position number.</p></div>
           </div><div class="walkthrough-note">Position <b>#1</b> starts at the rear lane’s bottom. Number upward through that lane, then start at the bottom of the next lane toward the front. If a rear lane is empty, the first occupied slot in the next lane becomes #1. Numbers recalculate as vans move or leave the active yard.</div><p>Select an occupied tile to highlight its van. Select an open tile to assign a van to that exact stack slot. The inventory list also lets you change the stack position from its selector.</p><button class="btn small guide-action" data-go-page="yard">Open Yard view</button></section>
 
-          <section class="panel guide-section" id="guide-search"><h2>4. Search and assign a van</h2><ol><li>Use the search box at the top and enter at least two characters from the van number or consignee name.</li><li>Read the result for its van number, consignee, vessel/voyage, status, and current location.</li><li>Choose <b>Assign Bay / Block</b> for an unassigned van, or <b>Change location</b> to move a placed van. Pick a bay/side and block, then confirm.</li><li>Click a placed result to open its block in Yard view and highlight the exact slot. A withdrawn van opens its History records.</li></ol><p>The Loading list also has bay/side and block selectors in each row. Assignments save automatically in the current browser.</p><button class="btn small guide-action" data-go-page="loading">Open Loading list</button></section>
+          <section class="panel guide-section" id="guide-search"><h2>5. Search and assign a van</h2><ol><li>Use the search box at the top and enter at least two characters from the van number or consignee name.</li><li>Read the result for its van number, consignee, vessel/voyage, status, and current location.</li><li>Choose <b>Assign Bay / Block</b> for an unassigned van, or <b>Change location</b> to move a placed van. Pick a bay/side and block, then confirm.</li><li>Click a placed result to open its block in Yard view and highlight the exact slot. A withdrawn van opens its History records.</li></ol><p>The Loading list also has bay/side and block selectors in each row. Assignments save automatically in the current browser.</p><button class="btn small guide-action" data-go-page="loading">Open Loading list</button></section>
 
-          <section class="panel guide-section" id="guide-shift"><h2>5. Shift vans between blocks</h2><p><strong>Quick shift</strong> shows the source and destination block columns. Choose the source bay/side and block, then move a van to any available destination block—including another bay or the front/back section of D or E.</p><ul><li>Scroll the block columns sideways to reach later blocks. The page keeps the working scroll position after a move.</li><li>On Android, swipe the columns horizontally; on a tablet, landscape view gives more room.</li><li>Each block holds up to 11 vans. Full blocks and occupied stack slots cannot be selected.</li><li>Every successful move updates the location and adds a time-stamped entry to History.</li></ul><button class="btn small guide-action" data-go-page="shift">Open Quick shift</button></section>
+          <section class="panel guide-section" id="guide-shift"><h2>6. Shift vans between blocks</h2><p><strong>Quick shift</strong> shows the source and destination block columns. Choose the source bay/side and block, then move a van to any available destination block—including another bay or the front/back section of D or E.</p><ul><li>Scroll the block columns sideways to reach later blocks. The page keeps the working scroll position after a move.</li><li>On Android, swipe the columns horizontally; on a tablet, landscape view gives more room.</li><li>Each block holds up to 11 vans. Full blocks and occupied stack slots cannot be selected.</li><li>Every successful move updates the location and adds a time-stamped entry to History.</li></ul><p><a href="./quick-move/">Open the separate Quick Move edition with button-based shifting.</a></p><button class="btn small guide-action" data-go-page="shift">Open Quick shift</button></section>
 
-          <section class="panel guide-section" id="guide-status"><h2>6. Status, dates, and History</h2><p>In the Yard inventory row, use the status buttons to keep a van’s progress visible.</p><div class="guide-grid">
+          <section class="panel guide-section" id="guide-status"><h2>7. Status, dates, and History</h2><p>In the Yard inventory row, use the status buttons to keep a van’s progress visible.</p><div class="guide-grid">
             <div class="guide-detail"><strong>CY Stripped</strong><p>Marks the van as CY Stripped and saves the date and time. It remains assigned to its yard position until moved or withdrawn.</p></div>
             <div class="guide-detail"><strong>Withdrawn</strong><p>Marks the van withdrawn, records its time and last location, and removes it from the active yard layout. The record remains in the Loading list and History.</p></div>
           </div><p>The History page shows incoming full records, withdrawals, location moves, and status changes, newest first. Use its filter or click a van’s history from Search to narrow the list. Times display in the device’s local time zone.</p><button class="btn small guide-action" data-go-page="history">Open History</button></section>
 
-          <section class="panel guide-section" id="guide-picking"><h2>7. Print a picking tag</h2><ol><li>Open the van’s block in Yard view.</li><li>Find the van in the inventory list and choose <b>Picking tag</b>.</li><li>Enter the FL operator name. This field is manually inputted.</li><li>Choose <b>Print picking tag</b> and print or save it from the device’s print dialog.</li></ol><p>The tag includes date, van number, consignee, FCL/LCL type, voyage, vessel, bay, block, stack and position, plus the FL operator.</p></section>
+          <section class="panel guide-section" id="guide-picking"><h2>8. Print a picking tag</h2><ol><li>Open the van’s block in Yard view.</li><li>Find the van in the inventory list and choose <b>Picking tag</b>.</li><li>Enter the FL operator name. This field is manually inputted.</li><li>Choose <b>Print picking tag</b> and print or save it from the device’s print dialog.</li></ol><p>The tag includes date, van number, consignee, FCL/LCL type, voyage, vessel, bay, block, stack and position, plus the FL operator.</p></section>
 
-          <section class="panel guide-section" id="guide-share"><h2>8. Save, back up, share, and install</h2><div class="guide-grid">
+          <section class="panel guide-section" id="guide-share"><h2>9. Save, back up, share, and install</h2><div class="guide-grid">
             <div class="guide-detail"><strong>Saved on this device</strong><p>The app automatically saves the list and History in this browser. It does not use an account or shared database, so another phone or computer will not automatically see your edits.</p></div>
             <div class="guide-detail"><strong>JSON backup</strong><p>Choose Backup and keep the downloaded JSON file somewhere safe. Import that file later to restore or merge van records and History.</p></div>
             <div class="guide-detail"><strong>Share snapshot</strong><p>Share snapshot creates a link with a copy of the current records and History. The recipient can view it and choose Save to this device. It is a point-in-time copy, not live syncing; later changes require a new link.</p></div>
@@ -599,7 +615,7 @@
       const blocksFor = section => Array.from({ length: SECTION_BY_KEY[section]?.blocks || 0 }, (_, i) => String(i + 1).padStart(2, '0'));
       const STACK_CAPACITIES = [3, 3, 3, 2];
       const PAGE_SIZE = 15;
-      const state = { records: [], history: [], page: 'loading', loadingPage: 1, selectedBay: 'A', selectedFace: '', selectedBlock: '01', loadingFilter: 'all', historyFilter: 'all', historyVanId: '', pendingRows: null, pendingFile: '', sharedSnapshot: false, photoObjectUrl: null, ocrRunning: false, shiftFromSection: 'A', shiftToSection: 'A', shiftFromScroll: 0, shiftToScroll: 0, highlightRecordId: '', migratedLocationCount: 0 };
+      const state = { records: [], history: [], page: 'loading', loadingPage: 1, selectedBay: 'A', selectedFace: '', selectedBlock: '01', manualSection: 'A', manualBlock: '01', manualSlot: '', manualDraft: { van:'', consignee:'', vessel:'', voyage:'', loadType:'' }, manualClearDraft: false, loadingFilter: 'all', historyFilter: 'all', historyVanId: '', pendingRows: null, pendingFile: '', sharedSnapshot: false, photoObjectUrl: null, ocrRunning: false, shiftFromSection: 'A', shiftToSection: 'A', shiftFromScroll: 0, shiftToScroll: 0, highlightRecordId: '', migratedLocationCount: 0 };
       let tesseractLoadPromise = null;
       const $ = (selector, root = document) => root.querySelector(selector);
       const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -719,15 +735,36 @@
         addHistory(eventType, record, `${before} → ${locationDetail(record)}`, before);
         return true;
       }
-      function render() { renderLoading(); renderYard(); renderShift(); renderHistory(); updateNav(); }
+      function positionAtSlot(bay, block, face, stack, level, exceptId = '') {
+        const occupying = bayItems(bay, block, face).filter(record => record.id !== exceptId && record.stack && record.level);
+        occupying.push({ id: '__candidate__', stack, level });
+        occupying.sort((a,b) => b.stack - a.stack || a.level - b.level);
+        return occupying.findIndex(record => record.id === '__candidate__') + 1;
+      }
+      function moveToExactSlot(record, bay, block, face, stack, level, eventType) {
+        face = normalizeFace(bay, face);
+        if (!blocksFor(sectionKey(bay,face)).includes(block) || !Number.isInteger(stack) || stack < 1 || stack > 4 || !Number.isInteger(level) || level < 1 || level > STACK_CAPACITIES[stack - 1] || blockCount(bay,block,record.id,face) >= 11) return false;
+        const occupied = state.records.some(other => other.id !== record.id && other.status !== 'withdrawn' && other.bay === bay && normalizeFace(other.bay,other.face) === face && other.block === block && other.stack === stack && other.level === level);
+        if (occupied) return false;
+        if (record.bay === bay && normalizeFace(record.bay,record.face) === face && record.block === block && record.stack === stack && record.level === level && record.status !== 'withdrawn') return true;
+        const before = record.bay ? locationDetail(record) : 'Not assigned';
+        const wasWithdrawn = record.status === 'withdrawn';
+        record.bay = bay; record.face = face; record.block = block; record.stack = stack; record.level = level;
+        if (wasWithdrawn) { record.status = 'in-yard'; record.withdrawnAt = ''; record.cyStrippedAt = ''; }
+        record.updatedAt = new Date().toISOString();
+        addHistory(eventType, record, `${before} → ${locationDetail(record)}`, before);
+        return true;
+      }
+      function render() { renderLoading(); renderYard(); renderShift(); renderManual(); renderHistory(); updateNav(); }
       function updateNav() {
         $$('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.page === state.page));
         $('#loadingPage').classList.toggle('hidden', state.page !== 'loading');
         $('#yardPage').classList.toggle('hidden', state.page !== 'yard');
         $('#shiftPage').classList.toggle('hidden', state.page !== 'shift');
+        $('#manualPage').classList.toggle('hidden', state.page !== 'manual');
         $('#historyPage').classList.toggle('hidden', state.page !== 'history');
         $('#helpPage').classList.toggle('hidden', state.page !== 'help');
-        $('#crumbPage').textContent = ({ loading: 'Loading list', yard: 'Yard view', shift: 'Quick shift', history: 'History', help: 'App guide' })[state.page] || 'Loading list';
+        $('#crumbPage').textContent = ({ loading: 'Loading list', yard: 'Yard view', shift: 'Quick shift', manual: 'Add vans', history: 'History', help: 'App guide' })[state.page] || 'Loading list';
       }
       function renderLoading() {
         const total = state.records.length, placed = assignedRecords().length, pending = state.records.filter(r => r.status !== 'withdrawn' && (!r.bay || !r.block)).length;
@@ -789,6 +826,88 @@
         $$('.remove-record').forEach(btn => btn.addEventListener('click', () => { state.records = state.records.filter(r => r.id !== btn.dataset.id); save(); render(); toast('Van removed from this list'); }));
         const dz = $('#dropzone');
         if (dz) { dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); }); dz.addEventListener('dragleave', () => dz.classList.remove('dragover')); dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); handleSelectedFiles(e.dataTransfer.files); }); }
+      }
+      function renderManual() {
+        if ($('#manualVan') && !state.manualClearDraft) state.manualDraft = { van: $('#manualVan').value, consignee: $('#manualConsignee').value, vessel: $('#manualVessel').value, voyage: $('#manualVoyage').value, loadType: $('#manualLoadType').value };
+        state.manualClearDraft = false;
+        if (!blocksFor(state.manualSection).includes(state.manualBlock)) state.manualBlock = blocksFor(state.manualSection)[0] || '';
+        $('#manualPage').innerHTML = `<div class="page-head"><div><div class="eyebrow">Opening yard inventory</div><h1>Add existing vans</h1><p class="page-desc">Enter vans that are already in the yard and choose their exact stack position.</p></div><div class="head-actions"><button class="btn" id="manualExport">${icon('download')}Backup</button></div></div>
+          <div class="guide-note">Use this during initial setup to enter the vans already placed in your yard. Choose the bay/side, block, stack, and level for each van. The app marks an occupied stack spot so you can’t assign a second van there.</div>
+          <div class="manual-layout"><div class="panel"><div class="panel-head"><div><div class="panel-title">Van details and location</div><div class="panel-sub">An existing loading-guide record will be updated instead of duplicated.</div></div></div><div class="manual-form">
+            <div class="field"><label for="manualVan">Full van number</label><input id="manualVan" type="text" autocomplete="off" autocapitalize="characters" placeholder="e.g. PSAU 318205-7" value="${escapeHtml(state.manualDraft?.van || '')}"></div>
+            <div id="manualMatch" class="modal-info">Enter the complete van number. If it is already in the list, its details will be filled in.</div>
+            <div class="field"><label for="manualConsignee">Consignee name</label><input id="manualConsignee" type="text" placeholder="One or more names separated by semicolons" value="${escapeHtml(state.manualDraft?.consignee || '')}"></div>
+            <div class="field-row"><div class="field"><label for="manualVessel">Vessel</label><input id="manualVessel" type="text" placeholder="Optional" value="${escapeHtml(state.manualDraft?.vessel || '')}"></div><div class="field"><label for="manualVoyage">Voyage</label><input id="manualVoyage" type="text" placeholder="Optional" value="${escapeHtml(state.manualDraft?.voyage || '')}"></div></div>
+            <div class="field"><label for="manualLoadType">Load type</label><select id="manualLoadType"><option value="" ${!state.manualDraft?.loadType ? 'selected' : ''}>Automatic</option><option value="FCL" ${state.manualDraft?.loadType === 'FCL' ? 'selected' : ''}>FCL</option><option value="LCL" ${state.manualDraft?.loadType === 'LCL' ? 'selected' : ''}>LCL</option></select></div>
+            <div class="field-row"><div class="field"><label for="manualSection">Bay / side</label><select id="manualSection">${SECTION_CONFIG.map(section => `<option value="${section.key}" ${section.key === state.manualSection ? 'selected' : ''}>${escapeHtml(section.label)}</option>`).join('')}</select></div><div class="field"><label for="manualBlock">Block</label><select id="manualBlock">${blocksFor(state.manualSection).map(block => `<option value="${block}" ${block === state.manualBlock ? 'selected' : ''}>${sectionBlockLabel(state.manualSection,block)}</option>`).join('')}</select></div></div>
+            <div class="manual-selection" id="manualSelection"><strong>Select a stack tile</strong><br>Choose an open spot in the diagram.</div><button class="btn primary" id="saveManualVan">Add van to this location</button>
+          </div></div><div class="panel manual-slot-panel"><div class="panel-head"><div><div class="panel-title">Choose the exact stack spot</div><div class="panel-sub">Select one open tile for this van.</div></div></div><div id="manualSlotPlan"></div><div class="manual-slot-note">The diagram reads from front to rear. Position #1 starts at the rear bottom and counts upward, then continues toward the front. Capacity per block: 3 / 3 / 3 / 2.</div></div></div>`;
+        $('#manualVan').addEventListener('input', () => { state.manualDraft.van = $('#manualVan').value; updateManualMatch(); });
+        const manualDraftKeys = { manualConsignee:'consignee', manualVessel:'vessel', manualVoyage:'voyage', manualLoadType:'loadType' };
+        for (const [field,key] of Object.entries(manualDraftKeys)) { const eventName = field === 'manualLoadType' ? 'change' : 'input'; $(`#${field}`).addEventListener(eventName, () => { state.manualDraft[key] = $(`#${field}`).value; }); }
+        $('#manualSection').addEventListener('change', event => { state.manualSection = event.target.value; state.manualBlock = blocksFor(state.manualSection)[0] || ''; state.manualSlot = ''; refreshManualBlockOptions(); renderManualSlots(); });
+        $('#manualBlock').addEventListener('change', event => { state.manualBlock = event.target.value; state.manualSlot = ''; renderManualSlots(); });
+        $('#saveManualVan').addEventListener('click', recordManualVan);
+        $('#manualExport').addEventListener('click', exportBackup);
+        if (state.manualDraft?.van) updateManualMatch(); else renderManualSlots();
+      }
+      function refreshManualBlockOptions() {
+        const blockSelect = $('#manualBlock'); if (!blockSelect) return;
+        blockSelect.innerHTML = blocksFor(state.manualSection).map(block => `<option value="${block}">${sectionBlockLabel(state.manualSection,block)}</option>`).join('');
+        blockSelect.value = state.manualBlock;
+      }
+      function updateManualMatch() {
+        const input = $('#manualVan'), match = $('#manualMatch'); if (!input || !match) return;
+        const record = state.records.find(item => item.id === norm(input.value));
+        if (!record) { match.textContent = input.value.trim() ? 'No matching list record. This van will be added as opening yard stock; check the consignee details before saving.' : 'Enter the complete van number. If it is already in the list, its details will be filled in.'; renderManualSlots(); return; }
+        state.manualDraft = { van: input.value, consignee: record.consignee || '', vessel: record.vessel || '', voyage: record.voyage || '', loadType: record.loadType || '' };
+        $('#manualConsignee').value = state.manualDraft.consignee; $('#manualVessel').value = state.manualDraft.vessel; $('#manualVoyage').value = state.manualDraft.voyage; $('#manualLoadType').value = state.manualDraft.loadType;
+        if (record.bay && record.block) { state.manualSection = sectionForRecord(record); state.manualBlock = record.block; state.manualSlot = record.stack && record.level ? `${record.stack}:${record.level}` : ''; $('#manualSection').value = state.manualSection; refreshManualBlockOptions(); }
+        match.textContent = record.bay ? `Found in the list at ${locationDetail(record)}. Saving will update this same record.` : 'Found in the loading list, but no yard position is assigned yet.';
+        renderManualSlots();
+      }
+      function renderManualSlots() {
+        const area = $('#manualSlotPlan'); if (!area) return;
+        const section = SECTION_BY_KEY[state.manualSection]; if (!section) return;
+        const record = state.records.find(item => item.id === norm($('#manualVan')?.value || ''));
+        if (record && sectionForRecord(record) === state.manualSection && record.block === state.manualBlock && record.stack && record.level && !state.manualSlot) state.manualSlot = `${record.stack}:${record.level}`;
+        const lanes = STACK_CAPACITIES.map((height,index) => {
+          const stack = index + 1;
+          const tiles = Array.from({ length: height }, (_,levelIndex) => {
+            const level = levelIndex + 1, value = `${stack}:${level}`;
+            const occupant = state.records.find(other => other.id !== record?.id && other.status !== 'withdrawn' && other.bay === section.bay && normalizeFace(other.bay,other.face) === normalizeFace(section.bay,section.face) && other.block === state.manualBlock && other.stack === stack && other.level === level);
+            const ownSlot = record && record.bay === section.bay && normalizeFace(record.bay,record.face) === normalizeFace(section.bay,section.face) && record.block === state.manualBlock && record.stack === stack && record.level === level;
+            const selected = state.manualSlot === value, disabled = !!occupant;
+            const label = occupant ? occupant.van : ownSlot ? record.van : 'Open';
+            const position = !disabled ? positionAtSlot(section.bay,state.manualBlock,section.face,stack,level,record?.id || '') : 0;
+            return `<button type="button" class="stack-slot ${disabled ? 'manual-occupied' : 'empty'} ${ownSlot ? 'manual-current' : ''} ${selected ? 'selected' : ''}" data-manual-slot="${value}" ${disabled ? 'disabled' : ''} title="${disabled ? `${occupant.van} already occupies this spot` : `${sectionBlockLabel(state.manualSection,state.manualBlock)} · Stack ${stack}, level ${level} · Position ${position}`}" aria-label="${disabled ? `Occupied by ${occupant.van}` : `Choose stack ${stack}, level ${level}, position ${position}`} "><span class="stack-slot-number">${disabled ? 'Taken' : `#${position}`}</span><span class="stack-slot-van">${escapeHtml(label)} · L${level}</span></button>`;
+          }).join('');
+          return `<div class="stack-lane"><div class="stack-pile">${tiles}</div><div class="stack-label">Stack ${stack}</div><div class="stack-height">${height} high</div></div>`;
+        }).join('');
+        area.innerHTML = `<div class="stack-plan"><div class="stack-caption"><span>FRONT</span><span>REAR</span></div><div class="stack-bays">${lanes}</div></div>`;
+        const selected = state.manualSlot.split(':').map(Number), selectedOpen = selected.length === 2 && !!area.querySelector(`[data-manual-slot="${state.manualSlot}"]:not(:disabled)`);
+        const info = selectedOpen ? `<strong>${sectionBlockLabel(state.manualSection,state.manualBlock)} · Stack ${selected[0]} · Level ${selected[1]} · Position #${positionAtSlot(section.bay,state.manualBlock,section.face,selected[0],selected[1],record?.id || '')}</strong><br>Ready to assign this exact spot.` : '<strong>Select an open stack tile</strong><br>Occupied tiles are unavailable.';
+        $('#manualSelection').innerHTML = info; $('#saveManualVan').disabled = !selectedOpen;
+        $$('[data-manual-slot]',area).forEach(button => button.addEventListener('click', () => { state.manualSlot = button.dataset.manualSlot; renderManualSlots(); }));
+      }
+      function recordManualVan() {
+        const van = $('#manualVan').value.trim().replace(/\s+/g,' ').toUpperCase(), info = SECTION_BY_KEY[state.manualSection];
+        if (!van) { toast('Enter the full van number'); $('#manualVan').focus(); return; }
+        if (!isCompleteContainerNumber(van)) { toast('Enter a complete van number with its check digit'); $('#manualVan').focus(); return; }
+        if (!info || !blocksFor(state.manualSection).includes(state.manualBlock)) { toast('Choose a bay and block'); return; }
+        const [stack,level] = state.manualSlot.split(':').map(Number);
+        if (!stack || !level) { toast('Choose an open stack tile'); return; }
+        let record = state.records.find(item => item.id === norm(van));
+        const isNew = !record, previous = record ? { ...record } : null;
+        if (!record) { const now = new Date().toISOString(); record = { id:norm(van), van:formatContainerNumber(van), consignee:'', loadType:'FCL', vessel:'', voyage:'', bay:'', face:'', block:'', stack:0, level:0, status:'in-yard', cyStrippedAt:'', withdrawnAt:'', createdAt:now, updatedAt:now }; state.records.push(record); }
+        const consignee = $('#manualConsignee').value.trim(); if (consignee) record.consignee = consignee;
+        record.loadType = deriveLoadType($('#manualLoadType').value || record.loadType,record.consignee);
+        record.vessel = $('#manualVessel').value.trim() || record.vessel; record.voyage = $('#manualVoyage').value.trim() || record.voyage;
+        const eventType = isNew ? 'opening-stock' : record.status === 'withdrawn' ? 'incoming-full' : !record.bay ? 'put-away' : sectionForRecord(record) === state.manualSection && record.block === state.manualBlock ? 'stack-move' : 'location-move';
+        if (!moveToExactSlot(record,info.bay,state.manualBlock,info.face,stack,level,eventType)) { if (isNew) state.records = state.records.filter(item => item !== record); else Object.assign(record,previous); toast('That stack spot is occupied or this block is full'); return; }
+        state.selectedBay = info.bay; state.selectedFace = info.face; state.selectedBlock = state.manualBlock; state.highlightRecordId = record.id;
+        state.manualDraft = { van:'',consignee:'',vessel:'',voyage:'',loadType:'' }; state.manualClearDraft = true; state.manualSlot = '';
+        save(); render(); $('#manualVan').focus(); toast(`${record.van} saved at ${sectionBlockLabel(state.manualSection,state.manualBlock)}`);
       }
       function renderYard() {
         const bayCounts = Object.fromEntries(BAY_NAMES.map(b => [b, bayItems(b).length]));
@@ -965,7 +1084,7 @@
         save(); render(); toast(`${record.van} moved to ${sectionBlockLabel(destinationSection,destinationBlock)}`);
       }
       function historyName(type) {
-        return ({ 'incoming-full':'Incoming full', 'withdrawal':'Outgoing withdrawal', 'cy-stripped':'CY Stripped', 'location-move':'Location moved', 'stack-move':'Stack position moved', 'put-away':'Put-away', 'guide-update':'Guide details updated' })[type] || 'Activity';
+        return ({ 'incoming-full':'Incoming full', 'opening-stock':'Existing stock added', 'withdrawal':'Outgoing withdrawal', 'cy-stripped':'CY Stripped', 'location-move':'Location moved', 'stack-move':'Stack position moved', 'put-away':'Put-away', 'guide-update':'Guide details updated' })[type] || 'Activity';
       }
       function renderHistory() {
         const incoming = state.history.filter(event => event.type === 'incoming-full').length;
@@ -979,7 +1098,7 @@
         $('#historyExport')?.addEventListener('click', exportBackup);
       }
       let draggedVanId = '';
-      function setPage(page) { state.page = page; updateNav(); if (page === 'yard') renderYard(); else if (page === 'shift') renderShift(); else if (page === 'history') renderHistory(); else if (page !== 'help') renderLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      function setPage(page) { state.page = page; updateNav(); if (page === 'yard') renderYard(); else if (page === 'shift') renderShift(); else if (page === 'manual') renderManual(); else if (page === 'history') renderHistory(); else if (page !== 'help') renderLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
       function toast(message) { const el = $('#toast'); el.textContent = message; el.classList.add('show'); clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.remove('show'), 2600); }
       function exportBackup() {
         const blob = new Blob([JSON.stringify({ app: 'Container Van Locator', version: 3, exportedAt: new Date().toISOString(), records: state.records, history: state.history }, null, 2)], { type: 'application/json' });
