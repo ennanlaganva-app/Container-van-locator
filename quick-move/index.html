@@ -1,0 +1,1476 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3c629">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <title>Container Van Locator · Quick Move</title>
+  <style>
+    :root {
+      --ink: #252a2e;
+      --muted: #72797d;
+      --line: #e5e7e4;
+      --paper: #ffffff;
+      --canvas: #f6f7f5;
+      --yellow: #f3c629;
+      --yellow-soft: #fff6d4;
+      --green: #306d50;
+      --green-soft: #e9f3ed;
+      --red: #a3473e;
+      --shadow: 0 8px 24px rgba(28, 35, 32, .055);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--canvas);
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; background: var(--canvas); font-size: 14px; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 226px minmax(0, 1fr); }
+    .sidebar { background: #fff; border-right: 1px solid var(--line); padding: 22px 14px 16px; display: flex; flex-direction: column; position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; overscroll-behavior: contain; z-index: 11; }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 9px 24px; }
+    .brand-mark { width: 34px; height: 34px; border-radius: 10px; background: var(--yellow); display: grid; place-items: center; color: #342c0d; }
+    .brand-mark svg { width: 21px; height: 21px; }
+    .brand-name { font-size: 14px; line-height: 1.25; font-weight: 720; letter-spacing: -.25px; }
+    .brand-sub { font-size: 10px; color: var(--muted); margin-top: 3px; letter-spacing: .06em; text-transform: uppercase; }
+    .nav-label { padding: 2px 10px 8px; color: #9a9e9b; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+    .nav { display: grid; gap: 4px; }
+    .nav-btn { border: 0; background: transparent; color: #5e6568; display: flex; align-items: center; gap: 11px; text-align: left; width: 100%; padding: 10px 11px; border-radius: 8px; font-size: 13px; font-weight: 570; }
+    .nav-btn svg { width: 17px; height: 17px; color: #858b8b; }
+    .nav-btn:hover { background: #f7f7f4; color: var(--ink); }
+    .nav-btn.active { background: var(--yellow-soft); color: #3d3415; font-weight: 680; }
+    .nav-btn.active svg { color: #665518; }
+    .sidebar-spacer { flex: 1; min-height: 34px; }
+    .storage-card { background: #f7f8f6; border: 1px solid #eceeeb; border-radius: 9px; padding: 11px 12px; margin: 0 2px 12px; }
+    .storage-top { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 650; }
+    .storage-dot { width: 7px; height: 7px; background: #63a879; border-radius: 50%; }
+    .storage-copy { margin: 5px 0 0 14px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .sidebar-foot { font-size: 10px; color: #929794; padding: 0 10px; }
+    .main { min-width: 0; }
+    .topbar { min-height: 62px; background: #fff; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 10px 30px; position: sticky; top: 0; z-index: 5; }
+    .crumb { color: #89908f; font-size: 11px; }
+    .crumb strong { color: #4d5558; font-weight: 600; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .search-wrap { position: relative; width: min(290px, 30vw); }
+    .search-icon { position: absolute; left: 11px; top: 10px; width: 15px; height: 15px; color: #8b918f; pointer-events: none; }
+    .search { height: 36px; width: 100%; border: 1px solid #e2e5e2; background: #fbfcfb; border-radius: 7px; padding: 0 11px 0 34px; color: var(--ink); outline: none; font-size: 12px; }
+    .search:focus, input:focus, select:focus { border-color: #d2ad23; box-shadow: 0 0 0 3px rgba(243,198,41,.17); outline: none; }
+    .kbd { position: absolute; right: 9px; top: 10px; font-size: 9px; color: #a3a8a5; border: 1px solid #e4e7e4; border-radius: 3px; padding: 1px 4px; }
+    .search-results { display: none; position: absolute; top: 42px; right: 0; width: min(420px, 82vw); max-height: 390px; overflow: auto; background: #fff; border: 1px solid var(--line); border-radius: 9px; box-shadow: var(--shadow); padding: 6px; z-index: 20; }
+    .search-results.open { display: block; }
+    .result-heading { padding: 7px 9px; color: #969c99; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+    .result { padding: 9px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-radius: 6px; }
+    .result:hover { background: #f7f8f5; }
+    .result strong { font-size: 12px; }
+    .result small { display: block; color: var(--muted); margin-top: 3px; font-size: 10px; }
+    .result-loc { flex-shrink: 0; color: #635316; background: var(--yellow-soft); border-radius: 5px; padding: 5px 7px; font-size: 10px; font-weight: 650; }
+    .result-main { min-width: 0; }
+    .result-assign { flex: 0 0 auto; }
+    .search-empty { padding: 15px 10px; color: var(--muted); font-size: 12px; }
+    .top-status { display: flex; align-items: center; gap: 7px; color: #707875; font-size: 11px; white-space: nowrap; }
+    .status-light { width: 7px; height: 7px; border-radius: 50%; background: #64a77a; }
+    .content { max-width: 1480px; margin: 0 auto; padding: 28px 30px 42px; }
+    .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 20px; }
+    .eyebrow { color: #979e9a; text-transform: uppercase; font-size: 10px; letter-spacing: .12em; font-weight: 720; margin-bottom: 6px; }
+    h1 { margin: 0; font-size: 22px; line-height: 1.25; letter-spacing: -.5px; font-weight: 700; }
+    .page-desc { margin: 5px 0 0; font-size: 12px; color: var(--muted); }
+    .head-actions { display: flex; gap: 8px; align-items: center; }
+    .btn { border: 1px solid #dedfda; border-radius: 7px; padding: 8px 12px; background: #fff; color: #4c5555; font-size: 11px; font-weight: 630; display: inline-flex; gap: 7px; align-items: center; justify-content: center; transition: .15s ease; white-space: nowrap; }
+    .btn svg { width: 14px; height: 14px; }
+    .btn:hover { border-color: #c7c9c3; background: #fafbf9; }
+    .btn.primary { background: var(--yellow); color: #362e10; border-color: var(--yellow); }
+    .btn.primary:hover { background: #e9bd20; }
+    .btn.small { padding: 6px 9px; font-size: 10px; }
+    .btn.text { border-color: transparent; background: transparent; padding-left: 7px; padding-right: 7px; color: #747c7a; }
+    .btn.danger { color: var(--red); }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 18px; }
+    .stat { background: var(--paper); border: 1px solid var(--line); border-radius: 9px; padding: 14px 16px 13px; min-height: 83px; }
+    .stat-label { display: flex; align-items: center; justify-content: space-between; color: #7e8682; font-size: 10px; font-weight: 600; }
+    .stat-icon { width: 24px; height: 24px; background: #f8f8f5; color: #8a8f89; display: grid; place-items: center; border-radius: 6px; }
+    .stat-icon svg { width: 14px; height: 14px; }
+    .stat-value { font-size: 21px; font-weight: 680; letter-spacing: -.5px; margin-top: 6px; }
+    .stat-foot { color: #929894; font-size: 9px; margin-top: 1px; }
+    .panel { background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 2px 5px rgba(30,40,35,.018); }
+    .panel-head { min-height: 51px; padding: 12px 16px; border-bottom: 1px solid #eff0ed; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .panel-title { font-size: 12px; font-weight: 680; }
+    .panel-sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .panel-meta { color: #939a96; font-size: 10px; }
+    .dropzone { margin: 14px 16px; border: 1px dashed #d8dbd5; border-radius: 8px; min-height: 78px; display: flex; align-items: center; gap: 12px; padding: 13px 15px; background: #fcfdfa; transition: .15s ease; }
+    .dropzone.dragover { background: var(--yellow-soft); border-color: #d6b02b; }
+    .drop-icon { width: 35px; height: 35px; border-radius: 8px; background: var(--yellow-soft); color: #796519; display: grid; place-items: center; flex: 0 0 auto; }
+    .drop-icon svg { width: 18px; height: 18px; }
+    .drop-copy { flex: 1; min-width: 0; }
+    .drop-copy strong { display: block; font-size: 11px; font-weight: 650; }
+    .drop-copy span { display: block; font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .drop-hint { font-size: 9px; color: #9ba09c; margin: 0 4px; }
+    .file-input { display: none; }
+    .table-tools { min-height: 43px; border-top: 1px solid #eff0ed; padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .table-info { color: #838b87; font-size: 10px; }
+    .filter-line { display: flex; align-items: center; gap: 7px; }
+    .filter-select { border: 1px solid #e3e5e1; background: #fff; border-radius: 5px; height: 27px; padding: 0 23px 0 8px; font-size: 10px; color: #59615f; }
+    .table-scroll { overflow: auto; max-height: 57vh; }
+    table { width: 100%; border-collapse: collapse; min-width: 740px; }
+    th { position: sticky; top: 0; z-index: 1; background: #fafbf9; color: #89918d; text-align: left; text-transform: uppercase; letter-spacing: .07em; font-size: 9px; font-weight: 700; padding: 9px 14px; border-bottom: 1px solid #eceeeb; }
+    td { padding: 8px 14px; border-bottom: 1px solid #f0f1ee; font-size: 11px; color: #515957; }
+    tr:last-child td { border-bottom: 0; }
+    td.van-cell { color: #303638; font-weight: 680; letter-spacing: .01em; }
+    td.consignee { max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .loc-pill { display: inline-flex; align-items: center; gap: 5px; background: #f3f5f2; border-radius: 5px; padding: 4px 7px; font-size: 10px; color: #58605b; white-space: nowrap; }
+    .loc-pill.assigned { background: var(--green-soft); color: #38674c; }
+    .loc-pill.pending { background: #f5f5f1; color: #929790; }
+    .assign-cell { display: flex; align-items: center; gap: 5px; }
+    .assign-select { height: 28px; border: 1px solid #e3e6e1; border-radius: 5px; color: #59615e; background: #fff; font-size: 10px; padding: 0 22px 0 7px; min-width: 78px; }
+    .assign-select.block { min-width: 68px; }
+    .pagination { display: flex; align-items: center; gap: 6px; }
+    .page-btn { border: 1px solid #e4e6e2; border-radius: 5px; background: #fff; min-width: 25px; height: 25px; font-size: 10px; color: #5d6560; }
+    .page-btn:disabled { opacity: .4; cursor: default; }
+    .page-num { color: #89908c; font-size: 10px; padding: 0 4px; }
+    .empty-state { padding: 34px 20px; text-align: center; }
+    .empty-illustration { width: 46px; height: 46px; display: grid; place-items: center; margin: 0 auto 11px; border-radius: 13px; background: #fff6d7; color: #76641d; }
+    .empty-illustration svg { width: 23px; height: 23px; }
+    .empty-state strong { font-size: 12px; display: block; }
+    .empty-state p { font-size: 10px; color: var(--muted); margin: 5px 0 12px; }
+    .yard-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(350px, .82fr); gap: 14px; align-items: start; }
+    .bay-strip { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 9px; padding: 13px; }
+    .bay-card { background: #fff; border: 1px solid #e7e9e5; border-radius: 8px; padding: 10px; min-width: 0; cursor: pointer; text-align: left; transition: .15s ease; }
+    .bay-card:hover { border-color: #d4ba55; transform: translateY(-1px); }
+    .bay-card.selected { border-color: #d1aa20; box-shadow: 0 0 0 2px rgba(243,198,41,.2); background: #fffdf5; }
+    .bay-card-top { display: flex; justify-content: space-between; align-items: center; }
+    .bay-letter { font-size: 16px; line-height: 1; font-weight: 700; }
+    .bay-tag { color: #9a9f9a; font-size: 9px; }
+    .bay-count { margin-top: 7px; color: #69716d; font-size: 10px; }
+    .bay-card-sided { cursor: default; }
+    .bay-faces { display: grid; gap: 5px; margin-top: 9px; }
+    .bay-face-btn { display: flex; align-items: center; justify-content: space-between; gap: 6px; border: 1px solid #e8eae6; border-radius: 5px; background: #fafbf9; padding: 6px 7px; color: #59625c; font-size: 10px; font-weight: 650; text-align: left; }
+    .bay-face-btn span { color: #939a95; font-size: 8px; font-weight: 500; white-space: nowrap; }
+    .bay-face-btn.selected { border-color: #d1aa20; background: #fff8dc; color: #544715; }
+    .meter { height: 4px; border-radius: 3px; background: #eef0eb; margin-top: 8px; overflow: hidden; }
+    .meter-fill { height: 100%; background: var(--yellow); border-radius: inherit; }
+    .yard-lower { margin-top: 14px; display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; }
+    .blocks { display: grid; grid-template-columns: repeat(5, minmax(70px, 1fr)); gap: 8px; padding: 13px; }
+    .block-card { min-height: 75px; border: 1px solid #e7e9e5; border-radius: 7px; padding: 9px; background: #fff; cursor: pointer; text-align: left; transition: .15s ease; }
+    .block-card:hover { border-color: #d6be62; background: #fffefa; }
+    .block-card.selected { border-color: #c9a31b; box-shadow: 0 0 0 2px rgba(243,198,41,.17); }
+    .block-name { font-size: 11px; font-weight: 700; }
+    .block-card-foot { display: flex; justify-content: space-between; align-items: center; gap: 4px; color: #8c938f; font-size: 9px; margin-top: 11px; }
+    .block-card-foot strong { color: #5a625d; font-size: 10px; font-weight: 650; }
+    .block-bar { height: 3px; background: #eef0ec; border-radius: 2px; margin-top: 6px; overflow: hidden; }
+    .block-bar span { display: block; height: 100%; background: #e6c340; }
+    .yard-side { display: grid; gap: 14px; }
+    .inventory-head { display: flex; align-items: center; gap: 8px; }
+    .block-badge { background: var(--yellow-soft); color: #655515; padding: 4px 7px; border-radius: 5px; font-size: 10px; font-weight: 700; }
+    .inventory-list { padding: 4px 14px 10px; max-height: 350px; overflow: auto; }
+    .inventory-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 1px; border-bottom: 1px solid #f0f1ee; }
+    .inventory-row:last-child { border-bottom: 0; }
+    .inventory-primary { min-width: 0; }
+    .inventory-primary strong { display: block; font-size: 11px; }
+    .inventory-primary span { display: block; color: #858d88; font-size: 10px; margin-top: 3px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .move-control { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+    .move-label { color: #9aa09b; font-size: 9px; }
+    .stack-plan { padding: 13px 14px 14px; }
+    .stack-caption { display: flex; justify-content: space-between; color: #858d88; font-size: 9px; margin-bottom: 11px; }
+    .stack-bays { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 7px; align-items: end; }
+    .stack-lane { min-width: 0; }
+    .stack-pile { display: flex; flex-direction: column-reverse; gap: 3px; }
+    .stack-slot { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 1px; height: 31px; width: 100%; min-width: 0; border: 1px solid #d4b842; border-radius: 3px; background: repeating-linear-gradient(90deg, #fff5c7 0 8px, #f6e9ac 8px 10px); color: #514718; padding: 2px 4px; text-align: left; overflow: hidden; cursor: pointer; }
+    .stack-slot.empty { border-style: dashed; background: #fafbf8; color: #c0c5bd; }
+    .stack-slot.selected { outline: 2px solid #d59b10; outline-offset: 1px; }
+    .stack-slot:hover { border-color: #ae8d19; }
+    .stack-slot:disabled { cursor: default; }
+    .stack-slot-number { font-size: 8px; color: #887627; line-height: 1; font-weight: 700; }
+    .stack-slot-van { display: block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 7px; line-height: 1.1; font-weight: 700; }
+    .stack-slot.empty .stack-slot-number { color: #aeb4ac; }
+    .stack-slot.manual-occupied { border-color: #d6dbd6; background: #eef1ed; color: #868e88; cursor: not-allowed; }
+    .stack-slot.manual-current { border-color: #8cae91; background: #eef7ed; color: #405f45; }
+    .stack-lane { text-align: center; }
+    .stack-pile { height: 78px; display: flex; flex-direction: column-reverse; justify-content: flex-start; align-items: center; gap: 2px; padding-bottom: 1px; }
+    .container-box { display: block; height: 15px; width: min(100%, 55px); border: 1px solid #d4b842; border-radius: 2px; background: repeating-linear-gradient(90deg, #fff5c7 0 8px, #f6e9ac 8px 10px); }
+    .container-box.back { border-color: #b4b9b5; background: repeating-linear-gradient(90deg,#eef0ed 0 8px,#e3e6e2 8px 10px); }
+    .stack-label { font-size: 9px; color: #636c67; font-weight: 650; margin-top: 5px; }
+    .stack-height { font-size: 8px; color: #9ca19e; margin-top: 2px; }
+    .yard-note { color: #919793; font-size: 9px; padding: 0 14px 12px; line-height: 1.5; }
+    .guide-intro { border: 1px solid #ecd985; background: #fff9df; border-radius: 9px; padding: 15px 17px; color: #675b30; line-height: 1.55; }
+    .guide-intro strong { color: #342f20; }
+    .guide-toc { display: flex; flex-wrap: wrap; gap: 7px; margin: 13px 0 16px; }
+    .guide-toc a { color: #62531b; background: #fff; border: 1px solid #e8e4d3; border-radius: 999px; padding: 6px 10px; text-decoration: none; font-size: 10px; font-weight: 650; }
+    .guide-toc a:hover { background: #fff8d9; border-color: #d9bd4e; }
+    .guide-section { margin-top: 13px; padding: 16px 17px; scroll-margin-top: 78px; }
+    .guide-section h2 { margin: 0 0 7px; font-size: 15px; font-weight: 680; letter-spacing: -.01em; }
+    .guide-section h3 { margin: 14px 0 5px; font-size: 11px; font-weight: 700; }
+    .guide-section p { margin: 6px 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .guide-section ul, .guide-section ol { margin: 7px 0 0; padding-left: 18px; color: #59625d; font-size: 11px; line-height: 1.65; }
+    .guide-steps { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; margin-top: 12px; }
+    .guide-step { min-height: 102px; border: 1px solid #e8eae5; border-radius: 7px; padding: 11px; background: #fff; }
+    .guide-step-number { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #fff1b9; color: #6d5810; font-size: 10px; font-weight: 750; }
+    .guide-step strong { display: block; margin-top: 7px; color: #343b36; font-size: 11px; }
+    .guide-step span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.4; }
+    .guide-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; margin-top: 11px; }
+    .guide-detail { border: 1px solid #e9ebe7; border-radius: 7px; padding: 11px 12px; background: #fbfcfa; }
+    .guide-detail strong { color: #343b36; font-size: 11px; }
+    .guide-detail p { margin: 4px 0 0; }
+    .walkthrough-note { border-left: 3px solid #e6c43e; background: #fff9e4; padding: 9px 11px; border-radius: 0 5px 5px 0; color: #6a5c32; font-size: 10px; line-height: 1.5; margin-top: 10px; }
+    .guide-action { margin-top: 10px; }
+    .type-pill { display: inline-flex; vertical-align: middle; border-radius: 999px; padding: 2px 6px; margin-left: 4px; background: #fff3d0; color: #80600a; font-size: 8px; font-weight: 750; letter-spacing: .03em; }
+    .photo-review-warning { color: #875417; background: #fff7e3; border: 1px solid #f0d995; border-radius: 5px; padding: 3px 6px; font-size: 8px; font-weight: 700; }
+    .shift-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+    .shift-bays { display: flex; align-items: center; gap: 6px; }
+    .shift-bay-btn { min-width: 72px; border: 1px solid #e1e4df; border-radius: 7px; padding: 8px 10px; background: #fff; color: #5e6661; font-size: 11px; font-weight: 620; }
+    .shift-bay-btn:hover { border-color: #d3b64d; }
+    .shift-bay-btn.active { background: var(--yellow-soft); border-color: #d7b737; color: #4b3f12; }
+    .shift-toolbar-note { display: flex; align-items: center; gap: 6px; color: #8a918d; font-size: 10px; }
+    .shift-toolbar-note svg { width: 14px; height: 14px; }
+    .shift-yard-panel { margin-bottom: 12px; }
+    .shift-route-summary { display: flex; align-items: center; gap: 8px; color: #818984; font-size: 10px; white-space: nowrap; }
+    .shift-route-summary strong { color: #3e4842; font-weight: 680; }
+    .yard-map-scroll { overflow-x: auto; overscroll-behavior-x: contain; padding: 12px 15px 8px; }
+    .yard-map-layout { min-width: 600px; display: grid; grid-template-columns: 95px minmax(300px, 1fr) 112px; grid-template-rows: repeat(6, minmax(42px,auto)); gap: 7px; }
+    .yard-map-entrance { grid-column: 1; grid-row: 1 / span 6; display: grid; place-items: center; border-right: 1px dashed #d9ddd8; color: #8a938d; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-align: center; line-height: 1.5; }
+    .yard-map-c { grid-column: 2; grid-row: 1; }
+    .yard-map-df { grid-column: 2; grid-row: 2; }
+    .yard-map-db { grid-column: 2; grid-row: 3; }
+    .yard-map-ef { grid-column: 2; grid-row: 4; }
+    .yard-map-eb { grid-column: 2; grid-row: 5; }
+    .yard-map-a { grid-column: 2; grid-row: 6; }
+    .yard-map-b { grid-column: 3; grid-row: 1 / span 6; }
+    .yard-map-section { min-height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid #e4e8e2; border-radius: 7px; background: #fbfcfa; padding: 5px 8px; transition: background .12s,border-color .12s; }
+    .yard-map-section.route-from { border-color: #9fb6aa; background: #f1f7f2; }
+    .yard-map-section.route-to { border-color: #d3b43a; background: #fff8dc; }
+    .yard-map-section.route-from.route-to { border-color: #d3b43a; background: #fff8dc; box-shadow: inset 3px 0 #9fb6aa; }
+    .yard-map-title strong { display: block; color: #3d4741; font-size: 10px; }
+    .yard-map-title span { display: block; color: #8e9690; font-size: 8px; margin-top: 2px; }
+    .yard-map-actions { display: flex; gap: 4px; flex: 0 0 auto; }
+    .map-route-btn { border: 1px solid #e3e6e1; border-radius: 4px; background: white; color: #7a837d; padding: 4px 6px; font-size: 8px; font-weight: 650; }
+    .map-route-btn.active[data-route="from"] { border-color: #a8baad; background: #e5efe7; color: #365d43; }
+    .map-route-btn.active[data-route="to"] { border-color: #d3b43a; background: #ffed9f; color: #4b3f12; }
+    .yard-map-legend { display: flex; gap: 14px; padding: 0 16px 11px; color: #818984; font-size: 9px; }
+    .route-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; background: #9fb6aa; }
+    .route-dot.to { background: #d6b535; }
+    .shift-route-panels { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: start; gap: 12px; }
+    .shift-route-panels > .panel { min-width: 0; overflow: hidden; }
+    .shift-scroll-actions { display: flex; gap: 5px; }
+    .shift-scroll-btn { border: 1px solid #e3e5e1; border-radius: 5px; background: #fff; color: #66706a; width: 28px; height: 27px; font-size: 14px; line-height: 1; }
+    .shift-scroll-btn:hover { background: #f8f9f6; }
+    .shift-scroller { overflow-x: auto; padding: 13px; scrollbar-color: #c6cbc5 #f3f4f1; scrollbar-width: thin; }
+    .shift-columns { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(138px, 1fr); grid-template-rows: 1fr; gap: 8px; width: max-content; min-width: 100%; align-items: stretch; }
+    .shift-block { width: 154px; min-height: 300px; display: flex; flex-direction: column; border: 1px solid #e5e8e3; border-radius: 8px; background: #fafbf9; padding: 8px; transition: background .15s, border-color .15s, box-shadow .15s; }
+    .shift-block.drag-over { background: #fff7d8; border-color: #d1ad32; box-shadow: 0 0 0 2px rgba(243,198,41,.18); }
+    .shift-block-head { padding: 2px 1px 9px; border-bottom: 1px solid #e8eae6; }
+    .shift-block-top { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+    .shift-block-name { font-size: 11px; font-weight: 700; }
+    .shift-count { color: #87908a; font-size: 9px; white-space: nowrap; }
+    .shift-count.full { color: #a3473e; font-weight: 650; }
+    .shift-meter { height: 3px; background: #e9ece7; border-radius: 4px; overflow: hidden; margin-top: 7px; }
+    .shift-meter span { display: block; height: 100%; background: var(--yellow); }
+    .shift-vans { display: grid; align-content: start; gap: 5px; padding-top: 8px; flex: 1; }
+    .shift-van { min-width: 0; border: 1px solid #e5e8e3; background: #fff; border-radius: 6px; padding: 7px 5px 6px 7px; cursor: grab; box-shadow: 0 1px 1px rgba(20,30,25,.025); }
+    .shift-van:active { cursor: grabbing; }
+    .shift-van.dragging { opacity: .45; }
+    .shift-van-code { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; font-weight: 700; color: #343c38; }
+    .shift-van-consignee { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #8a918c; font-size: 9px; margin-top: 3px; }
+    .shift-van-actions { display: flex; justify-content: space-between; gap: 4px; margin-top: 6px; }
+    .shift-nudge { border: 1px solid #eceeea; border-radius: 4px; height: 22px; min-width: 34px; padding: 0 5px; background: #fafbf9; color: #68716c; font-size: 10px; line-height: 1; }
+    .shift-nudge:hover:not(:disabled) { border-color: #d8bf5a; background: #fff9e3; color: #4c4115; }
+    .shift-nudge:disabled { opacity: .35; cursor: default; }
+    .shift-empty { border: 1px dashed #dfe3dc; border-radius: 5px; padding: 12px 5px; color: #a0a69f; font-size: 9px; text-align: center; }
+    .shift-move-any { padding: 3px 6px !important; font-size: 8px !important; }
+    .shift-destination-columns { display: grid; grid-auto-flow: column; grid-auto-columns: 154px; gap: 8px; width: max-content; min-width: 100%; align-items: stretch; }
+    .shift-destination-block { width: 154px; min-height: 300px; border: 1px solid #e5e8e3; border-radius: 8px; background: #fafbf9; padding: 8px; transition: background .15s,border-color .15s,box-shadow .15s; }
+    .shift-destination-block.drag-over { background: #fff7d8; border-color: #d1ad32; box-shadow: 0 0 0 2px rgba(243,198,41,.18); }
+    .destination-vans { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 4px; padding-top: 8px; }
+    .destination-van { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid #e2e5df; border-radius: 4px; background: #fff; padding: 4px 5px; color: #59615c; font-size: 8px; }
+    .destination-empty { width: 100%; border: 1px dashed #dfe3dc; border-radius: 5px; padding: 12px 5px; color: #a0a69f; font-size: 9px; text-align: center; }
+    .shift-footer { padding: 10px 14px; border-top: 1px solid #eff0ed; color: #8b928d; font-size: 9px; line-height: 1.5; }
+    .quick-step { padding: 14px; margin-bottom: 12px; }
+    .quick-step-head { display: flex; align-items: baseline; gap: 8px; margin: 0 0 11px; }
+    .quick-step-number { display: inline-grid; place-items: center; flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%; background: #fff1b9; color: #6d5810; font-size: 10px; font-weight: 750; }
+    .quick-step-title { color: #343b36; font-size: 12px; font-weight: 700; }
+    .quick-step-hint { color: var(--muted); font-size: 10px; }
+    .quick-section-grid, .quick-block-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(110px,1fr)); gap: 7px; }
+    .quick-section-button, .quick-block-button { min-height: 43px; border: 1px solid #e4e8e2; border-radius: 7px; padding: 7px 9px; background: #fbfcfa; color: #4b554f; text-align: left; font-size: 10px; font-weight: 650; }
+    .quick-section-button.active, .quick-block-button.active { border-color: #d4b842; background: #fff8d9; color: #544813; box-shadow: inset 0 0 0 1px rgba(212,184,66,.13); }
+    .quick-block-button:disabled { opacity: .42; cursor: not-allowed; }
+    .quick-section-button span, .quick-block-button span { display: block; margin-top: 3px; color: #838b85; font-size: 9px; font-weight: 450; }
+    .quick-van-list { display: grid; gap: 7px; }
+    .quick-van-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid #e8ebe6; border-radius: 7px; padding: 9px 10px; background: #fff; }
+    .quick-van-row strong { display: block; color: #343b36; font-size: 11px; }
+    .quick-van-row span { display: block; margin-top: 3px; color: #818a84; font-size: 9px; }
+    .quick-van-row .btn { min-height: 36px; flex: 0 0 auto; }
+    .quick-selected-van { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid #e6d58a; border-radius: 7px; padding: 9px 11px; margin-bottom: 10px; background: #fff9df; color: #4b421e; font-size: 10px; }
+    .quick-selected-van strong { display: block; font-size: 11px; }
+    .quick-confirm { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 9px; }
+    .status-pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 3px 7px; font-size: 9px; font-weight: 650; background: #edf5ec; color: #427049; white-space: nowrap; }
+    .status-pill.stripped { color: #725d18; background: #fff5d2; }
+    .status-pill.withdrawn { color: #8b4b43; background: #f9e9e6; }
+    .record-meta { display: block; margin-top: 3px; color: #7a837d; font-size: 9px; line-height: 1.35; }
+    .inventory-row { align-items: flex-start; }
+    .inventory-primary { flex: 1 1 150px; }
+    .record-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 5px; max-width: 240px; }
+    .record-actions .btn { min-height: 28px; padding: 4px 7px; font-size: 9px; }
+    .slot-select { max-width: 112px; height: 30px; font-size: 9px; padding: 0 20px 0 6px; }
+    .history-table td { vertical-align: top; }
+    .history-type { font-weight: 650; white-space: nowrap; }
+    .history-detail { color: var(--muted); font-size: 10px; }
+    .history-time { white-space: nowrap; color: var(--muted); font-size: 10px; }
+    .tag-paper { display: none; }
+    .guide-note { border: 1px solid #eee2b9; background: #fffaf0; color: #776b42; border-radius: 7px; padding: 9px 11px; font-size: 10px; line-height: 1.5; margin-bottom: 14px; }
+    .manual-layout { display: grid; grid-template-columns: minmax(250px,.78fr) minmax(0,1.22fr); gap: 13px; align-items: start; }
+    .manual-form { display: grid; gap: 11px; padding: 14px; }
+    .manual-form .field { margin: 0; }
+    .manual-slot-panel { padding-bottom: 10px; }
+    .manual-selection { padding: 10px 13px; border-top: 1px solid var(--line); color: #665619; background: #fff9e2; font-size: 10px; line-height: 1.45; }
+    .manual-selection strong { color: #38321f; }
+    .manual-slot-note { padding: 0 13px 8px; color: var(--muted); font-size: 9px; line-height: 1.45; }
+    .modal-backdrop { position: fixed; inset: 0; display: none; place-items: center; background: rgba(28,32,30,.38); z-index: 50; padding: 18px; }
+    .modal-backdrop.open { display: grid; }
+    .modal { width: min(440px, 100%); background: #fff; border-radius: 11px; box-shadow: 0 20px 70px rgba(0,0,0,.2); overflow: hidden; }
+    .modal.wide { width: min(860px, 100%); }
+    .modal-head { padding: 16px 18px 12px; border-bottom: 1px solid #eff0ed; display: flex; justify-content: space-between; align-items: flex-start; }
+    .modal-head h2 { font-size: 14px; margin: 0; }
+    .modal-head p { color: var(--muted); font-size: 10px; margin: 4px 0 0; }
+    .icon-btn { border: 0; background: transparent; color: #8a908d; font-size: 18px; line-height: 1; padding: 0 2px; }
+    .modal-body { padding: 15px 18px 18px; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 10px; color: #68716d; font-weight: 650; margin-bottom: 5px; }
+    .field input, .field select { border: 1px solid #dfe3df; border-radius: 6px; height: 35px; width: 100%; padding: 0 9px; color: #48504d; background: #fff; font-size: 11px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 17px; }
+    .modal-info { font-size: 10px; color: #8c938e; line-height: 1.5; margin-top: -2px; }
+    .ocr-progress { height: 5px; background: #f0f1ed; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+    .ocr-progress span { height: 100%; width: 0; display: block; background: var(--yellow); transition: width .2s ease; }
+    .photo-review-top { display: flex; align-items: center; gap: 11px; margin-bottom: 12px; color: #747c77; font-size: 10px; line-height: 1.5; }
+    .photo-review-top img { width: 72px; height: 54px; flex: 0 0 auto; object-fit: cover; border: 1px solid var(--line); border-radius: 5px; background: #f6f7f5; }
+    .photo-review-list { max-height: 48vh; overflow: auto; border: 1px solid #eceeeb; border-radius: 7px; }
+    .photo-table { min-width: 850px; }
+    .photo-table th { top: 0; }
+    .photo-table td { padding: 5px 8px; }
+    .photo-table input { border: 1px solid #e3e6e1; border-radius: 4px; height: 29px; padding: 0 7px; width: 100%; font-size: 10px; }
+    .photo-table select { border: 1px solid #e3e6e1; border-radius: 4px; height: 29px; padding: 0 5px; width: 100%; font-size: 10px; background: #fff; color: var(--ink); }
+    .photo-table .row-num { width: 34px; color: #a0a5a1; text-align: center; }
+    .photo-table .photo-container.invalid { border-color: #c46b26; background: #fff8ee; }
+    .photo-validation { display: block; color: #986323; font-size: 8px; line-height: 1.2; margin-top: 3px; }
+    .shared-banner { display: none; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid #ead47e; background: #fff8dc; padding: 10px 13px; border-radius: 8px; margin-bottom: 14px; }
+    .shared-banner.show { display: flex; }
+    .shared-banner strong { display: block; font-size: 11px; }
+    .shared-banner span { display: block; font-size: 10px; color: #786c41; margin-top: 3px; }
+    .toast { position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 16px); opacity: 0; pointer-events: none; background: #29312d; color: white; padding: 10px 14px; border-radius: 7px; z-index: 70; box-shadow: var(--shadow); font-size: 11px; transition: .2s ease; }
+    .toast.show { transform: translate(-50%,0); opacity: 1; }
+    .hidden { display: none !important; }
+    @media (max-width: 1050px) {
+      .content { padding: 22px 20px 35px; }
+      .topbar { padding: 10px 20px; }
+      .yard-layout { grid-template-columns: 1fr; }
+      .yard-side { grid-template-columns: 1fr 1fr; }
+      .shift-block { width: 145px; }
+      .guide-steps { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .manual-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .app { display: block; }
+      .sidebar { padding: 5px 8px calc(5px + env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--line); display: flex; flex-direction: row; align-items: center; gap: 0; position: fixed; inset: auto 0 0; height: auto; align-self: auto; overflow: visible; z-index: 30; background: rgba(255,255,255,.97); box-shadow: 0 -5px 18px rgba(28,35,32,.06); backdrop-filter: blur(12px); }
+      .brand, .nav-label, .sidebar-spacer, .storage-card, .sidebar-foot { display: none; }
+      .nav { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 2px; width: 100%; }
+      .nav-btn { width: 100%; min-height: 52px; padding: 6px 1px 5px; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; gap: 3px; font-size: 8px; line-height: 1.1; }
+      .nav-btn svg { width: 17px; height: 17px; }
+      .topbar { position: sticky; top: 0; z-index: 10; min-height: 55px; padding: 7px 12px; }
+      .crumb, .top-status { display: none; }
+      .top-actions { width: 100%; }
+      .search-wrap { width: 100%; }
+      .search { height: 42px; font-size: 15px; border-radius: 9px; }
+      .search-icon { top: 13px; }
+      .kbd { display: none; }
+      .search-results { top: 48px; width: 100%; max-height: min(55dvh, 420px); }
+      .result { min-height: 52px; }
+      .content { padding: 17px 12px calc(84px + env(safe-area-inset-bottom)); }
+      .page-head { align-items: flex-start; flex-direction: column; margin-bottom: 15px; }
+      .head-actions { align-self: stretch; }
+      .head-actions .btn { flex: 1; min-height: 44px; padding: 9px 8px; font-size: 11px; white-space: normal; }
+      .stats { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+      .stat { padding: 11px 12px; min-height: 78px; }
+      .stat-value { font-size: 19px; }
+      .dropzone { margin: 10px; padding: 10px; flex-wrap: wrap; min-height: 90px; }
+      .drop-hint { display: none; }
+      .dropzone .btn { margin-left: auto; }
+      .table-tools { padding: 9px 10px; min-height: 48px; }
+      .filter-line { display: flex; }
+      .filter-select { height: 38px; font-size: 13px; }
+      .table-scroll { max-height: none; overflow: visible; }
+      table { min-width: 0; width: 100%; }
+      thead { display: none; }
+      tbody { display: grid; gap: 8px; padding: 8px; }
+      tbody tr { position: relative; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 4px 8px; padding: 10px; border: 1px solid #e8eae6; border-radius: 8px; background: #fff; }
+      tbody td { min-width: 0; padding: 0; border: 0; font-size: 11px; }
+      tbody td.van-cell { grid-column: 1; grid-row: 1; font-size: 12px; }
+      tbody td.consignee { grid-column: 1 / -1; grid-row: 2; max-width: none; overflow: visible; white-space: normal; line-height: 1.4; }
+      tbody td:nth-child(3) { grid-column: 1 / -1; grid-row: 3; margin: 2px 0; }
+      tbody td:nth-child(4) { grid-column: 1 / -1; grid-row: 4; }
+      tbody td:nth-child(5) { grid-column: 1 / -1; grid-row: 5; }
+      tbody td:nth-child(6) { grid-column: 2; grid-row: 1; }
+      .assign-cell { gap: 7px; }
+      .assign-select { height: 42px; min-width: 0; flex: 1; padding: 0 24px 0 9px; font-size: 14px; border-radius: 7px; }
+      .assign-select.block { min-width: 0; }
+      .remove-record { min-height: 40px; }
+      .bay-strip { display: flex; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; padding: 9px; gap: 7px; }
+      .bay-card { flex: 0 0 92px; scroll-snap-align: start; padding: 9px 8px; }
+      .bay-card-sided { flex-basis: 160px; }
+      .bay-letter { font-size: 14px; }
+      .bay-count { font-size: 9px; }
+      .bay-face-btn { min-height: 34px; }
+      .blocks { grid-template-columns: repeat(2,minmax(0,1fr)); padding: 9px; gap: 7px; }
+      .block-card { min-height: 78px; padding: 10px; }
+      .inventory-list { padding: 4px 12px 12px; max-height: 45dvh; }
+      .inventory-row { min-height: 58px; }
+      .move-block { max-width: 112px; }
+      .yard-side { grid-template-columns: 1fr; }
+      .record-actions { justify-content: flex-start; max-width: none; }
+      .history-table, .history-table tbody, .history-table tr, .history-table td { display: block; min-width: 0; }
+      .history-table tbody { padding: 8px; }
+      .history-table tr { display: grid; grid-template-columns: 1fr auto; gap: 5px 10px; padding: 10px; border: 1px solid #e8eae6; border-radius: 7px; }
+      .history-table td { border: 0; padding: 0; }
+      .history-table td:nth-child(1) { grid-column: 1; }
+      .history-table td:nth-child(2) { grid-column: 2; grid-row: 1; }
+      .history-table td:nth-child(3), .history-table td:nth-child(4) { grid-column: 1 / -1; }
+      .shift-toolbar { align-items: flex-start; flex-direction: column; }
+      .shift-bays { width: 100%; }
+      .shift-bay-btn { flex: 1; min-width: 0; min-height: 44px; font-size: 12px; }
+      .shift-toolbar-note { align-self: flex-start; line-height: 1.4; }
+      .shift-block { width: 154px; min-height: 260px; }
+      .shift-scroller { padding: 9px; overscroll-behavior-x: contain; scroll-snap-type: x proximity; }
+      .shift-block { scroll-snap-align: start; }
+      .shift-route-panels { grid-template-columns: minmax(0,1fr); }
+      .quick-section-grid, .quick-block-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .quick-section-button, .quick-block-button { min-height: 46px; padding: 7px; font-size: 10px; }
+      .quick-van-row { align-items: flex-start; }
+      .quick-van-row .btn { min-height: 42px; padding: 7px 10px; }
+      .guide-steps, .guide-grid { grid-template-columns: 1fr; }
+      .guide-section { padding: 13px; }
+      .guide-toc { gap: 5px; }
+      .guide-toc a { padding: 6px 8px; }
+      .manual-layout { grid-template-columns: minmax(0,1fr); }
+      .manual-form { gap: 9px; }
+      .shift-destination-block { width: 154px; min-height: 260px; scroll-snap-align: start; }
+      .shift-destination-columns { gap: 6px; }
+      .shift-move-any { min-height: 38px !important; padding: 5px 8px !important; font-size: 10px !important; }
+      .shift-route-summary { flex-wrap: wrap; justify-content: flex-end; white-space: normal; }
+      .yard-map-legend { font-size: 9px; }
+      .shift-scroll-btn { width: 40px; height: 40px; font-size: 19px; }
+      .shift-nudge { min-width: 58px; min-height: 42px; padding: 0 6px; font-size: 12px; border-radius: 7px; touch-action: manipulation; }
+      .shift-van { padding: 9px 7px; }
+      .shift-van-code { font-size: 11px; }
+      .shift-van-consignee { font-size: 10px; }
+      .shift-footer { font-size: 10px; }
+      .modal-backdrop { align-items: end; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
+      .modal, .modal.wide { width: 100%; max-height: 92dvh; overflow: auto; border-radius: 14px 14px 9px 9px; }
+      .modal-head { padding: 17px 16px 13px; }
+      .modal-body { padding: 14px 16px calc(18px + env(safe-area-inset-bottom)); }
+      .field input, .field select { height: 44px; font-size: 15px; }
+      .modal-actions .btn { min-height: 44px; }
+      .content h1 { font-size: 20px; }
+      .shared-banner { align-items: flex-start; flex-direction: column; }
+      .shared-banner .head-actions { width: 100%; }
+      .toast { bottom: calc(76px + env(safe-area-inset-bottom)); max-width: calc(100vw - 28px); text-align: center; }
+    }
+    @media (max-width: 420px) {
+      .content { padding-left: 10px; padding-right: 10px; }
+      .page-head { gap: 10px; }
+      .page-desc { max-width: 38ch; line-height: 1.45; }
+      .stats { gap: 7px; }
+      .stat { padding: 10px; }
+      .stat-label { font-size: 9px; }
+      .stat-foot { font-size: 9px; line-height: 1.3; }
+      .panel-head { padding: 11px 12px; }
+      .panel-sub { max-width: 31ch; line-height: 1.4; }
+      .table-tools { gap: 6px; }
+      .table-info { font-size: 9px; }
+      .filter-line { gap: 4px; }
+      .filter-select { max-width: 132px; }
+      .shift-block { width: 148px; }
+      .shift-columns { gap: 6px; }
+      .shift-nudge { min-width: 54px; }
+      .photo-review-list { max-height: 42dvh; }
+    }
+    @media (min-width: 761px) and (max-width: 1180px) and (orientation: landscape) {
+      .app { grid-template-columns: 190px minmax(0,1fr); }
+      .sidebar { padding: 18px 12px; }
+      .brand { gap: 8px; }
+      .brand-name { font-size: 12px; }
+      .content { padding: 18px 18px 26px; }
+      .topbar { min-height: 55px; padding: 9px 18px; }
+      .yard-lower { grid-template-columns: minmax(0,1fr); }
+      .yard-side { grid-template-columns: minmax(300px,1fr) minmax(260px,.8fr); }
+      .shift-block { width: 150px; min-height: 250px; }
+      .shift-columns { grid-auto-columns: 158px; }
+      .shift-scroller { max-height: calc(100dvh - 255px); }
+    }
+    @media print {
+      body * { visibility: hidden !important; }
+      #printArea, #printArea * { visibility: visible !important; }
+      #printArea { display: block !important; position: fixed; inset: 0; width: 100%; color: #111; }
+      .tag-paper { display: block; width: 100mm; min-height: 140mm; margin: 0; padding: 10mm; border: 1px solid #333; font: 12pt Arial, sans-serif; }
+      .tag-paper h1 { font-size: 17pt; margin: 0 0 9mm; }
+      .tag-field { margin: 0 0 6mm; border-bottom: 1px solid #999; padding-bottom: 3mm; }
+      .tag-label { display: block; color: #555; font-size: 9pt; text-transform: uppercase; margin-bottom: 1mm; }
+      .tag-value { font-size: 13pt; font-weight: 700; }
+      @page { margin: 10mm; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7.5h12.5l2 3.2H21v6.8h-2.2M3 7.5v10h2.2m0 0a2 2 0 1 0 4 0m-4 0h4m0 0h6m0 0a2 2 0 1 0 4 0M3 10h12m-8-2.5v2.5m4-2.5v2.5m4-2.5v2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 10.7v3.6H21" stroke-linecap="round"/></svg></div>
+        <div><div class="brand-name">Container Van Locator</div><div class="brand-sub">Quick Move edition</div></div>
+      </div>
+      <div class="nav-label">Workspace</div>
+      <nav class="nav" aria-label="Main navigation">
+        <button class="nav-btn active" data-page="loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3.8h8l4 4v12.4H6z" stroke-linejoin="round"/><path d="M14 3.8v4h4M9 12h6M9 15.5h6" stroke-linecap="round"/></svg>Loading list</button>
+        <button class="nav-btn" data-page="yard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="4" width="7" height="6.5" rx="1"/><rect x="13.5" y="4" width="7" height="6.5" rx="1"/><rect x="3.5" y="13.5" width="7" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="7" height="6.5" rx="1"/></svg>Yard view</button>
+        <button class="nav-btn" data-page="shift"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h15m0 0-3-3m3 3-3 3M20 17H5m0 0 3-3m-3 3 3 3" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10v4m5-4v4m5-4v4" stroke-linecap="round"/></svg>Quick Move</button>
+        <button class="nav-btn" data-page="manual"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5.5h16v13H4z" stroke-linejoin="round"/><path d="M8 9h8M8 12h4m4 0v5m-2.5-2.5h5" stroke-linecap="round"/></svg>Add vans</button>
+        <button class="nav-btn" data-page="help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 4.3 1.7c-1.2 1.1-1.9 1.5-1.9 3M12 17.5v.1" stroke-linecap="round"/></svg>App guide</button>
+        <button class="nav-btn" data-page="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10" stroke-linecap="round"/><circle cx="18" cy="18" r="3.4"/><path d="M18 16.5V18l1.1.8" stroke-linecap="round"/></svg>History</button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="storage-card"><div class="storage-top"><i class="storage-dot"></i> Saved on this device</div><div class="storage-copy">Your yard list stays in this browser. Use a share link to send a snapshot.</div></div>
+      <div class="sidebar-foot">Container Van Locator · Free edition</div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="crumb">Yard operations <span style="margin:0 6px;color:#c4c8c4">/</span><strong id="crumbPage">Loading list</strong></div>
+        <div class="top-actions">
+          <div class="search-wrap">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4.2 4.2" stroke-linecap="round"/></svg>
+            <input id="globalSearch" class="search" type="search" placeholder="Search van or consignee…" autocomplete="off" aria-label="Search by van number or consignee">
+            <span class="kbd">/</span><div id="searchResults" class="search-results"></div>
+          </div>
+          <div class="top-status"><span class="status-light"></span> Local workspace</div>
+        </div>
+      </header>
+      <div class="content">
+        <div id="sharedBanner" class="shared-banner">
+          <div><strong>Shared yard snapshot loaded</strong><span id="sharedCount"></span></div>
+          <div class="head-actions"><button id="saveShared" class="btn small primary">Save to this device</button><button id="dismissShared" class="btn small">Dismiss</button></div>
+        </div>
+        <section id="loadingPage"></section>
+        <section id="yardPage" class="hidden"></section>
+        <section id="shiftPage" class="hidden"></section>
+        <section id="manualPage" class="hidden"></section>
+        <section id="historyPage" class="hidden"></section>
+        <section id="helpPage" class="hidden">
+          <div class="page-head"><div><div class="eyebrow">How to use the workspace</div><h1>App guide</h1><p class="page-desc">A practical walkthrough of importing a loading guide, locating vans, updating yard positions, and sharing your records.</p></div></div>
+          <div class="guide-intro"><strong>What this app does.</strong> Container Van Locator turns loading-guide records into a searchable yard list. Assign each van to its bay and block, see its stack position, and record moves and withdrawal status. The dedicated Actual arrivals page is paused. Use Add vans to enter containers already physically in the yard; use an additional loading guide to record new arrivals.</div>
+          <nav class="guide-toc" aria-label="Guide topics"><a href="#guide-start">Getting started</a><a href="#guide-import">Import guide</a><a href="#guide-existing">Existing yard stock</a><a href="#guide-yard">Yard map</a><a href="#guide-search">Search and assign</a><a href="#guide-shift">Move vans</a><a href="#guide-status">Status and history</a><a href="#guide-picking">Picking tags</a><a href="#guide-share">Save and share</a></nav>
+
+          <section class="panel guide-section" id="guide-start"><h2>1. A complete yard workflow</h2><p>Follow these steps when a new loading guide arrives or when you need to update van locations.</p><div class="guide-steps">
+            <div class="guide-step"><i class="guide-step-number">1</i><strong>Import the guide</strong><span>Upload an Excel/CSV file or select loading-guide photos on the Loading list page.</span></div>
+            <div class="guide-step"><i class="guide-step-number">2</i><strong>Check the records</strong><span>Review photo extraction, van numbers, consignee names, and any LCL labels.</span></div>
+            <div class="guide-step"><i class="guide-step-number">3</i><strong>Enter existing yard stock</strong><span>Use Add vans to record vans already placed and select each exact stack spot.</span></div>
+            <div class="guide-step"><i class="guide-step-number">4</i><strong>Confirm in Yard view</strong><span>Open the bay and block to see each van in its exact stack slot.</span></div>
+            <div class="guide-step"><i class="guide-step-number">5</i><strong>Keep the yard current</strong><span>Use Quick shift when vans move, and update status after stripping or withdrawal.</span></div>
+            <div class="guide-step"><i class="guide-step-number">6</i><strong>Back up or share</strong><span>Download a JSON backup or send a point-in-time snapshot link to a teammate.</span></div>
+          </div><button class="btn small primary guide-action" data-go-page="loading">Open Loading list</button></section>
+
+          <section class="panel guide-section" id="guide-import"><h2>2. Import loading guides and photos</h2><p>From <strong>Loading list</strong>, use Browse files or drop a file into the upload area.</p><div class="guide-grid">
+            <div class="guide-detail"><strong>Spreadsheets and CSV</strong><p>Excel, CSV, and TSV files are supported. The app looks for container/van number and consignee headings. If it cannot match them, choose the correct columns in the prompt. A CSV from Consignee Finder can be imported here.</p></div>
+            <div class="guide-detail"><strong>Loading-guide photos</strong><p>JPG, PNG, and WEBP photos can be selected together. The photo reader targets the printed <em>Container No.</em> and <em>Consignee Name</em> columns; it does not use the seal or shipper columns. Photos whose filenames contain a timestamp are read in timestamp order.</p></div>
+            <div class="guide-detail"><strong>Review before adding</strong><p>Check the extracted van number and consignee in the review table. Incomplete numbers and ISO container check-digit mismatches are highlighted and must be corrected before importing or exporting the photo CSV. Clear, straight-on photos give the reader the best chance.</p></div>
+            <div class="guide-detail"><strong>Multiple consignees · LCL</strong><p>When a van has two or more distinct consignee names, they are combined under that van and marked <b>LCL</b>. The Consignee Finder CSV export writes a separate row for each consignee, with the same van number and LCL type.</p></div>
+          </div><div class="walkthrough-note">The photo CSV uses <b>Container, Consignee, Type, Bay Location, Checked</b>, with Vessel and Voyage appended. Handwritten yard notes on a photo are not used to assign the location; assign the bay and block in this app after import.</div><h3>Adding a later guide</h3><p>Import the additional guide from Loading list. New van numbers are added; matching numbers have consignee, vessel, voyage, and load type refreshed. Their existing yard location and status are kept. New rows wait for a location assignment.</p><h3>Where incoming records appear</h3><p>For now, use an updated loading guide to add incoming vans. The paused Actual arrivals page is not available for direct on-the-spot entry. New guide records appear in the <strong>Incoming full</strong> History filter.</p></section>
+
+          <section class="panel guide-section" id="guide-existing"><h2>3. Enter vans already in the yard</h2><p>Use <strong>Add vans</strong> during setup to record containers that are physically in a bay before you begin regular operation.</p><ol><li>Enter the complete van number, including its check digit. If the number already exists in the Loading list, its consignee and voyage details are filled in automatically.</li><li>For a new number, add the consignee and optional vessel and voyage. Multiple consignee names can be separated with semicolons and are marked LCL.</li><li>Choose the bay/side and block, then tap the exact open tile in the stack diagram. Each tile shows the recalculated position number, stack, and level; occupied spots are disabled.</li><li>Choose <strong>Add van to this location</strong>. The record and a time-stamped “Existing stock added” entry are saved in History.</li></ol><p>The screen can be used repeatedly to build the opening stock list. You can later search any van, change its location, print a picking tag, or update its status.</p><button class="btn small guide-action" data-go-page="manual">Open Add vans</button></section>
+
+          <section class="panel guide-section" id="guide-yard"><h2>4. Yard map, blocks, and stack numbering</h2><p>Choose a bay in <strong>Yard view</strong>, then select one of its block tiles to see the vans and the visual stack.</p><div class="guide-grid">
+            <div class="guide-detail"><strong>Bay and block layout</strong><p>Bay A has 11 blocks, Bay B has 12, Bay C has 7, Bay D has 5 front and 5 back blocks, and Bay E has 7 front and 7 back blocks. D/E labels show their side, for example <b>D-F1</b> and <b>E-B1</b>. The whole yard has 54 sections/blocks and up to 594 van slots.</p></div>
+            <div class="guide-detail"><strong>Four stack lanes</strong><p>Each block has four lanes with capacities <b>3 / 3 / 3 / 2</b>, for 11 vans maximum. The yard diagram labels FRONT and REAR. Use the displayed stack and level along with the position number.</p></div>
+          </div><div class="walkthrough-note">Position <b>#1</b> starts at the rear lane’s bottom. Number upward through that lane, then start at the bottom of the next lane toward the front. If a rear lane is empty, the first occupied slot in the next lane becomes #1. Numbers recalculate as vans move or leave the active yard.</div><p>Select an occupied tile to highlight its van. Select an open tile to assign a van to that exact stack slot. The inventory list also lets you change the stack position from its selector.</p><button class="btn small guide-action" data-go-page="yard">Open Yard view</button></section>
+
+          <section class="panel guide-section" id="guide-search"><h2>5. Search and assign a van</h2><ol><li>Use the search box at the top and enter at least two characters from the van number or consignee name.</li><li>Read the result for its van number, consignee, vessel/voyage, status, and current location.</li><li>Choose <b>Assign Bay / Block</b> for an unassigned van, or <b>Change location</b> to move a placed van. Pick a bay/side and block, then confirm.</li><li>Click a placed result to open its block in Yard view and highlight the exact slot. A withdrawn van opens its History records.</li></ol><p>The Loading list also has bay/side and block selectors in each row. Assignments save automatically in the current browser.</p><button class="btn small guide-action" data-go-page="loading">Open Loading list</button></section>
+
+          <section class="panel guide-section" id="guide-shift"><h2>6. Quick Move with buttons</h2><p>Quick Move uses one step at a time: pick the source bay/side and block, tap <strong>Move</strong> beside a van, choose a destination bay/side and block, then confirm. You can move across any bay, including between Bay A and Bay E-Back.</p><ul><li>The source and destination choices are button tiles; there are no sideways block columns to scroll.</li><li>Choose any open destination block. Full blocks and the van’s current block are unavailable.</li><li>After moving, the screen stays on the block where you are working so the next move is ready.</li><li>Every successful move updates the location and adds a time-stamped entry to History.</li></ul><p><a href="../">Open the original version with column-based Quick shift.</a></p><button class="btn small guide-action" data-go-page="shift">Open Quick Move</button></section>
+
+          <section class="panel guide-section" id="guide-status"><h2>7. Status, dates, and History</h2><p>In the Yard inventory row, use the status buttons to keep a van’s progress visible.</p><div class="guide-grid">
+            <div class="guide-detail"><strong>CY Stripped</strong><p>Marks the van as CY Stripped and saves the date and time. It remains assigned to its yard position until moved or withdrawn.</p></div>
+            <div class="guide-detail"><strong>Withdrawn</strong><p>Marks the van withdrawn, records its time and last location, and removes it from the active yard layout. The record remains in the Loading list and History.</p></div>
+          </div><p>The History page shows incoming full records, withdrawals, location moves, and status changes, newest first. Use its filter or click a van’s history from Search to narrow the list. Times display in the device’s local time zone.</p><button class="btn small guide-action" data-go-page="history">Open History</button></section>
+
+          <section class="panel guide-section" id="guide-picking"><h2>8. Print a picking tag</h2><ol><li>Open the van’s block in Yard view.</li><li>Find the van in the inventory list and choose <b>Picking tag</b>.</li><li>Enter the FL operator name. This field is manually inputted.</li><li>Choose <b>Print picking tag</b> and print or save it from the device’s print dialog.</li></ol><p>The tag includes date, van number, consignee, FCL/LCL type, voyage, vessel, bay, block, stack and position, plus the FL operator.</p></section>
+
+          <section class="panel guide-section" id="guide-share"><h2>9. Save, back up, share, and install</h2><div class="guide-grid">
+            <div class="guide-detail"><strong>Saved on this device</strong><p>The app automatically saves the list and History in this browser. It does not use an account or shared database, so another phone or computer will not automatically see your edits.</p></div>
+            <div class="guide-detail"><strong>JSON backup</strong><p>Choose Backup and keep the downloaded JSON file somewhere safe. Import that file later to restore or merge van records and History.</p></div>
+            <div class="guide-detail"><strong>Share snapshot</strong><p>Share snapshot creates a link with a copy of the current records and History. The recipient can view it and choose Save to this device. It is a point-in-time copy, not live syncing; later changes require a new link.</p></div>
+            <div class="guide-detail"><strong>Android, laptop, and tablet</strong><p>Open the HTTPS app link on Android in Chrome, then choose <b>⋮ → Install app</b> or <b>Add to Home screen</b>. The same link works on laptop/desktop. Tablets can rotate to landscape. No separate APK is required.</p></div>
+          </div><div class="walkthrough-note">A snapshot link contains the data visible in that snapshot. Share it only with people who should see those van, consignee, and location details. Photo OCR and Excel reading need an internet connection to load their free browser libraries; CSV import works without them.</div><p>To open this guide again, choose <strong>App guide</strong> in the workspace menu.</p></section>
+        </section>
+      </div>
+    </main>
+  </div>
+  <input class="file-input" type="file" id="fileInput" accept=".xlsx,.xls,.csv,.tsv,.json,.png,.jpg,.jpeg,.webp" multiple>
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true"></div>
+  <div id="toast" class="toast" role="status"></div>
+  <!-- SheetJS is used only to read Excel workbooks. CSV import works without a network connection. -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script>
+    (() => {
+      const STORAGE_KEY = 'container-van-locator-v1';
+      const BAY_NAMES = ['A', 'B', 'C', 'D', 'E'];
+      const SECTION_CONFIG = [
+        { key: 'A', bay: 'A', face: '', label: 'Bay A', blocks: 11 },
+        { key: 'B', bay: 'B', face: '', label: 'Bay B', blocks: 12 },
+        { key: 'C', bay: 'C', face: '', label: 'Bay C', blocks: 7 },
+        { key: 'D-front', bay: 'D', face: 'front', label: 'Bay D · Front', blocks: 5 },
+        { key: 'D-back', bay: 'D', face: 'back', label: 'Bay D · Back', blocks: 5 },
+        { key: 'E-front', bay: 'E', face: 'front', label: 'Bay E · Front', blocks: 7 },
+        { key: 'E-back', bay: 'E', face: 'back', label: 'Bay E · Back', blocks: 7 }
+      ];
+      const SECTION_BY_KEY = Object.fromEntries(SECTION_CONFIG.map(section => [section.key, section]));
+      const YARD_BLOCK_TOTAL = SECTION_CONFIG.reduce((total, section) => total + section.blocks, 0);
+      const blocksFor = section => Array.from({ length: SECTION_BY_KEY[section]?.blocks || 0 }, (_, i) => String(i + 1).padStart(2, '0'));
+      const STACK_CAPACITIES = [3, 3, 3, 2];
+      const PAGE_SIZE = 15;
+      const state = { records: [], history: [], page: 'loading', loadingPage: 1, selectedBay: 'A', selectedFace: '', selectedBlock: '01', manualSection: 'A', manualBlock: '01', manualSlot: '', manualDraft: { van:'', consignee:'', vessel:'', voyage:'', loadType:'' }, manualClearDraft: false, loadingFilter: 'all', historyFilter: 'all', historyVanId: '', pendingRows: null, pendingFile: '', sharedSnapshot: false, photoObjectUrl: null, ocrRunning: false, shiftFromSection: 'A', shiftFromBlock: '01', shiftToSection: 'A', quickMoveId: '', quickDestSection: '', quickDestBlock: '', shiftFromScroll: 0, shiftToScroll: 0, highlightRecordId: '', migratedLocationCount: 0 };
+      let tesseractLoadPromise = null;
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+      const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const norm = value => String(value ?? '').trim().toLocaleLowerCase().replace(/[\s_\-./()]+/g, '');
+      function combineConsignees(first, second) {
+        const values = [...String(first || '').split(';'), ...String(second || '').split(';')].map(v => v.trim()).filter(Boolean);
+        const seen = new Set(); return values.filter(v => { const key = norm(v); if (!key || seen.has(key)) return false; seen.add(key); return true; }).join('; ');
+      }
+      function consigneeParts(value) { const values = String(value || '').split(';').map(v => v.trim()).filter(Boolean); const seen = new Set(); return values.filter(v => { const key = norm(v); if (!key || seen.has(key)) return false; seen.add(key); return true; }); }
+      function deriveLoadType(type, consignee) { return /lcl/i.test(String(type || '')) || consigneeParts(consignee).length > 1 ? 'LCL' : 'FCL'; }
+      function formatContainerNumber(value) {
+        const compact = String(value ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+        return /^([A-Z]{4})([0-9]{7})$/.test(compact) ? `${compact.slice(0,4)} ${compact.slice(4,10)}-${compact.slice(10)}` : String(value ?? '').trim().toUpperCase();
+      }
+      function iso6346CheckDigit(prefix, digits) {
+        const letterValue = letter => { let value = 10; for (let code = 65; code <= letter.charCodeAt(0); code++) { if (value % 11 === 0) value++; if (code === letter.charCodeAt(0)) return value; value++; } return 0; };
+        const characters = `${prefix}${digits}`; let sum = 0;
+        for (let i = 0; i < characters.length; i++) { const value = i < 4 ? letterValue(characters[i]) : Number(characters[i]); sum += value * (2 ** i); }
+        const remainder = sum % 11; return remainder === 10 ? 0 : remainder;
+      }
+      function isCompleteContainerNumber(value) {
+        const compact = String(value ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+        if (!/^[A-Z]{4}[0-9]{7}$/.test(compact)) return false;
+        return Number(compact[10]) === iso6346CheckDigit(compact.slice(0,4),compact.slice(4,10));
+      }
+      const icon = (name) => ({
+        upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4.5 14.5v4A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5v-4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v12m0 0 4.5-4.5M12 16l-4.5-4.5M4.5 17.5v2A1.5 1.5 0 0 0 6 21h12a1.5 1.5 0 0 0 1.5-1.5v-2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="2.4"/><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="19" r="2.4"/><path d="m8.1 10.8 7.8-4.5M8.1 13.2l7.8 4.5" stroke-linecap="round"/></svg>',
+        van: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h12.5l2.5 4h3v6h-2.5m-13 0H3zM6 17a2 2 0 1 0 4 0m7 0a2 2 0 1 0 4 0M3 10.5h13m-9-3.5v3.5m4-3.5v3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.2"/></svg>',
+        clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2" stroke-linecap="round"/></svg>',
+        bays: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="8" height="7" rx="1"/><rect x="13" y="4" width="8" height="7" rx="1"/><rect x="3" y="13" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/></svg>'
+      }[name] || '');
+      function loadSaved() {
+        try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); if (saved && Array.isArray(saved.records)) { state.migratedLocationCount = 0; state.records = cleanRecords(saved.records, true); state.history = Array.isArray(saved.history) ? saved.history : []; normalizePositions(); if (state.migratedLocationCount) setTimeout(() => toast(`${state.migratedLocationCount} saved van location${state.migratedLocationCount === 1 ? '' : 's'} need a new block after the yard layout update. The van records are still in your list.`), 450); } } catch { state.records = []; state.history = []; }
+      }
+      function cleanRecords(records, trackMigration = false) {
+        const seen = new Map();
+        for (const raw of records) {
+          const van = String(raw.van ?? raw.vanNumber ?? '').trim();
+          if (!van) continue;
+          const key = norm(van);
+          const stack = Number(raw.stack), level = Number(raw.level);
+          const validSlot = Number.isInteger(stack) && stack >= 1 && stack <= 4 && Number.isInteger(level) && level >= 1 && level <= STACK_CAPACITIES[stack - 1];
+          const bay = BAY_NAMES.includes(raw.bay) ? raw.bay : '';
+          const rawBlock = String(raw.block ?? '').match(/\d+/)?.[0] || '';
+          let blockNumber = Number(rawBlock), face = normalizeFace(bay, raw.face);
+          if ((bay === 'D' || bay === 'E') && !raw.face && blockNumber > SECTION_BY_KEY[`${bay}-front`].blocks) { face = 'back'; blockNumber -= SECTION_BY_KEY[`${bay}-front`].blocks; }
+          const section = sectionKey(bay, face), validBlock = !!bay && blocksFor(section).includes(String(blockNumber).padStart(2, '0'));
+          if (trackMigration && bay && rawBlock && !validBlock) state.migratedLocationCount++;
+          const consignee = String(raw.consignee ?? '').trim();
+          const item = { id: key, van, consignee, loadType: deriveLoadType(raw.loadType ?? raw.type, consignee), vessel: String(raw.vessel ?? '').trim(), voyage: String(raw.voyage ?? '').trim(), bay: validBlock ? bay : '', face: validBlock ? face : '', block: validBlock ? String(blockNumber).padStart(2, '0') : '', stack: validSlot ? stack : 0, level: validSlot ? level : 0, lastPosition: Number(raw.lastPosition) || 0, status: ['in-yard','cy-stripped','withdrawn'].includes(raw.status) ? raw.status : 'in-yard', cyStrippedAt: String(raw.cyStrippedAt || ''), withdrawnAt: String(raw.withdrawnAt || ''), createdAt: String(raw.createdAt || ''), updatedAt: String(raw.updatedAt || '') };
+          const old = seen.get(key);
+          if (old) { old.consignee = combineConsignees(old.consignee, item.consignee); old.loadType = deriveLoadType(`${old.loadType} ${item.loadType}`, old.consignee); if (item.bay && item.block) { old.bay = item.bay; old.face = item.face; old.block = item.block; } if (item.vessel) old.vessel = item.vessel; if (item.voyage) old.voyage = item.voyage; if (item.stack && item.level) { old.stack = item.stack; old.level = item.level; } if (item.lastPosition) old.lastPosition = item.lastPosition; if (item.withdrawnAt) old.withdrawnAt = item.withdrawnAt; if (item.cyStrippedAt) old.cyStrippedAt = item.cyStrippedAt; if (item.status !== 'in-yard') old.status = item.status; }
+          else seen.set(key, item);
+        }
+        return Array.from(seen.values());
+      }
+      function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ records: state.records, history: state.history, updated: new Date().toISOString() })); } catch { toast('This list is too large for browser storage. Export a backup to keep it safe.'); } }
+      function assignedRecords() { return state.records.filter(r => r.bay && r.block && r.status !== 'withdrawn'); }
+      function normalizeFace(bay, face) { return bay === 'D' || bay === 'E' ? (face === 'back' ? 'back' : 'front') : ''; }
+      function sectionKey(bay, face = '') { if (!BAY_NAMES.includes(bay)) return ''; return (bay === 'D' || bay === 'E') ? `${bay}-${normalizeFace(bay, face)}` : bay; }
+      function sectionForRecord(record) { return sectionKey(record?.bay, record?.face); }
+      function sectionLabel(section) { return SECTION_BY_KEY[section]?.label || ''; }
+      function sectionBlockLabel(section, block) { const info = SECTION_BY_KEY[section]; if (!info) return ''; const prefix = info.face ? `${info.bay}-${info.face === 'front' ? 'F' : 'B'}` : info.bay; return `${prefix}${Number(block) || ''}`; }
+      function blockLabel(bay, block, face = '') { return sectionBlockLabel(sectionKey(bay, face), block); }
+      function formatLocation(record) { return record.bay && record.block ? `${sectionLabel(sectionForRecord(record))} · ${blockLabel(record.bay, record.block, record.face)}` : ''; }
+      function locationDetail(record) { const position = record.status === 'withdrawn' ? record.lastPosition : positionNumber(record); return record.bay && record.block ? `${formatLocation(record)}${record.stack ? ` · Stack ${record.stack} · Position ${position || '—'} (level ${record.level})` : ''}${record.status === 'withdrawn' ? ' · withdrawn' : ''}` : 'Not assigned'; }
+      function bayItems(bay, block = '', face = '') { return state.records.filter(r => r.status !== 'withdrawn' && r.bay === bay && (face === '' || normalizeFace(r.bay, r.face) === normalizeFace(bay, face)) && (!block || r.block === block)); }
+      function sectionItems(section, block = '') { const info = SECTION_BY_KEY[section]; return info ? bayItems(info.bay, block, info.face) : []; }
+      function blockCount(bay, block, exceptId = '', face = '') { return state.records.filter(r => r.id !== exceptId && r.status !== 'withdrawn' && r.bay === bay && normalizeFace(r.bay, r.face) === normalizeFace(bay, face) && r.block === block).length; }
+      function firstOpenBlock(bay, face = '', exceptId = '') { const section = sectionKey(bay, face); return blocksFor(section).find(b => blockCount(bay, b, exceptId, face) < 11) || ''; }
+      function freeSlots(bay, block, exceptId = '', face = '') {
+        const used = new Set(state.records.filter(r => r.id !== exceptId && r.status !== 'withdrawn' && r.bay === bay && normalizeFace(r.bay, r.face) === normalizeFace(bay, face) && r.block === block && r.stack && r.level).map(r => `${r.stack}:${r.level}`));
+        return STACK_CAPACITIES.map((_, index) => index + 1).reverse().flatMap(stack => Array.from({ length: STACK_CAPACITIES[stack - 1] }, (_, level) => ({ stack, level: level + 1 })).filter(slot => !used.has(`${slot.stack}:${slot.level}`)));
+      }
+      function assignFreeSlot(record, bay = record.bay, block = record.block, face = record.face) {
+        const slot = freeSlots(bay, block, record.id, face)[0];
+        if (!slot) return false;
+        record.stack = slot.stack; record.level = slot.level; return true;
+      }
+      function normalizePositions() {
+        for (const record of assignedRecords()) {
+          const duplicates = state.records.filter(other => other !== record && other.bay === record.bay && normalizeFace(other.bay, other.face) === normalizeFace(record.bay, record.face) && other.block === record.block && other.stack === record.stack && other.level === record.level);
+          const valid = record.stack >= 1 && record.stack <= 4 && record.level >= 1 && record.level <= STACK_CAPACITIES[record.stack - 1] && !duplicates.some(other => other.id.localeCompare(record.id) < 0);
+          if (!valid) { record.stack = 0; record.level = 0; }
+        }
+        for (const record of assignedRecords().filter(r => !r.stack || !r.level)) assignFreeSlot(record);
+      }
+      function positionNumber(record) {
+        if (!record?.stack || !record?.level) return 0;
+        const ordered = bayItems(record.bay, record.block, record.face).filter(r => r.stack && r.level).sort((a,b) => b.stack - a.stack || a.level - b.level);
+        return ordered.findIndex(r => r.id === record.id) + 1;
+      }
+      function describePosition(stack, level, bay = state.selectedBay, block = state.selectedBlock, face = state.selectedFace) {
+        const slotRecord = state.records.find(r => r.bay === bay && normalizeFace(r.bay, r.face) === normalizeFace(bay, face) && r.block === block && r.stack === stack && r.level === level);
+        return slotRecord ? `Stack ${stack} · Position ${positionNumber(slotRecord)} · level ${level}` : `Stack ${stack} · level ${level}`;
+      }
+      function statusLabel(record) { return record.status === 'withdrawn' ? 'Withdrawn' : record.status === 'cy-stripped' ? 'CY Stripped' : record.bay && record.block ? 'In yard' : 'Awaiting location'; }
+      function statusTimestamp(record) { return [record.cyStrippedAt && `CY Stripped ${formatTime(record.cyStrippedAt)}`, record.withdrawnAt && `Withdrawn ${formatTime(record.withdrawnAt)}`].filter(Boolean).join(' · '); }
+      function formatTime(value) { const date = value ? new Date(value) : null; return date && !Number.isNaN(date.getTime()) ? new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date) : ''; }
+      function statusClass(record) { return record.status === 'withdrawn' ? 'withdrawn' : record.status === 'cy-stripped' ? 'stripped' : ''; }
+      function addHistory(type, record, detail = '', from = '') {
+        const at = new Date().toISOString();
+        state.history.unshift({ id: `${Date.now()}-${Math.random().toString(36).slice(2,8)}`, at, type, van: record?.van || '', consignee: record?.consignee || '', loadType: record?.loadType || 'FCL', vessel: record?.vessel || '', voyage: record?.voyage || '', bay: record?.bay || '', face: record?.face || '', block: record?.block || '', stack: record?.stack || 0, level: record?.level || 0, from, detail });
+      }
+      function moveToBlock(record, bay, block, face = record.face, eventType = 'location-move') {
+        const before = record.bay ? locationDetail(record) : 'Not assigned';
+        face = normalizeFace(bay, face);
+        if (!blocksFor(sectionKey(bay, face)).includes(block) || blockCount(bay, block, record.id, face) >= 11) return false;
+        const previous = { bay: record.bay, face: record.face, block: record.block, stack: record.stack, level: record.level };
+        record.bay = bay; record.face = face; record.block = block; record.stack = 0; record.level = 0;
+        if (!assignFreeSlot(record, bay, block, face)) { Object.assign(record, previous); return false; }
+        record.updatedAt = new Date().toISOString();
+        addHistory(eventType, record, `${before} → ${locationDetail(record)}`, before);
+        return true;
+      }
+      function positionAtSlot(bay, block, face, stack, level, exceptId = '') {
+        const occupying = bayItems(bay, block, face).filter(record => record.id !== exceptId && record.stack && record.level);
+        occupying.push({ id: '__candidate__', stack, level });
+        occupying.sort((a,b) => b.stack - a.stack || a.level - b.level);
+        return occupying.findIndex(record => record.id === '__candidate__') + 1;
+      }
+      function moveToExactSlot(record, bay, block, face, stack, level, eventType) {
+        face = normalizeFace(bay, face);
+        if (!blocksFor(sectionKey(bay,face)).includes(block) || !Number.isInteger(stack) || stack < 1 || stack > 4 || !Number.isInteger(level) || level < 1 || level > STACK_CAPACITIES[stack - 1] || blockCount(bay,block,record.id,face) >= 11) return false;
+        const occupied = state.records.some(other => other.id !== record.id && other.status !== 'withdrawn' && other.bay === bay && normalizeFace(other.bay,other.face) === face && other.block === block && other.stack === stack && other.level === level);
+        if (occupied) return false;
+        if (record.bay === bay && normalizeFace(record.bay,record.face) === face && record.block === block && record.stack === stack && record.level === level && record.status !== 'withdrawn') return true;
+        const before = record.bay ? locationDetail(record) : 'Not assigned';
+        const wasWithdrawn = record.status === 'withdrawn';
+        record.bay = bay; record.face = face; record.block = block; record.stack = stack; record.level = level;
+        if (wasWithdrawn) { record.status = 'in-yard'; record.withdrawnAt = ''; record.cyStrippedAt = ''; }
+        record.updatedAt = new Date().toISOString();
+        addHistory(eventType, record, `${before} → ${locationDetail(record)}`, before);
+        return true;
+      }
+      function render() { renderLoading(); renderYard(); renderShift(); renderManual(); renderHistory(); updateNav(); }
+      function updateNav() {
+        $$('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.page === state.page));
+        $('#loadingPage').classList.toggle('hidden', state.page !== 'loading');
+        $('#yardPage').classList.toggle('hidden', state.page !== 'yard');
+        $('#shiftPage').classList.toggle('hidden', state.page !== 'shift');
+        $('#manualPage').classList.toggle('hidden', state.page !== 'manual');
+        $('#historyPage').classList.toggle('hidden', state.page !== 'history');
+        $('#helpPage').classList.toggle('hidden', state.page !== 'help');
+        $('#crumbPage').textContent = ({ loading: 'Loading list', yard: 'Yard view', shift: 'Quick shift', manual: 'Add vans', history: 'History', help: 'App guide' })[state.page] || 'Loading list';
+      }
+      function renderLoading() {
+        const total = state.records.length, placed = assignedRecords().length, pending = state.records.filter(r => r.status !== 'withdrawn' && (!r.bay || !r.block)).length;
+        const visible = state.records.filter(r => state.loadingFilter === 'all' || (state.loadingFilter === 'placed' ? !!r.bay && r.status !== 'withdrawn' : !r.bay && r.status !== 'withdrawn'));
+        const pages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE)); state.loadingPage = Math.min(state.loadingPage, pages);
+        const start = (state.loadingPage - 1) * PAGE_SIZE;
+        const rows = visible.slice(start, start + PAGE_SIZE);
+        const tableBody = rows.length ? rows.map(r => `<tr>
+          <td class="van-cell">${escapeHtml(r.van)}</td><td class="consignee" title="${escapeHtml(r.consignee)}">${escapeHtml(r.consignee || '—')}${r.loadType === 'LCL' ? '<span class="type-pill">LCL</span>' : ''}<span class="record-meta"><span class="status-pill ${statusClass(r)}">${statusLabel(r)}</span>${statusTimestamp(r) ? ` · ${escapeHtml(statusTimestamp(r))}` : ''}</span></td><td class="vessel-cell">${escapeHtml([r.vessel && `Vessel ${r.vessel}`, r.voyage && `Voyage ${r.voyage}`].filter(Boolean).join(' · ') || '—')}</td>
+          <td><span class="loc-pill ${r.bay ? 'assigned' : 'pending'}">${r.bay ? escapeHtml(formatLocation(r)) : 'Not assigned'}</span></td>
+          <td><div class="assign-cell"><select class="assign-select" aria-label="Assign ${escapeHtml(r.van)} to a bay and side" data-field="section" data-id="${escapeHtml(r.id)}" ${r.status === 'withdrawn' ? 'disabled' : ''}><option value="">Choose bay</option>${SECTION_CONFIG.map(section => `<option value="${section.key}" ${sectionForRecord(r) === section.key ? 'selected' : ''}>${escapeHtml(section.label)}</option>`).join('')}</select><select class="assign-select block" aria-label="Choose a block" data-field="block" data-id="${escapeHtml(r.id)}" ${r.bay && r.status !== 'withdrawn' ? '' : 'disabled'}><option value="">Block</option>${blocksFor(sectionForRecord(r) || 'A').map(b => `<option value="${b}" ${r.block === b ? 'selected' : ''}>${sectionBlockLabel(sectionForRecord(r) || 'A',b)}</option>`).join('')}</select></div></td>
+          <td><button class="btn text small danger remove-record" data-id="${escapeHtml(r.id)}" title="Remove van">Remove</button></td></tr>`).join('') : '';
+        $('#loadingPage').innerHTML = `
+          <div class="page-head"><div><div class="eyebrow">Inventory intake</div><h1>Loading list</h1><p class="page-desc">Import the loading guide, then assign each van to its yard location.</p></div><div class="head-actions"><button class="btn" id="exportBtn">${icon('download')}Backup</button><button class="btn primary" id="shareBtn">${icon('share')}Share snapshot</button></div></div>
+          <div class="stats">
+            <div class="stat"><div class="stat-label">Vans in list <span class="stat-icon">${icon('van')}</span></div><div class="stat-value">${total.toLocaleString()}</div><div class="stat-foot">Imported from loading guides</div></div>
+            <div class="stat"><div class="stat-label">Assigned <span class="stat-icon">${icon('pin')}</span></div><div class="stat-value">${placed.toLocaleString()}</div><div class="stat-foot">With a bay and block location</div></div>
+            <div class="stat"><div class="stat-label">Awaiting location <span class="stat-icon">${icon('clock')}</span></div><div class="stat-value">${pending.toLocaleString()}</div><div class="stat-foot">Ready to be placed in the yard</div></div>
+            <div class="stat"><div class="stat-label">Yard capacity <span class="stat-icon">${icon('bays')}</span></div><div class="stat-value">${(YARD_BLOCK_TOTAL * 11).toLocaleString()}</div><div class="stat-foot">${YARD_BLOCK_TOTAL} blocks · 11 slots per block</div></div>
+          </div>
+          <div class="guide-note">Incoming guides add new vans and refresh consignee, vessel, and voyage details on matching van numbers. Photo imports target the Container No. and Consignee Name columns, flag incomplete or invalid container check digits, and export in Consignee Finder CSV format. Existing yard locations and status are kept.</div>
+          <div class="panel">
+            <div class="panel-head"><div><div class="panel-title">Loading guide data</div><div class="panel-sub">Van number and consignee are read from your file; multiple consignees for one van are marked LCL.</div></div><span class="panel-meta">${total.toLocaleString()} ${total === 1 ? 'van' : 'vans'}</span></div>
+            <div class="dropzone" id="dropzone"><div class="drop-icon">${icon('upload')}</div><div class="drop-copy"><strong>Drop a loading guide here</strong><span>Excel / CSV, or select several guide photos · JPG, PNG, WEBP</span></div><span class="drop-hint">or</span><button class="btn small" id="browseBtn">Browse files</button></div>
+            <div class="table-tools"><div class="table-info">${visible.length ? `Showing ${start + 1}–${Math.min(start + PAGE_SIZE, visible.length)} of ${visible.length}` : 'No rows to show'}</div><div class="filter-line"><span class="table-info">Show</span><select id="loadingFilter" class="filter-select"><option value="all" ${state.loadingFilter === 'all' ? 'selected' : ''}>All vans</option><option value="pending" ${state.loadingFilter === 'pending' ? 'selected' : ''}>Awaiting location</option><option value="placed" ${state.loadingFilter === 'placed' ? 'selected' : ''}>Assigned</option></select></div></div>
+            ${total ? `<div class="table-scroll"><table><thead><tr><th>Van number</th><th>Consignee / status</th><th>Vessel / voyage</th><th>Current location</th><th>Assign bay / block</th><th></th></tr></thead><tbody>${tableBody || '<tr><td colspan="6"><div class="empty-state"><strong>No matching vans</strong><p>Change the list filter to see other records.</p></div></td></tr>'}</tbody></table></div>
+              <div class="table-tools"><div class="table-info">Changes save automatically in this browser.</div><div class="pagination"><button class="page-btn" id="prevPage" ${state.loadingPage <= 1 ? 'disabled' : ''}>‹</button><span class="page-num">${state.loadingPage} / ${pages}</span><button class="page-btn" id="nextPage" ${state.loadingPage >= pages ? 'disabled' : ''}>›</button></div></div>` : `<div class="empty-state"><div class="empty-illustration">${icon('van')}</div><strong>No loading guide uploaded</strong><p>Upload a spreadsheet or CSV to start locating vans.</p><button class="btn small" id="emptyBrowse">${icon('upload')}Choose a file</button></div>`}
+          </div>`;
+        bindLoadingEvents();
+      }
+      function bindLoadingEvents() {
+        $('#browseBtn')?.addEventListener('click', () => $('#fileInput').click());
+        $('#emptyBrowse')?.addEventListener('click', () => $('#fileInput').click());
+        $('#exportBtn')?.addEventListener('click', exportBackup);
+        $('#shareBtn')?.addEventListener('click', shareSnapshot);
+        $('#loadingFilter')?.addEventListener('change', e => { state.loadingFilter = e.target.value; state.loadingPage = 1; renderLoading(); });
+        $('#prevPage')?.addEventListener('click', () => { state.loadingPage--; renderLoading(); });
+        $('#nextPage')?.addEventListener('click', () => { state.loadingPage++; renderLoading(); });
+        $$('.assign-select').forEach(sel => sel.addEventListener('change', e => {
+          const rec = state.records.find(r => r.id === e.target.dataset.id); if (!rec) return;
+          if (e.target.dataset.field === 'section') {
+            const newSection = e.target.value;
+            if (!newSection) { const before = locationDetail(rec); addHistory('location-move', rec, `${before} → Not assigned`, before); rec.bay = ''; rec.face = ''; rec.block = ''; rec.stack = 0; rec.level = 0; rec.updatedAt = new Date().toISOString(); }
+            else {
+              const info = SECTION_BY_KEY[newSection];
+              const nextBlock = rec.block && blocksFor(newSection).includes(rec.block) && blockCount(info.bay, rec.block, rec.id, info.face) < 11 ? rec.block : firstOpenBlock(info.bay, info.face, rec.id);
+              if (!nextBlock) { toast(`${sectionLabel(newSection)} is full across all blocks`); renderLoading(); return; }
+              if (!moveToBlock(rec, info.bay, nextBlock, info.face, rec.bay ? 'location-move' : 'put-away')) { toast(`${sectionLabel(newSection)}, ${sectionBlockLabel(newSection,nextBlock)} has no open stack slot`); renderLoading(); return; }
+            }
+          } else {
+            const nextBlock = e.target.value;
+            const section = sectionForRecord(rec);
+            if (nextBlock && blockCount(rec.bay, nextBlock, rec.id, rec.face) >= 11) { toast(`${sectionBlockLabel(section,nextBlock)} has reached its 11-van capacity`); renderLoading(); return; }
+            if (nextBlock && !moveToBlock(rec, rec.bay, nextBlock, rec.face, 'location-move')) { toast(`${sectionBlockLabel(section,nextBlock)} has no open stack slot`); renderLoading(); return; }
+            if (!nextBlock) { const before = locationDetail(rec); rec.block = ''; rec.stack = 0; rec.level = 0; rec.updatedAt = new Date().toISOString(); addHistory('location-move', rec, `${before} → ${sectionLabel(section)} · block not selected`, before); }
+          }
+          save(); render();
+        }));
+        $$('.remove-record').forEach(btn => btn.addEventListener('click', () => { state.records = state.records.filter(r => r.id !== btn.dataset.id); save(); render(); toast('Van removed from this list'); }));
+        const dz = $('#dropzone');
+        if (dz) { dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); }); dz.addEventListener('dragleave', () => dz.classList.remove('dragover')); dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); handleSelectedFiles(e.dataTransfer.files); }); }
+      }
+      function renderManual() {
+        if ($('#manualVan') && !state.manualClearDraft) state.manualDraft = { van: $('#manualVan').value, consignee: $('#manualConsignee').value, vessel: $('#manualVessel').value, voyage: $('#manualVoyage').value, loadType: $('#manualLoadType').value };
+        state.manualClearDraft = false;
+        if (!blocksFor(state.manualSection).includes(state.manualBlock)) state.manualBlock = blocksFor(state.manualSection)[0] || '';
+        $('#manualPage').innerHTML = `<div class="page-head"><div><div class="eyebrow">Opening yard inventory</div><h1>Add existing vans</h1><p class="page-desc">Enter vans that are already in the yard and choose their exact stack position.</p></div><div class="head-actions"><button class="btn" id="manualExport">${icon('download')}Backup</button></div></div>
+          <div class="guide-note">Use this during initial setup to enter the vans already placed in your yard. Choose the bay/side, block, stack, and level for each van. The app marks an occupied stack spot so you can’t assign a second van there.</div>
+          <div class="manual-layout"><div class="panel"><div class="panel-head"><div><div class="panel-title">Van details and location</div><div class="panel-sub">An existing loading-guide record will be updated instead of duplicated.</div></div></div><div class="manual-form">
+            <div class="field"><label for="manualVan">Full van number</label><input id="manualVan" type="text" autocomplete="off" autocapitalize="characters" placeholder="e.g. PSAU 318205-7" value="${escapeHtml(state.manualDraft?.van || '')}"></div>
+            <div id="manualMatch" class="modal-info">Enter the complete van number. If it is already in the list, its details will be filled in.</div>
+            <div class="field"><label for="manualConsignee">Consignee name</label><input id="manualConsignee" type="text" placeholder="One or more names separated by semicolons" value="${escapeHtml(state.manualDraft?.consignee || '')}"></div>
+            <div class="field-row"><div class="field"><label for="manualVessel">Vessel</label><input id="manualVessel" type="text" placeholder="Optional" value="${escapeHtml(state.manualDraft?.vessel || '')}"></div><div class="field"><label for="manualVoyage">Voyage</label><input id="manualVoyage" type="text" placeholder="Optional" value="${escapeHtml(state.manualDraft?.voyage || '')}"></div></div>
+            <div class="field"><label for="manualLoadType">Load type</label><select id="manualLoadType"><option value="" ${!state.manualDraft?.loadType ? 'selected' : ''}>Automatic</option><option value="FCL" ${state.manualDraft?.loadType === 'FCL' ? 'selected' : ''}>FCL</option><option value="LCL" ${state.manualDraft?.loadType === 'LCL' ? 'selected' : ''}>LCL</option></select></div>
+            <div class="field-row"><div class="field"><label for="manualSection">Bay / side</label><select id="manualSection">${SECTION_CONFIG.map(section => `<option value="${section.key}" ${section.key === state.manualSection ? 'selected' : ''}>${escapeHtml(section.label)}</option>`).join('')}</select></div><div class="field"><label for="manualBlock">Block</label><select id="manualBlock">${blocksFor(state.manualSection).map(block => `<option value="${block}" ${block === state.manualBlock ? 'selected' : ''}>${sectionBlockLabel(state.manualSection,block)}</option>`).join('')}</select></div></div>
+            <div class="manual-selection" id="manualSelection"><strong>Select a stack tile</strong><br>Choose an open spot in the diagram.</div><button class="btn primary" id="saveManualVan">Add van to this location</button>
+          </div></div><div class="panel manual-slot-panel"><div class="panel-head"><div><div class="panel-title">Choose the exact stack spot</div><div class="panel-sub">Select one open tile for this van.</div></div></div><div id="manualSlotPlan"></div><div class="manual-slot-note">The diagram reads from front to rear. Position #1 starts at the rear bottom and counts upward, then continues toward the front. Capacity per block: 3 / 3 / 3 / 2.</div></div></div>`;
+        $('#manualVan').addEventListener('input', () => { state.manualDraft.van = $('#manualVan').value; updateManualMatch(); });
+        const manualDraftKeys = { manualConsignee:'consignee', manualVessel:'vessel', manualVoyage:'voyage', manualLoadType:'loadType' };
+        for (const [field,key] of Object.entries(manualDraftKeys)) { const eventName = field === 'manualLoadType' ? 'change' : 'input'; $(`#${field}`).addEventListener(eventName, () => { state.manualDraft[key] = $(`#${field}`).value; }); }
+        $('#manualSection').addEventListener('change', event => { state.manualSection = event.target.value; state.manualBlock = blocksFor(state.manualSection)[0] || ''; state.manualSlot = ''; refreshManualBlockOptions(); renderManualSlots(); });
+        $('#manualBlock').addEventListener('change', event => { state.manualBlock = event.target.value; state.manualSlot = ''; renderManualSlots(); });
+        $('#saveManualVan').addEventListener('click', recordManualVan);
+        $('#manualExport').addEventListener('click', exportBackup);
+        if (state.manualDraft?.van) updateManualMatch(); else renderManualSlots();
+      }
+      function refreshManualBlockOptions() {
+        const blockSelect = $('#manualBlock'); if (!blockSelect) return;
+        blockSelect.innerHTML = blocksFor(state.manualSection).map(block => `<option value="${block}">${sectionBlockLabel(state.manualSection,block)}</option>`).join('');
+        blockSelect.value = state.manualBlock;
+      }
+      function updateManualMatch() {
+        const input = $('#manualVan'), match = $('#manualMatch'); if (!input || !match) return;
+        const record = state.records.find(item => item.id === norm(input.value));
+        if (!record) { match.textContent = input.value.trim() ? 'No matching list record. This van will be added as opening yard stock; check the consignee details before saving.' : 'Enter the complete van number. If it is already in the list, its details will be filled in.'; renderManualSlots(); return; }
+        state.manualDraft = { van: input.value, consignee: record.consignee || '', vessel: record.vessel || '', voyage: record.voyage || '', loadType: record.loadType || '' };
+        $('#manualConsignee').value = state.manualDraft.consignee; $('#manualVessel').value = state.manualDraft.vessel; $('#manualVoyage').value = state.manualDraft.voyage; $('#manualLoadType').value = state.manualDraft.loadType;
+        if (record.bay && record.block) { state.manualSection = sectionForRecord(record); state.manualBlock = record.block; state.manualSlot = record.stack && record.level ? `${record.stack}:${record.level}` : ''; $('#manualSection').value = state.manualSection; refreshManualBlockOptions(); }
+        match.textContent = record.bay ? `Found in the list at ${locationDetail(record)}. Saving will update this same record.` : 'Found in the loading list, but no yard position is assigned yet.';
+        renderManualSlots();
+      }
+      function renderManualSlots() {
+        const area = $('#manualSlotPlan'); if (!area) return;
+        const section = SECTION_BY_KEY[state.manualSection]; if (!section) return;
+        const record = state.records.find(item => item.id === norm($('#manualVan')?.value || ''));
+        if (record && sectionForRecord(record) === state.manualSection && record.block === state.manualBlock && record.stack && record.level && !state.manualSlot) state.manualSlot = `${record.stack}:${record.level}`;
+        const lanes = STACK_CAPACITIES.map((height,index) => {
+          const stack = index + 1;
+          const tiles = Array.from({ length: height }, (_,levelIndex) => {
+            const level = levelIndex + 1, value = `${stack}:${level}`;
+            const occupant = state.records.find(other => other.id !== record?.id && other.status !== 'withdrawn' && other.bay === section.bay && normalizeFace(other.bay,other.face) === normalizeFace(section.bay,section.face) && other.block === state.manualBlock && other.stack === stack && other.level === level);
+            const ownSlot = record && record.bay === section.bay && normalizeFace(record.bay,record.face) === normalizeFace(section.bay,section.face) && record.block === state.manualBlock && record.stack === stack && record.level === level;
+            const selected = state.manualSlot === value, disabled = !!occupant;
+            const label = occupant ? occupant.van : ownSlot ? record.van : 'Open';
+            const position = !disabled ? positionAtSlot(section.bay,state.manualBlock,section.face,stack,level,record?.id || '') : 0;
+            return `<button type="button" class="stack-slot ${disabled ? 'manual-occupied' : 'empty'} ${ownSlot ? 'manual-current' : ''} ${selected ? 'selected' : ''}" data-manual-slot="${value}" ${disabled ? 'disabled' : ''} title="${disabled ? `${occupant.van} already occupies this spot` : `${sectionBlockLabel(state.manualSection,state.manualBlock)} · Stack ${stack}, level ${level} · Position ${position}`}" aria-label="${disabled ? `Occupied by ${occupant.van}` : `Choose stack ${stack}, level ${level}, position ${position}`} "><span class="stack-slot-number">${disabled ? 'Taken' : `#${position}`}</span><span class="stack-slot-van">${escapeHtml(label)} · L${level}</span></button>`;
+          }).join('');
+          return `<div class="stack-lane"><div class="stack-pile">${tiles}</div><div class="stack-label">Stack ${stack}</div><div class="stack-height">${height} high</div></div>`;
+        }).join('');
+        area.innerHTML = `<div class="stack-plan"><div class="stack-caption"><span>FRONT</span><span>REAR</span></div><div class="stack-bays">${lanes}</div></div>`;
+        const selected = state.manualSlot.split(':').map(Number), selectedOpen = selected.length === 2 && !!area.querySelector(`[data-manual-slot="${state.manualSlot}"]:not(:disabled)`);
+        const info = selectedOpen ? `<strong>${sectionBlockLabel(state.manualSection,state.manualBlock)} · Stack ${selected[0]} · Level ${selected[1]} · Position #${positionAtSlot(section.bay,state.manualBlock,section.face,selected[0],selected[1],record?.id || '')}</strong><br>Ready to assign this exact spot.` : '<strong>Select an open stack tile</strong><br>Occupied tiles are unavailable.';
+        $('#manualSelection').innerHTML = info; $('#saveManualVan').disabled = !selectedOpen;
+        $$('[data-manual-slot]',area).forEach(button => button.addEventListener('click', () => { state.manualSlot = button.dataset.manualSlot; renderManualSlots(); }));
+      }
+      function recordManualVan() {
+        const van = $('#manualVan').value.trim().replace(/\s+/g,' ').toUpperCase(), info = SECTION_BY_KEY[state.manualSection];
+        if (!van) { toast('Enter the full van number'); $('#manualVan').focus(); return; }
+        if (!isCompleteContainerNumber(van)) { toast('Enter a complete van number with its check digit'); $('#manualVan').focus(); return; }
+        if (!info || !blocksFor(state.manualSection).includes(state.manualBlock)) { toast('Choose a bay and block'); return; }
+        const [stack,level] = state.manualSlot.split(':').map(Number);
+        if (!stack || !level) { toast('Choose an open stack tile'); return; }
+        let record = state.records.find(item => item.id === norm(van));
+        const isNew = !record, previous = record ? { ...record } : null;
+        if (!record) { const now = new Date().toISOString(); record = { id:norm(van), van:formatContainerNumber(van), consignee:'', loadType:'FCL', vessel:'', voyage:'', bay:'', face:'', block:'', stack:0, level:0, status:'in-yard', cyStrippedAt:'', withdrawnAt:'', createdAt:now, updatedAt:now }; state.records.push(record); }
+        const consignee = $('#manualConsignee').value.trim(); if (consignee) record.consignee = consignee;
+        record.loadType = deriveLoadType($('#manualLoadType').value || record.loadType,record.consignee);
+        record.vessel = $('#manualVessel').value.trim() || record.vessel; record.voyage = $('#manualVoyage').value.trim() || record.voyage;
+        const eventType = isNew ? 'opening-stock' : record.status === 'withdrawn' ? 'incoming-full' : !record.bay ? 'put-away' : sectionForRecord(record) === state.manualSection && record.block === state.manualBlock ? 'stack-move' : 'location-move';
+        if (!moveToExactSlot(record,info.bay,state.manualBlock,info.face,stack,level,eventType)) { if (isNew) state.records = state.records.filter(item => item !== record); else Object.assign(record,previous); toast('That stack spot is occupied or this block is full'); return; }
+        state.selectedBay = info.bay; state.selectedFace = info.face; state.selectedBlock = state.manualBlock; state.highlightRecordId = record.id;
+        state.manualDraft = { van:'',consignee:'',vessel:'',voyage:'',loadType:'' }; state.manualClearDraft = true; state.manualSlot = '';
+        save(); render(); $('#manualVan').focus(); toast(`${record.van} saved at ${sectionBlockLabel(state.manualSection,state.manualBlock)}`);
+      }
+      function renderYard() {
+        const bayCounts = Object.fromEntries(BAY_NAMES.map(b => [b, bayItems(b).length]));
+        const selectedSection = sectionKey(state.selectedBay, state.selectedFace);
+        const sectionCount = sectionItems(selectedSection).length;
+        const blocks = blocksFor(selectedSection);
+        const blocksHtml = blocks.map(block => {
+          const count = sectionItems(selectedSection, block).length;
+          return `<button class="block-card ${state.selectedBlock === block ? 'selected' : ''}" data-block="${block}"><div class="block-name">${sectionBlockLabel(selectedSection, block)}</div><div class="block-card-foot"><span>${count ? 'In use' : 'Empty'}</span><strong>${count} / 11</strong></div><div class="block-bar"><span style="width:${Math.min(100, count / 11 * 100)}%"></span></div></button>`;
+        }).join('');
+        const selectedItems = sectionItems(selectedSection, state.selectedBlock).sort((a,b) => positionNumber(a) - positionNumber(b) || a.van.localeCompare(b.van, undefined, { numeric: true }));
+        const stackLanes = STACK_CAPACITIES.map((height,i) => `<div class="stack-lane"><div class="stack-pile">${Array.from({ length: height }, (_, j) => {
+          const level = j + 1, record = selectedItems.find(r => r.stack === i + 1 && r.level === level), position = record ? positionNumber(record) : '';
+          return `<button class="stack-slot ${record ? '' : 'empty'} ${record?.id === state.highlightRecordId ? 'selected' : ''}" data-stack-slot="${i + 1}:${level}" ${record ? `data-id="${escapeHtml(record.id)}"` : ''} title="${record ? `${record.van} · ${record.consignee || 'No consignee'} · Position ${position}` : `Open slot · Stack ${i + 1}, level ${level}`}" aria-label="${record ? `${record.van}, position ${position}, stack ${i + 1}, level ${level}` : `Move a van to stack ${i + 1}, level ${level}`}" ><span class="stack-slot-number">${record ? `#${position}` : 'Open'}</span><span class="stack-slot-van">${record ? escapeHtml(record.van) : `Level ${level}`}</span></button>`;
+        }).join('')}</div><div class="stack-label">Stack ${i + 1}</div><div class="stack-height">${height} high</div></div>`).join('');
+        const inventory = selectedItems.length ? selectedItems.map(r => {
+          const slots = STACK_CAPACITIES.map((_,index) => index + 1).reverse().flatMap(stack => Array.from({ length: STACK_CAPACITIES[stack - 1] }, (_, level) => ({ stack, level:level + 1 })));
+          const occupied = new Set(state.records.filter(other => other.id !== r.id && other.status !== 'withdrawn' && sectionForRecord(other) === sectionForRecord(r) && other.block === r.block).map(other => `${other.stack}:${other.level}`));
+          return `<div class="inventory-row" id="van-row-${escapeHtml(r.id)}"><div class="inventory-primary"><strong>${escapeHtml(r.van)}${r.loadType === 'LCL' ? '<span class="type-pill">LCL</span>' : ''}</strong><span title="${escapeHtml(r.consignee)}">${escapeHtml(r.consignee || 'No consignee listed')}</span><span class="record-meta">${escapeHtml([r.vessel && `Vessel ${r.vessel}`, r.voyage && `Voyage ${r.voyage}`].filter(Boolean).join(' · ') || 'Vessel / voyage not listed')}</span><span class="record-meta"><span class="status-pill ${statusClass(r)}">${statusLabel(r)}</span>${statusTimestamp(r) ? ` · ${escapeHtml(statusTimestamp(r))}` : ''}</span></div><div class="record-actions"><select class="assign-select slot-select" data-slot-record="${escapeHtml(r.id)}" aria-label="Change ${escapeHtml(r.van)} stack position">${slots.map(slot => { const value = `${slot.stack}:${slot.level}`, current = r.stack === slot.stack && r.level === slot.level; return `<option value="${value}" ${current ? 'selected' : ''} ${!current && occupied.has(value) ? 'disabled' : ''}>S${slot.stack} · L${slot.level}${current ? ` · Pos ${positionNumber(r)}` : ''}</option>`; }).join('')}</select><button class="btn small status-cy" data-id="${escapeHtml(r.id)}" ${r.status === 'cy-stripped' || r.status === 'withdrawn' ? 'disabled' : ''}>CY Stripped</button><button class="btn small status-withdraw" data-id="${escapeHtml(r.id)}" ${r.status === 'withdrawn' ? 'disabled' : ''}>Withdrawn</button><button class="btn small picking-tag" data-id="${escapeHtml(r.id)}">Picking tag</button></div></div>`;
+        }).join('') : `<div class="empty-state" style="padding:25px 10px"><strong>This block is empty</strong><p>Assign vans from the loading list to ${sectionBlockLabel(selectedSection, state.selectedBlock)}.</p><button class="btn small open-loading">Go to loading list</button></div>`;
+        const bayCards = BAY_NAMES.map(bay => {
+          const sectionKeys = SECTION_CONFIG.filter(section => section.bay === bay);
+          if (sectionKeys.length > 1) return `<div class="bay-card bay-card-sided ${state.selectedBay === bay ? 'selected' : ''}"><div class="bay-card-top"><span class="bay-letter">${bay}</span><span class="bay-tag">BAY · ${bayCounts[bay]} VANS</span></div><div class="bay-faces">${sectionKeys.map(section => `<button class="bay-face-btn ${selectedSection === section.key ? 'selected' : ''}" data-yard-section="${section.key}">${section.face === 'front' ? 'Front' : 'Back'} <span>${sectionItems(section.key).length} vans · ${section.blocks} blocks</span></button>`).join('')}</div></div>`;
+          const section = sectionKeys[0];
+          return `<button class="bay-card ${selectedSection === section.key ? 'selected' : ''}" data-yard-section="${section.key}"><div class="bay-card-top"><span class="bay-letter">${bay}</span><span class="bay-tag">BAY</span></div><div class="bay-count">${bayCounts[bay]} vans · ${section.blocks} blocks</div><div class="meter"><div class="meter-fill" style="width:${Math.min(100, bayCounts[bay] / (section.blocks * 11) * 100)}%"></div></div></button>`;
+        }).join('');
+        $('#yardPage').innerHTML = `
+          <div class="page-head"><div><div class="eyebrow">Yard inventory</div><h1>Yard view</h1><p class="page-desc">Select a bay and block to review or move its vans.</p></div><div class="head-actions"><button class="btn" id="yardExport">${icon('download')}Backup</button><button class="btn primary" id="yardShare">${icon('share')}Share snapshot</button></div></div>
+          <div class="panel"><div class="panel-head"><div><div class="panel-title">Bay overview</div><div class="panel-sub">Choose a bay. D and E have separate front and back sections.</div></div><span class="panel-meta">${assignedRecords().length} vans placed</span></div><div class="bay-strip">${bayCards}</div></div>
+          <div class="yard-lower"><div class="panel"><div class="panel-head"><div><div class="panel-title">${sectionLabel(selectedSection)} blocks</div><div class="panel-sub">Block labels identify their bay and side. Each block holds 11 positions.</div></div><span class="panel-meta">${sectionCount} vans · ${blocks.length} blocks</span></div><div class="blocks">${blocksHtml}</div></div>
+            <div class="yard-side"><div class="panel"><div class="panel-head"><div><div class="panel-title">${sectionBlockLabel(selectedSection, state.selectedBlock)} inventory</div><div class="panel-sub">Stack lanes follow the access order from front to rear.</div></div><span class="panel-meta">${selectedItems.length} / 11 vans</span></div><div class="inventory-list">${inventory}</div></div>
+            <div class="panel"><div class="panel-head"><div><div class="panel-title">Exact stack positions</div><div class="panel-sub">Select an open tile to place a van in this block.</div></div></div><div class="stack-plan"><div class="stack-caption"><span>FRONT</span><span>REAR</span></div><div class="stack-bays">${stackLanes}</div></div><div class="yard-note">Capacities: 3 / 3 / 3 / 2. Position #1 starts at the rear stack bottom, counts upward, then continues stack by stack toward the front.</div></div></div>
+          </div>`;
+        $$('[data-yard-section]').forEach(btn => btn.addEventListener('click', () => { const info = SECTION_BY_KEY[btn.dataset.yardSection]; if (!info) return; state.selectedBay = info.bay; state.selectedFace = info.face; state.selectedBlock = '01'; state.highlightRecordId = ''; renderYard(); }));
+        $$('.block-card').forEach(btn => btn.addEventListener('click', () => { state.selectedBlock = btn.dataset.block; renderYard(); }));
+        $$('.slot-select').forEach(sel => sel.addEventListener('change', e => { const rec = state.records.find(r => r.id === e.target.dataset.slotRecord); if (!rec) return; const [stack, level] = e.target.value.split(':').map(Number); if (state.records.some(other => other.id !== rec.id && other.status !== 'withdrawn' && sectionForRecord(other) === sectionForRecord(rec) && other.block === rec.block && other.stack === stack && other.level === level)) { toast('That stack position is already occupied'); renderYard(); return; } const before = locationDetail(rec); rec.stack = stack; rec.level = level; rec.updatedAt = new Date().toISOString(); addHistory('stack-move', rec, `${before} → ${locationDetail(rec)}`, before); state.highlightRecordId = rec.id; save(); render(); toast(`${rec.van} moved to Stack ${stack}, level ${level}`); }));
+        $$('.status-cy').forEach(btn => btn.addEventListener('click', () => setVanStatus(btn.dataset.id, 'cy-stripped')));
+        $$('.status-withdraw').forEach(btn => btn.addEventListener('click', () => setVanStatus(btn.dataset.id, 'withdrawn')));
+        $$('.picking-tag').forEach(btn => btn.addEventListener('click', () => showPickingTag(btn.dataset.id)));
+        $$('.stack-slot').forEach(slot => slot.addEventListener('click', () => { const [stack, level] = slot.dataset.stackSlot.split(':').map(Number); if (slot.dataset.id) { state.highlightRecordId = slot.dataset.id; renderYard(); $('#van-row-' + CSS.escape(slot.dataset.id))?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } else showSlotPicker(state.selectedBay, state.selectedFace, state.selectedBlock, stack, level); }));
+        $$('.open-loading').forEach(btn => btn.addEventListener('click', () => setPage('loading')));
+        $('#yardExport')?.addEventListener('click', exportBackup); $('#yardShare')?.addEventListener('click', shareSnapshot);
+      }
+      function setVanStatus(id, status) {
+        const record = state.records.find(r => r.id === id); if (!record) return;
+        const at = new Date().toISOString();
+        if (status === 'cy-stripped') { record.status = 'cy-stripped'; record.cyStrippedAt = at; addHistory('cy-stripped', record, `CY Stripped · ${locationDetail(record)}`); }
+        else if (status === 'withdrawn') { record.lastPosition = positionNumber(record); const lastLocation = locationDetail(record); record.status = 'withdrawn'; record.withdrawnAt = at; addHistory('withdrawal', record, `Outgoing withdrawal · ${lastLocation}`); }
+        record.updatedAt = at; save(); render(); toast(`${record.van} marked ${status === 'cy-stripped' ? 'CY Stripped' : 'Withdrawn'}`);
+      }
+      function showSlotPicker(bay, face, block, stack, level) {
+        const records = bayItems(bay, block, face).sort((a,b) => a.van.localeCompare(b.van, undefined, { numeric: true }));
+        if (!records.length) { toast('There are no vans in this block to move'); return; }
+        modal(`<div class="modal-head"><div><h2>Place van at Stack ${stack}, level ${level}</h2><p>${blockLabel(bay,block,face)} · Open position</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="field"><label for="slotVanSelect">Choose a van in this block</label><select id="slotVanSelect">${records.map(r => `<option value="${escapeHtml(r.id)}">${escapeHtml(r.van)} · ${escapeHtml(r.consignee || 'No consignee')}</option>`).join('')}</select></div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button class="btn primary" id="applyStackSlot">Move to position</button></div></div>`);
+        $('#applyStackSlot').addEventListener('click', () => {
+          const record = state.records.find(r => r.id === $('#slotVanSelect').value); if (!record) return;
+          if (state.records.some(other => other.id !== record.id && other.status !== 'withdrawn' && other.bay === bay && normalizeFace(other.bay, other.face) === normalizeFace(bay, face) && other.block === block && other.stack === stack && other.level === level)) { toast('That stack position is already occupied'); closeModal(); return; }
+          const before = locationDetail(record); record.stack = stack; record.level = level; record.updatedAt = new Date().toISOString();
+          addHistory('stack-move', record, `${before} → ${locationDetail(record)}`, before); state.highlightRecordId = record.id; save(); closeModal(); render(); toast(`${record.van} moved to Stack ${stack}, level ${level}`);
+        });
+      }
+      function showLocationPicker(id, defaults = {}) {
+        const record = state.records.find(r => r.id === id); if (!record) return;
+        if (record.status === 'withdrawn') { toast('A withdrawn van cannot be assigned to a yard block'); return; }
+        const initialSection = SECTION_BY_KEY[defaults.section] ? defaults.section : (sectionForRecord(record) || 'A');
+        const initialBlocks = blocksFor(initialSection), initialInfo = SECTION_BY_KEY[initialSection];
+        const initialBlock = initialBlocks.includes(record.block) ? record.block : (initialBlocks.find(block => blockCount(initialInfo.bay, block, record.id, initialInfo.face) < 11) || initialBlocks[0]);
+        const renderBlockOptions = section => {
+          const info = SECTION_BY_KEY[section];
+          return blocksFor(section).map(block => {
+            const full = blockCount(info.bay, block, record.id, info.face) >= 11 && !(section === sectionForRecord(record) && block === record.block);
+            return `<option value="${block}" ${block === initialBlock ? 'selected' : ''} ${full ? 'disabled' : ''}>${sectionBlockLabel(section,block)}${full ? ' · Full' : ''}</option>`;
+          }).join('');
+        };
+        modal(`<div class="modal-head"><div><h2>Assign van location</h2><p>${escapeHtml(record.van)} · ${escapeHtml(record.consignee || 'No consignee listed')}</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="field"><label for="locationSection">Bay / side</label><select id="locationSection">${SECTION_CONFIG.map(section => `<option value="${section.key}" ${section.key === initialSection ? 'selected' : ''}>${escapeHtml(section.label)}</option>`).join('')}</select></div><div class="field"><label for="locationBlock">Block</label><select id="locationBlock">${renderBlockOptions(initialSection)}</select></div><div class="modal-info">The van will be placed in the first open stack position in that block.</div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button class="btn primary" id="saveLocation">Save location</button></div></div>`);
+        $('#locationSection').addEventListener('change', event => {
+          const section = event.target.value, blocks = blocksFor(section);
+          $('#locationBlock').innerHTML = renderBlockOptions(section);
+          const info = SECTION_BY_KEY[section], first = blocks.find(block => blockCount(info.bay, block, record.id, info.face) < 11) || '';
+          if (first) $('#locationBlock').value = first;
+        });
+        $('#saveLocation').addEventListener('click', () => {
+          const section = $('#locationSection').value, info = SECTION_BY_KEY[section], block = $('#locationBlock').value;
+          if (!info || !block) { toast('Choose a bay and block'); return; }
+          if (sectionForRecord(record) === section && record.block === block) { closeModal(); return; }
+          if (!moveToBlock(record, info.bay, block, info.face, record.bay ? 'location-move' : 'put-away')) { toast('Choose a block with an open position'); return; }
+          state.selectedBay = info.bay; state.selectedFace = info.face; state.selectedBlock = block; state.highlightRecordId = record.id;
+          save(); closeModal(); render(); showSearch($('#globalSearch').value); toast(`${record.van} assigned to ${sectionBlockLabel(section,block)}`);
+        });
+      }
+      function showPickingTag(id) {
+        const record = state.records.find(r => r.id === id); if (!record) return;
+        modal(`<div class="modal-head"><div><h2>Picking tag</h2><p>Prepare a print-ready tag for this van.</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="field"><label for="flOperator">FL operator · manually inputted</label><input id="flOperator" maxlength="80" placeholder="Enter operator name"></div><div class="modal-info">${escapeHtml(record.van)} · ${escapeHtml(record.consignee || 'No consignee')} · ${record.loadType === 'LCL' ? 'LCL · ' : ''}${escapeHtml(locationDetail(record))}</div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button id="printPickingTag" class="btn primary">Print picking tag</button></div></div>`);
+        $('#printPickingTag').addEventListener('click', () => { const operator = $('#flOperator').value.trim(); if (!operator) { $('#flOperator').focus(); toast('Enter the FL operator name'); return; } closeModal(); printPickingTag(record, operator); });
+      }
+      function printPickingTag(record, operator) {
+        const field = (label,value) => `<div class="tag-field"><span class="tag-label">${escapeHtml(label)}</span><span class="tag-value">${escapeHtml(value || '—')}</span></div>`;
+        const area = document.createElement('div'); area.id = 'printArea';
+        area.innerHTML = `<article class="tag-paper"><h1>PICKING TAG</h1>${field('Date', formatTime(new Date().toISOString()))}${field('Van No.', record.van)}${field('Consignee name', record.consignee)}${field('Load type', record.loadType || 'FCL')}${field('Voyage', record.voyage)}${field('Vessel', record.vessel)}${field('Van location', locationDetail(record))}${field('FL operator', operator)}</article>`;
+        document.body.appendChild(area);
+        const cleanup = () => area.remove(); window.addEventListener('afterprint', cleanup, { once: true });
+        setTimeout(() => { window.print(); setTimeout(cleanup, 1500); }, 100);
+      }
+      function renderShiftColumns(section, role) {
+        const info = SECTION_BY_KEY[section]; if (!info) return '';
+        const blocks = blocksFor(section);
+        return blocks.map((block, index) => {
+          const records = sectionItems(section, block).sort((a,b) => a.van.localeCompare(b.van, undefined, { numeric: true }));
+          if (role === 'source') {
+            const vans = records.length ? records.map(record => {
+              const leftBlock = blocks[index - 1] || '', rightBlock = blocks[index + 1] || '';
+              const leftDisabled = !leftBlock || blockCount(info.bay, leftBlock, record.id, info.face) >= 11;
+              const rightDisabled = !rightBlock || blockCount(info.bay, rightBlock, record.id, info.face) >= 11;
+              return `<div class="shift-van" draggable="true" data-shift-id="${escapeHtml(record.id)}" title="Drag this van to a block in the destination area"><span class="shift-van-code">${escapeHtml(record.van)}</span><span class="shift-van-consignee" title="${escapeHtml(record.consignee)}">${escapeHtml(record.consignee || 'No consignee listed')}</span><span class="record-meta">${escapeHtml([record.vessel && `Vessel ${record.vessel}`,record.voyage && `Voyage ${record.voyage}`].filter(Boolean).join(' · '))}</span><span class="record-meta"><span class="status-pill ${statusClass(record)}">${statusLabel(record)}</span>${statusTimestamp(record) ? ` · ${escapeHtml(statusTimestamp(record))}` : ''}</span><div class="shift-van-actions"><button class="shift-nudge shift-left" data-id="${escapeHtml(record.id)}" data-to="${leftBlock}" aria-label="Move ${escapeHtml(record.van)} left to ${leftBlock ? sectionBlockLabel(section,leftBlock) : 'none'}" ${leftDisabled ? 'disabled' : ''}>← ${leftBlock ? Number(leftBlock) : ''}</button><button class="shift-nudge shift-right" data-id="${escapeHtml(record.id)}" data-to="${rightBlock}" aria-label="Move ${escapeHtml(record.van)} right to ${rightBlock ? sectionBlockLabel(section,rightBlock) : 'none'}" ${rightDisabled ? 'disabled' : ''}>${rightBlock ? Number(rightBlock) : ''} →</button><button class="btn small shift-move-any" data-id="${escapeHtml(record.id)}">Move to…</button></div></div>`;
+            }).join('') : '<div class="shift-empty">No vans in this block</div>';
+            return `<div class="shift-block" data-shift-block="${block}"><div class="shift-block-head"><div class="shift-block-top"><span class="shift-block-name">${sectionBlockLabel(section,block)}</span><span class="shift-count ${records.length >= 11 ? 'full' : ''}">${records.length}/11</span></div><div class="shift-meter"><span style="width:${Math.min(100,records.length/11*100)}%"></span></div></div><div class="shift-vans">${vans}</div></div>`;
+          }
+          const vans = records.length ? records.map(record => `<span class="destination-van" title="${escapeHtml(record.van)} · ${escapeHtml(record.consignee || 'No consignee')}">${escapeHtml(record.van)}</span>`).join('') : '<span class="destination-empty">Drop van here</span>';
+          return `<div class="shift-destination-block" data-shift-target-section="${section}" data-shift-target-block="${block}"><div class="shift-block-head"><div class="shift-block-top"><span class="shift-block-name">${sectionBlockLabel(section,block)}</span><span class="shift-count ${records.length >= 11 ? 'full' : ''}">${records.length}/11</span></div><div class="shift-meter"><span style="width:${Math.min(100,records.length/11*100)}%"></span></div></div><div class="destination-vans">${vans}</div></div>`;
+        }).join('');
+      }
+      function renderShift() {
+        const source = SECTION_BY_KEY[state.shiftFromSection] ? state.shiftFromSection : 'A';
+        const sourceBlocks = blocksFor(source);
+        if (!sourceBlocks.includes(state.shiftFromBlock)) state.shiftFromBlock = sourceBlocks[0] || '';
+        const sourceBlock = state.shiftFromBlock;
+        const sourceInfo = SECTION_BY_KEY[source];
+        const sourceCount = sectionItems(source, sourceBlock).length;
+        const selectedVan = state.records.find(record => record.id === state.quickMoveId && record.status !== 'withdrawn');
+        if (state.quickMoveId && !selectedVan) state.quickMoveId = '';
+        const sectionButtons = (selected, attr, counts = true) => SECTION_CONFIG.map(section => `<button type="button" class="quick-section-button ${selected === section.key ? 'active' : ''}" ${attr}="${section.key}">${escapeHtml(section.label)}${counts ? `<span>${section.blocks} blocks · ${sectionItems(section.key).length} vans</span>` : ''}</button>`).join('');
+        const blockButtons = blocksFor(source).map(block => { const count = sectionItems(source,block).length; return `<button type="button" class="quick-block-button ${sourceBlock === block ? 'active' : ''}" data-quick-source-block="${block}">${sectionBlockLabel(source,block)}<span>${count}/11 vans</span></button>`; }).join('');
+        const vans = sectionItems(source,sourceBlock).sort((a,b) => a.van.localeCompare(b.van,undefined,{numeric:true}));
+        const vanRows = vans.length ? vans.map(record => `<div class="quick-van-row"><div><strong>${escapeHtml(record.van)}${record.loadType === 'LCL' ? ' · LCL' : ''}</strong><span>${escapeHtml(record.consignee || 'No consignee listed')}${[record.vessel,record.voyage].filter(Boolean).length ? ` · ${escapeHtml([record.vessel,record.voyage].filter(Boolean).join(' / '))}` : ''}</span><span>${escapeHtml(locationDetail(record))} · ${escapeHtml(statusLabel(record))}</span></div><button type="button" class="btn small ${record.id === state.quickMoveId ? 'primary' : ''}" data-quick-pick="${escapeHtml(record.id)}">${record.id === state.quickMoveId ? 'Selected' : 'Move'}</button></div>`).join('') : `<div class="empty-state" style="padding:24px 12px"><strong>No vans in ${sectionBlockLabel(source,sourceBlock)}</strong><p>Choose another source block or add an existing van to this location.</p><button class="btn small" data-go-page="manual">Add vans</button></div>`;
+        let destinationPanel = '';
+        if (selectedVan) {
+          if (!SECTION_BY_KEY[state.quickDestSection]) state.quickDestSection = sectionForRecord(selectedVan);
+          const targetSection = state.quickDestSection;
+          const targetInfo = SECTION_BY_KEY[targetSection];
+          const targetBlock = state.quickDestBlock;
+          const destinationBlocks = blocksFor(targetSection).map(block => {
+            const count = blockCount(targetInfo.bay,block,selectedVan.id,targetInfo.face);
+            const current = sectionForRecord(selectedVan) === targetSection && selectedVan.block === block;
+            const full = count >= 11;
+            return `<button type="button" class="quick-block-button ${targetBlock === block ? 'active' : ''}" data-quick-dest-block="${block}" ${full || current ? 'disabled' : ''}>${sectionBlockLabel(targetSection,block)}<span>${current ? 'Current block' : full ? 'Full' : `${count}/11 vans`}</span></button>`;
+          }).join('');
+          const canConfirm = !!targetBlock && blocksFor(targetSection).includes(targetBlock) && !(sectionForRecord(selectedVan) === targetSection && selectedVan.block === targetBlock) && blockCount(targetInfo.bay,targetBlock,selectedVan.id,targetInfo.face) < 11;
+          const targetLabel = canConfirm ? sectionBlockLabel(targetSection,targetBlock) : 'Choose an open block';
+          destinationPanel = `<section class="panel quick-step"><h2 class="quick-step-head"><i class="quick-step-number">3</i><span class="quick-step-title">Choose the destination</span><span class="quick-step-hint">${escapeHtml(selectedVan.van)}</span></h2><div class="quick-section-grid">${sectionButtons(targetSection,'data-quick-dest-section')}</div><div class="quick-block-grid" style="margin-top:10px">${destinationBlocks}</div><div class="quick-confirm"><span class="modal-info">Destination: <strong>${escapeHtml(targetLabel)}</strong></span><button type="button" class="btn primary" id="quickConfirmMove" ${canConfirm ? '' : 'disabled'}>Move van</button></div></section>`;
+        }
+        $('#shiftPage').innerHTML = `<div class="page-head"><div><div class="eyebrow">Fast yard moves</div><h1>Quick Move</h1><p class="page-desc">Choose a source block, tap Move beside a van, then choose any destination block in the yard.</p></div><div class="head-actions"><button class="btn" id="shiftExport">${icon('download')}Backup</button><button class="btn primary" id="shiftShare">${icon('share')}Share snapshot</button></div></div>
+          <section class="panel quick-step"><h2 class="quick-step-head"><i class="quick-step-number">1</i><span class="quick-step-title">Choose where the van is now</span><span class="quick-step-hint">${escapeHtml(sectionLabel(source))}</span></h2><div class="quick-section-grid">${sectionButtons(source,'data-quick-source-section')}</div><div class="quick-block-grid" style="margin-top:10px">${blockButtons}</div></section>
+          <section class="panel quick-step"><h2 class="quick-step-head"><i class="quick-step-number">2</i><span class="quick-step-title">Choose a van to move</span><span class="quick-step-hint">${sourceCount} ${sourceCount === 1 ? 'van' : 'vans'} in ${sectionBlockLabel(source,sourceBlock)}</span></h2>${selectedVan ? `<div class="quick-selected-van"><span><strong>${escapeHtml(selectedVan.van)}</strong>${escapeHtml(selectedVan.consignee || 'No consignee listed')} · ${escapeHtml(locationDetail(selectedVan))}</span><button type="button" class="btn small" id="cancelQuickMove">Cancel</button></div>` : ''}<div class="quick-van-list">${vanRows}</div></section>${destinationPanel}<div class="yard-note">Each block holds 11 vans in four stack lanes (3 / 3 / 3 / 2). All moves are time-stamped in History.</div>`;
+        $$('[data-quick-source-section]').forEach(button => button.addEventListener('click', () => { state.shiftFromSection = button.dataset.quickSourceSection; state.shiftFromBlock = blocksFor(state.shiftFromSection)[0] || ''; state.quickMoveId = ''; renderShift(); }));
+        $$('[data-quick-source-block]').forEach(button => button.addEventListener('click', () => { state.shiftFromBlock = button.dataset.quickSourceBlock; state.quickMoveId = ''; renderShift(); }));
+        $$('[data-quick-pick]').forEach(button => button.addEventListener('click', () => { state.quickMoveId = button.dataset.quickPick; const record = state.records.find(item => item.id === state.quickMoveId); state.quickDestSection = record ? sectionForRecord(record) : source; state.quickDestBlock = ''; renderShift(); }));
+        $$('[data-quick-dest-section]').forEach(button => button.addEventListener('click', () => { state.quickDestSection = button.dataset.quickDestSection; state.quickDestBlock = ''; renderShift(); }));
+        $$('[data-quick-dest-block]').forEach(button => button.addEventListener('click', () => { state.quickDestBlock = button.dataset.quickDestBlock; renderShift(); }));
+        $('#cancelQuickMove')?.addEventListener('click', () => { state.quickMoveId = ''; state.quickDestBlock = ''; renderShift(); });
+        $('#shiftPage [data-go-page="manual"]')?.addEventListener('click', () => setPage('manual'));
+        $('#quickConfirmMove')?.addEventListener('click', quickMoveVan);
+        $('#shiftExport')?.addEventListener('click', exportBackup); $('#shiftShare')?.addEventListener('click', shareSnapshot);
+      }
+      function quickMoveVan() {
+        const record = state.records.find(item => item.id === state.quickMoveId);
+        const target = SECTION_BY_KEY[state.quickDestSection], block = state.quickDestBlock;
+        if (!record || !target || !blocksFor(state.quickDestSection).includes(block)) { toast('Choose a destination bay and block'); return; }
+        if (sectionForRecord(record) === state.quickDestSection && record.block === block) { toast('Choose a different block'); return; }
+        if (!moveToBlock(record,target.bay,block,target.face,'location-move')) { toast(`${sectionBlockLabel(state.quickDestSection,block)} has no open space`); return; }
+        state.selectedBay = target.bay; state.selectedFace = target.face; state.selectedBlock = block; state.highlightRecordId = record.id;
+        state.shiftFromSection = state.quickDestSection; state.shiftFromBlock = block; state.quickMoveId = ''; state.quickDestBlock = '';
+        save(); render(); toast(`${record.van} moved to ${sectionBlockLabel(state.shiftFromSection,state.shiftFromBlock)}`);
+      }
+      function shiftVan(id, destinationSection, destinationBlock) {
+        const record = state.records.find(r => r.id === id);
+        const target = SECTION_BY_KEY[destinationSection];
+        if (!record || !target || !blocksFor(destinationSection).includes(destinationBlock) || (sectionForRecord(record) === destinationSection && record.block === destinationBlock)) return;
+        state.shiftFromScroll = $('#shiftFromScroller')?.scrollLeft ?? state.shiftFromScroll;
+        state.shiftToScroll = $('#shiftToScroller')?.scrollLeft ?? state.shiftToScroll;
+        if (blockCount(target.bay, destinationBlock, record.id, target.face) >= 11) { toast(`${sectionBlockLabel(destinationSection,destinationBlock)} has reached its 11-van capacity`); renderShift(); return; }
+        if (!moveToBlock(record, target.bay, destinationBlock, target.face, 'location-move')) { toast(`${sectionBlockLabel(destinationSection,destinationBlock)} has no open stack position`); renderShift(); return; }
+        state.selectedBay = target.bay; state.selectedFace = target.face; state.selectedBlock = destinationBlock; state.highlightRecordId = record.id;
+        save(); render(); toast(`${record.van} moved to ${sectionBlockLabel(destinationSection,destinationBlock)}`);
+      }
+      function historyName(type) {
+        return ({ 'incoming-full':'Incoming full', 'opening-stock':'Existing stock added', 'withdrawal':'Outgoing withdrawal', 'cy-stripped':'CY Stripped', 'location-move':'Location moved', 'stack-move':'Stack position moved', 'put-away':'Put-away', 'guide-update':'Guide details updated' })[type] || 'Activity';
+      }
+      function renderHistory() {
+        const incoming = state.history.filter(event => event.type === 'incoming-full').length;
+        const outgoing = state.history.filter(event => event.type === 'withdrawal').length;
+        const filtered = state.history.filter(event => (!state.historyVanId || norm(event.van) === state.historyVanId) && (state.historyFilter === 'all' || (state.historyFilter === 'incoming' ? event.type === 'incoming-full' : state.historyFilter === 'outgoing' ? event.type === 'withdrawal' : !['incoming-full','withdrawal'].includes(event.type)))).sort((a,b) => new Date(b.at || 0) - new Date(a.at || 0));
+        const rows = filtered.map(event => `<tr><td class="history-time">${escapeHtml(formatTime(event.at))}</td><td class="history-type">${escapeHtml(historyName(event.type))}</td><td><strong>${escapeHtml(event.van || '—')}</strong><div class="record-meta">${escapeHtml(event.consignee || 'No consignee')}</div></td><td><div>${escapeHtml(event.detail || '')}</div><div class="history-detail">${escapeHtml([event.vessel && `Vessel ${event.vessel}`,event.voyage && `Voyage ${event.voyage}`].filter(Boolean).join(' · '))}</div></td></tr>`).join('');
+        const selectedHistoryVan = state.historyVanId ? state.records.find(r => r.id === state.historyVanId)?.van : '';
+        $('#historyPage').innerHTML = `<div class="page-head"><div><div class="eyebrow">Yard activity</div><h1>History</h1><p class="page-desc">Incoming full, CY stripping, location changes, and outgoing withdrawals are recorded with their local date and time.</p></div><div class="head-actions"><button class="btn" id="historyExport">${icon('download')}Backup</button></div></div><div class="stats"><div class="stat"><div class="stat-label">Incoming full</div><div class="stat-value">${incoming.toLocaleString()}</div><div class="stat-foot">New van records added</div></div><div class="stat"><div class="stat-label">Outgoing withdrawals</div><div class="stat-value">${outgoing.toLocaleString()}</div><div class="stat-foot">Vans marked withdrawn</div></div><div class="stat"><div class="stat-label">All recorded events</div><div class="stat-value">${state.history.length.toLocaleString()}</div><div class="stat-foot">Stored with this device’s yard list</div></div><div class="stat"><div class="stat-label">Current activity</div><div class="stat-value">${state.records.filter(r => r.status === 'cy-stripped').length.toLocaleString()}</div><div class="stat-foot">Vans marked CY Stripped</div></div></div><div class="panel"><div class="panel-head"><div><div class="panel-title">Activity records${selectedHistoryVan ? ` · ${escapeHtml(selectedHistoryVan)}` : ''}</div><div class="panel-sub">Newest activity appears first.</div></div><div class="head-actions">${selectedHistoryVan ? '<button class="btn small" id="clearHistoryVan">Show all vans</button>' : ''}<select id="historyFilter" class="filter-select" aria-label="Filter activity"><option value="all" ${state.historyFilter === 'all' ? 'selected' : ''}>All activity</option><option value="incoming" ${state.historyFilter === 'incoming' ? 'selected' : ''}>Incoming full</option><option value="outgoing" ${state.historyFilter === 'outgoing' ? 'selected' : ''}>Outgoing withdrawal</option><option value="other" ${state.historyFilter === 'other' ? 'selected' : ''}>Location and status changes</option></select></div></div>${rows ? `<div class="table-scroll"><table class="history-table"><thead><tr><th>Date and time</th><th>Activity</th><th>Van / consignee</th><th>Details</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="empty-state"><div class="empty-illustration">${icon('clock')}</div><strong>${selectedHistoryVan ? 'No matching history records' : 'No history records yet'}</strong><p>New incoming vans and yard activity will appear here.</p></div>`}<div class="table-tools"><span class="table-info">${filtered.length} ${filtered.length === 1 ? 'event' : 'events'} shown</span></div></div>`;
+        $('#historyFilter')?.addEventListener('change', e => { state.historyFilter = e.target.value; renderHistory(); });
+        $('#clearHistoryVan')?.addEventListener('click', () => { state.historyVanId = ''; state.historyFilter = 'all'; renderHistory(); });
+        $('#historyExport')?.addEventListener('click', exportBackup);
+      }
+      let draggedVanId = '';
+      function setPage(page) { state.page = page; updateNav(); if (page === 'yard') renderYard(); else if (page === 'shift') renderShift(); else if (page === 'manual') renderManual(); else if (page === 'history') renderHistory(); else if (page !== 'help') renderLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      function toast(message) { const el = $('#toast'); el.textContent = message; el.classList.add('show'); clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.remove('show'), 2600); }
+      function exportBackup() {
+        const blob = new Blob([JSON.stringify({ app: 'Container Van Locator', version: 3, exportedAt: new Date().toISOString(), records: state.records, history: state.history }, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `container-van-locator-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href); toast('Backup downloaded');
+      }
+      function bytesToBase64Url(bytes) { let binary = ''; for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000)); return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/,''); }
+      async function shareSnapshot() {
+        if (!state.records.length) { toast('Upload a loading guide before sharing a snapshot'); return; }
+        let url = '';
+        try {
+          const data = new TextEncoder().encode(JSON.stringify({ v: 3, records: state.records, history: state.history }));
+          let bytes = data;
+          if ('CompressionStream' in window) { const stream = new Blob([data]).stream().pipeThrough(new CompressionStream('gzip')); bytes = new Uint8Array(await new Response(stream).arrayBuffer()); }
+          url = `${location.href.split('#')[0]}#share=${bytesToBase64Url(bytes)}`;
+          if (url.length > 100000) { toast('This list is too large for a link. Download a backup instead.'); return; }
+          if (navigator.share) {
+            try { await navigator.share({ title: 'Container Van Locator', text: 'View this yard snapshot', url }); toast('Share sheet opened'); return; }
+            catch (error) { if (error?.name === 'AbortError') return; }
+          }
+          await navigator.clipboard.writeText(url); toast('Share link copied to clipboard');
+        } catch { if (url) openShareFallback(url); else toast('Could not create a share link in this browser'); }
+      }
+      function openShareFallback(url) {
+        modal(`<div class="modal-head"><div><h2>Share yard snapshot</h2><p>Copy this link and send it to your team.</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="field"><label for="shareLink">Share link</label><input id="shareLink" value="${escapeHtml(url)}" readonly></div><div class="modal-actions"><button class="btn primary" id="copyLink">Copy link</button></div></div>`);
+        $('#copyLink').addEventListener('click', async () => { $('#shareLink').select(); try { await navigator.clipboard.writeText(url); } catch { document.execCommand('copy'); } toast('Link copied'); closeModal(); });
+      }
+      async function decodeShared() {
+        const hash = location.hash.slice(1); const match = hash.match(/(?:^|&)share=([^&]+)/); if (!match) return;
+        try {
+          const s = match[1].replace(/-/g, '+').replace(/_/g, '/'); const binary = atob(s + '='.repeat((4 - s.length % 4) % 4)); const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+          let text;
+          if (bytes[0] === 0x1f && bytes[1] === 0x8b && 'DecompressionStream' in window) text = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+          else text = new TextDecoder().decode(bytes);
+          const parsed = JSON.parse(text); if (!Array.isArray(parsed.records)) throw new Error('Invalid snapshot');
+          state.records = cleanRecords(parsed.records); state.history = Array.isArray(parsed.history) ? parsed.history : state.history; normalizePositions(); state.sharedSnapshot = true;
+          $('#sharedCount').textContent = `${state.records.length} vans · this snapshot is ready to view.`; $('#sharedBanner').classList.add('show');
+        } catch { toast('Could not read this shared snapshot link'); }
+      }
+      function modal(html, wide = false) { const el = $('#modalBackdrop'); el.innerHTML = `<div class="modal ${wide ? 'wide' : ''}">${html}</div>`; el.classList.add('open'); $$('.close-modal', el).forEach(b => b.addEventListener('click', closeModal)); el.addEventListener('click', e => { if (e.target === el) closeModal(); }, { once: true }); }
+      function closeModal() { if (state.ocrRunning) return; $('#modalBackdrop').classList.remove('open'); if (state.photoObjectUrl) { URL.revokeObjectURL(state.photoObjectUrl); state.photoObjectUrl = null; } }
+      function parseDelimited(text, delimiter) {
+        const rows = []; let row = [], cell = '', quoted = false;
+        for (let i=0;i<text.length;i++) { const ch=text[i]; if (quoted) { if (ch==='"' && text[i+1]==='"') { cell+='"'; i++; } else if (ch==='"') quoted=false; else cell+=ch; }
+          else if (ch==='"') quoted=true; else if (ch===delimiter) { row.push(cell); cell=''; } else if (ch==='\n') { row.push(cell.replace(/\r$/,'')); rows.push(row); row=[]; cell=''; } else cell+=ch; }
+        if (cell.length || row.length) { row.push(cell.replace(/\r$/,'')); rows.push(row); }
+        return rows.filter(r => r.some(c => String(c).trim()));
+      }
+      function isPhotoFile(file) { return /\.(png|jpe?g|webp)$/i.test(file.name); }
+      function handleSelectedFiles(fileList) {
+        const files = Array.from(fileList || []); if (!files.length) return;
+        if (files.every(isPhotoFile)) { importPhotos(files); return; }
+        if (files.length === 1) { importFile(files[0]); return; }
+        toast('Select one spreadsheet or a batch of loading guide photos'); $('#fileInput').value = '';
+      }
+      async function importFile(file) {
+        const ext = file.name.toLowerCase().split('.').pop(); let rows;
+        try {
+          if (ext === 'json') {
+            const backup = JSON.parse(await file.text());
+            if (!backup || !Array.isArray(backup.records)) { toast('This JSON file is not a Container Van Locator backup'); return; }
+            const imported = cleanRecords(backup.records); if (!imported.length) { toast('No van records found in this backup'); return; }
+            const byId = new Map(state.records.map(r => [r.id, r])); let added = 0, updated = 0;
+            if (Array.isArray(backup.history)) { const known = new Set(state.history.map(event => event.id)); state.history.push(...backup.history.filter(event => !known.has(event.id))); }
+            for (const item of imported) { const prior = byId.get(item.id); if (prior) { prior.consignee = item.consignee; prior.vessel = item.vessel; prior.voyage = item.voyage; if (item.bay && item.block) { prior.bay = item.bay; prior.block = item.block; prior.stack = item.stack; prior.level = item.level; } prior.status = item.status; prior.cyStrippedAt = item.cyStrippedAt; prior.withdrawnAt = item.withdrawnAt; prior.lastPosition = item.lastPosition; updated++; } else { byId.set(item.id, item); added++; } }
+            state.records = Array.from(byId.values()); normalizePositions(); state.loadingPage = 1; state.loadingFilter = 'all'; save(); render(); $('#fileInput').value = ''; toast(`Backup restored · ${added} added${updated ? ` · ${updated} updated` : ''}`); return;
+          }
+          if (isPhotoFile(file)) { await importPhotos([file]); return; }
+          if (ext === 'csv' || ext === 'tsv') rows = parseDelimited(await file.text(), ext === 'tsv' ? '\t' : ',');
+          else {
+            if (!window.XLSX) { toast('Excel reader did not load. Use a CSV export or reconnect to the internet.'); return; }
+            const wb = XLSX.read(await file.arrayBuffer(), { type: 'array', cellDates: false });
+            const all = wb.SheetNames.map(name => ({ name, rows: XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: '', raw: false }) }));
+            const firstDetected = all.map(s => ({ ...s, map: detectColumns(s.rows) })).find(s => s.map);
+            if (firstDetected) rows = firstDetected.rows;
+            else rows = all[0]?.rows || [];
+            state.pendingWorkbook = all;
+          }
+          state.pendingFile = file.name; state.pendingRows = rows;
+          const mapping = detectColumns(rows);
+          if (mapping) completeImport(rows, mapping.van, mapping.consignee, mapping.headerRow, file.name, mapping.vessel, mapping.voyage, mapping.loadType);
+          else showColumnPicker(rows, file.name);
+        } catch (err) { console.error(err); toast('Could not read this file. Check that it is a valid spreadsheet or CSV.'); }
+      }
+      function loadTesseract() {
+        if (window.Tesseract) return Promise.resolve(window.Tesseract);
+        if (tesseractLoadPromise) return tesseractLoadPromise;
+        tesseractLoadPromise = new Promise((resolve, reject) => {
+          const script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'; script.async = true;
+          script.onload = () => window.Tesseract ? resolve(window.Tesseract) : reject(new Error('OCR library did not start'));
+          script.onerror = () => { tesseractLoadPromise = null; reject(new Error('Could not load the OCR library')); };
+          document.head.appendChild(script);
+        });
+        return tesseractLoadPromise;
+      }
+      function updateOcrProgress(message, progress) {
+        const status = $('#ocrStatus'); if (status) status.textContent = message;
+        const fill = $('#ocrProgressFill'); if (fill) fill.style.width = `${Math.round(Math.max(0, Math.min(1, progress || 0)) * 100)}%`;
+      }
+      function orderPhotoFiles(files) {
+        const tagged = files.map((file,index) => ({ file, index, stamp: file.name.match(/\d{8}[_-]?\d{6}/)?.[0] || '' }));
+        const allStamped = tagged.length > 1 && tagged.every(item => item.stamp);
+        if (allStamped) tagged.sort((a,b) => a.stamp.localeCompare(b.stamp));
+        return tagged.map(item => item.file);
+      }
+      async function preparePhoto(file) {
+        if (!window.createImageBitmap) return file;
+        let bitmap;
+        try {
+          bitmap = await createImageBitmap(file);
+          const scale = Math.min(1.6, 3000 / bitmap.width, 3000 / bitmap.height);
+          const canvas = document.createElement('canvas'); canvas.width = Math.max(1, Math.round(bitmap.width * scale)); canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+          const context = canvas.getContext('2d', { willReadFrequently: true }); context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+          const image = context.getImageData(0, 0, canvas.width, canvas.height), pixels = image.data;
+          for (let i = 0; i < pixels.length; i += 4) {
+            const gray = pixels[i] * .299 + pixels[i + 1] * .587 + pixels[i + 2] * .114;
+            const contrast = Math.max(0, Math.min(255, (gray - 128) * 1.22 + 128));
+            pixels[i] = pixels[i + 1] = pixels[i + 2] = contrast;
+          }
+          context.putImageData(image, 0, 0); return canvas;
+        } catch { return file; }
+        finally { bitmap?.close?.(); }
+      }
+      async function importPhotos(files) {
+        const ordered = orderPhotoFiles(files); let currentPage = 0;
+        state.ocrRunning = true;
+        modal(`<div class="modal-head"><div><h2>Reading ${ordered.length === 1 ? 'loading guide photo' : `${ordered.length} loading guide photos`}</h2><p>Looking for Container No. and Consignee Name in the report table.</p></div></div><div class="modal-body"><div id="ocrStatus" class="modal-info">Loading the free OCR reader…</div><div class="ocr-progress"><span id="ocrProgressFill"></span></div><p class="modal-info" style="margin-top:10px">${ordered.length > 1 ? 'Photos with timestamp names are processed in time order. ' : ''}The app enlarges and sharpens the image before reading. Review every container number before importing.</p></div>`);
+        let worker;
+        try {
+          const Tesseract = await loadTesseract();
+          worker = await Tesseract.createWorker('eng', 1, { logger: message => updateOcrProgress(`Reading photo ${Math.min(currentPage + 1, ordered.length)} of ${ordered.length}…`, (currentPage + (message.progress || 0)) / ordered.length) });
+          const extracted = []; const metadata = { vessel: '', voyage: '', columns: null };
+          for (currentPage = 0; currentPage < ordered.length; currentPage++) {
+            updateOcrProgress(`Reading photo ${currentPage + 1} of ${ordered.length}…`, currentPage / ordered.length);
+            const prepared = await preparePhoto(ordered[currentPage]);
+            const result = await worker.recognize(prepared, {}, { tsv: true });
+            const page = parsePhotoOcr(result.data || {}, metadata.columns); extracted.push(...page.items);
+            if (page.columns) metadata.columns = page.columns;
+            if (!metadata.vessel && page.vessel) metadata.vessel = page.vessel;
+            if (!metadata.voyage && page.voyage) metadata.voyage = page.voyage;
+          }
+          const grouped = groupPhotoItems(extracted);
+          if (!grouped.length) throw new Error('No container numbers could be recognized in the report column. Try a sharper, well-lit photo or use a spreadsheet/CSV file.');
+          showPhotoReview(grouped, ordered, metadata);
+        } catch (error) {
+          modal(`<div class="modal-head"><div><h2>Photo could not be read</h2><p>${ordered.length} ${ordered.length === 1 ? 'photo' : 'photos'} selected</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><p class="modal-info">${escapeHtml(error.message || 'The OCR reader could not process this image.')}</p><div class="modal-actions"><button class="btn close-modal">Close</button></div></div>`);
+        } finally { if (worker) { try { await worker.terminate(); } catch {} } state.ocrRunning = false; $('#fileInput').value = ''; }
+      }
+      function parsePhotoOcr(data, fallbackColumns = null) {
+        const raw = String(data.tsv || ''); const lines = [];
+        const pageText = String(data.text || '');
+        const vessel = pageText.match(/Vessel\s*:\s*(.*?)(?:\s+Voyage\s*:|[\r\n]|$)/i)?.[1]?.trim() || '';
+        const voyage = pageText.match(/Voyage\s*:\s*([A-Z0-9-]+)/i)?.[1]?.trim() || '';
+        const words = raw.split(/\r?\n/).slice(1).map(line => {
+          const c = line.split('\t'); if (c.length < 12 || c[0] !== '5') return null;
+          const text = String(c[11] || '').trim(); if (!text) return null;
+          return { text, left: Number(c[6]) || 0, top: Number(c[7]) || 0, width: Number(c[8]) || 0, height: Number(c[9]) || 0, confidence: Number(c[10]) || 0 };
+        }).filter(w => w && w.confidence >= 0 && w.width > 0 && w.height > 0);
+        if (!words.length) return { vessel, voyage, items: [], columns: fallbackColumns };
+        const heights = words.map(w => w.height).sort((a,b) => a-b);
+        const medianHeight = heights[Math.floor(heights.length / 2)] || 12;
+        const tolerance = Math.max(5, medianHeight * .68);
+        words.sort((a,b) => (a.top + a.height / 2) - (b.top + b.height / 2) || a.left - b.left);
+        for (const word of words) {
+          const cy = word.top + word.height / 2; let line = null;
+          for (let i = lines.length - 1; i >= 0; i--) { if (Math.abs(lines[i].cy - cy) <= tolerance) { line = lines[i]; break; } }
+          if (!line) { line = { cy, words: [] }; lines.push(line); }
+          line.words.push(word); line.cy = line.words.reduce((sum,w) => sum + w.top + w.height / 2, 0) / line.words.length;
+        }
+        lines.sort((a,b) => a.cy - b.cy); lines.forEach(line => line.words.sort((a,b) => a.left - b.left));
+        const pageWidth = Number(data.width) || Math.max(...words.map(w => w.left + w.width));
+        const center = w => w.left + w.width / 2;
+        let columnRatios = fallbackColumns || { containerEnd: .165, consigneeStart: .34, consigneeEnd: .535 };
+        const headerLines = [];
+        for (const line of lines) {
+          const labelText = line.words.map(w => w.text.toLowerCase()).join(' ').replace(/[^a-z]+/g,' ');
+          if (!labelText.includes('container') || !labelText.includes('seal') || !labelText.includes('shipper') || !labelText.includes('consignee')) continue;
+          const labelWord = expression => line.words.find(w => expression.test(w.text));
+          const container = labelWord(/container/i), seal = labelWord(/seal/i), shipper = labelWord(/shipper/i), consignee = labelWord(/consignee/i), description = labelWord(/description/i);
+          if (container && seal && shipper && consignee && description) {
+            columnRatios = { containerEnd: Math.min(.22, Math.max(.14, seal.left / pageWidth - .003)), consigneeStart: Math.max(.27, consignee.left / pageWidth - .006), consigneeEnd: Math.min(.7, description.left / pageWidth - .006) };
+            headerLines.push(line.cy);
+          }
+        }
+        const columns = { containerEnd: columnRatios.containerEnd * pageWidth, consigneeStart: columnRatios.consigneeStart * pageWidth, consigneeEnd: columnRatios.consigneeEnd * pageWidth };
+        const skippedHeader = y => headerLines.some(headerY => Math.abs(y - headerY) <= medianHeight * 1.5);
+        const correctPrefix = value => value.replace(/[0158]/g, c => ({ '0':'O','1':'I','5':'S','8':'B' }[c]));
+        const normalizeDigit = value => value.replace(/[OQD]/g, '0').replace(/[IL|]/g, '1').replace(/S/g, '5').replace(/Z/g, '2').replace(/B/g, '8');
+        function containerFrom(wordsInColumn) {
+          const compact = wordsInColumn.map(w => w.text).join('').toUpperCase().replace(/[^A-Z0-9]/g, '');
+          if (compact.length < 6) return null;
+          let prefix = correctPrefix(compact.slice(0,4)), numberPart = compact.slice(4);
+          if (!/^[A-Z]{4}$/.test(prefix)) {
+            const partial = compact.match(/^([A-Z0-9]{3})([0-9OQDILSBZ]{3,})/);
+            if (!partial) return null;
+            prefix = correctPrefix(partial[1]); numberPart = partial[2];
+            if (!/^[A-Z]{3}$/.test(prefix)) return null;
+          }
+          const digits = normalizeDigit(numberPart).match(/^\d+/)?.[0] || '';
+          if (digits.length < 3) return null;
+          const captured = digits.slice(0,7);
+          const complete = captured.length === 7;
+          const container = complete && prefix.length === 4 ? `${prefix} ${captured.slice(0,6)}-${captured[6]}` : `${prefix} ${captured}`;
+          return { container, needsReview: !isCompleteContainerNumber(container) };
+        }
+        const items = []; const continuationGap = Math.max(18, medianHeight * 2.15);
+        for (const line of lines) {
+          if (skippedHeader(line.cy)) continue;
+          const vanWords = line.words.filter(w => center(w) <= columns.containerEnd && w.confidence >= 2);
+          const candidate = containerFrom(vanWords);
+          const consigneeWords = line.words.filter(w => center(w) >= columns.consigneeStart && center(w) < columns.consigneeEnd && w.confidence >= 4);
+          const consignee = consigneeWords.map(w => w.text).join(' ').replace(/\s+/g,' ').trim();
+          if (candidate) items.push({ ...candidate, consignee, y: line.cy, lastY: line.cy });
+          else if (consignee && items.length && line.cy - items[items.length - 1].lastY <= continuationGap) {
+            const last = items[items.length - 1]; last.consignee = `${last.consignee} ${consignee}`.trim(); last.lastY = line.cy;
+          }
+        }
+        return { vessel, voyage, items: items.map(({container,consignee,needsReview}) => ({container,consignee,needsReview})), columns: columnRatios };
+      }
+      function groupPhotoItems(items) {
+        const grouped = new Map();
+        for (const item of items) {
+          const key = norm(item.container); if (!key) continue;
+          const base = key.length >= 10 ? key.slice(0,10) : key;
+          const existing = Array.from(grouped.entries()).find(([,current]) => {
+            const currentKey = norm(current.container); return (key.length >= 10 && currentKey.length >= 10 && currentKey.slice(0,10) === base) || currentKey === key;
+          });
+          const prior = existing?.[1];
+          if (prior) {
+            if (key.length > norm(prior.container).length) prior.container = item.container;
+            prior.consignee = combineConsignees(prior.consignee, item.consignee);
+            prior.needsReview = prior.needsReview && !!item.needsReview;
+          } else grouped.set(key, { container: item.container, consignee: item.consignee || '', needsReview: !!item.needsReview });
+        }
+        return Array.from(grouped.values()).map(item => ({ ...item, loadType: deriveLoadType('',item.consignee) }));
+      }
+      function updatePhotoReviewValidation() {
+        const inputs = $$('.photo-container'); let incomplete = 0;
+        inputs.forEach(input => { const invalid = !isCompleteContainerNumber(input.value); input.classList.toggle('invalid',invalid); const note = input.parentElement.querySelector('.photo-validation'); if (note) note.textContent = invalid ? 'Check full container code' : ''; if (invalid) incomplete++; });
+        const warning = $('#photoValidationWarning'); if (warning) warning.textContent = incomplete ? `${incomplete} row${incomplete === 1 ? '' : 's'} need a complete van number before download or import.` : 'All container numbers have the expected full code format.';
+        return incomplete === 0;
+      }
+      function showPhotoReview(items, files, metadata = {}) {
+        if (state.photoObjectUrl) URL.revokeObjectURL(state.photoObjectUrl);
+        state.photoObjectUrl = URL.createObjectURL(files[0]);
+        const rows = items.map((item,i) => `<tr><td class="row-num">${i + 1}</td><td><input class="photo-container ${isCompleteContainerNumber(item.container) ? '' : 'invalid'}" aria-label="Van number for row ${i + 1}" value="${escapeHtml(item.container)}"><small class="photo-validation">${isCompleteContainerNumber(item.container) ? '' : 'Check full container code'}</small></td><td><input class="photo-consignee" aria-label="Consignee for row ${i + 1}" value="${escapeHtml(item.consignee)}"></td><td><select class="photo-load-type" aria-label="Load type for row ${i + 1}"><option value="FCL" ${item.loadType === 'FCL' ? 'selected' : ''}>FCL</option><option value="LCL" ${item.loadType === 'LCL' ? 'selected' : ''}>LCL</option></select></td><td><input class="photo-vessel" aria-label="Vessel for row ${i + 1}" value="${escapeHtml(metadata.vessel || '')}"></td><td><input class="photo-voyage" aria-label="Voyage for row ${i + 1}" value="${escapeHtml(metadata.voyage || '')}"></td></tr>`).join('');
+        const sourceNames = files.map(f => f.name).join(', ');
+        modal(`<div class="modal-head"><div><h2>Review extracted rows</h2><p>${items.length} unique vans from ${files.length} ${files.length === 1 ? 'photo' : 'photos'}</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="photo-review-top"><img src="${state.photoObjectUrl}" alt="Uploaded loading guide photo"><span>Read from <b>Container No.</b> and <b>Consignee Name</b> columns. Multiple consignee entries for one van are marked LCL. Correct any highlighted container number before downloading or importing.</span></div><div class="photo-validation-warning" id="photoValidationWarning"></div><div class="photo-review-list"><table class="photo-table"><thead><tr><th>#</th><th>Container No.</th><th>Consignee</th><th>Type</th><th>Vessel</th><th>Voyage</th></tr></thead><tbody>${rows}</tbody></table></div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button id="downloadPhotoCsv" class="btn">Download CSV</button><button id="commitPhotoImport" class="btn primary">Add / update vans</button></div><div class="modal-info" style="margin-top:10px">Source pages: ${escapeHtml(sourceNames)}</div></div>`, true);
+        updatePhotoReviewValidation();
+        $$('.photo-container').forEach(input => input.addEventListener('input', updatePhotoReviewValidation));
+        $('#downloadPhotoCsv').addEventListener('click', () => {
+          const current = readPhotoReviewRows(); if (!updatePhotoReviewValidation()) { toast('Correct the highlighted container numbers first'); return; }
+          downloadGuideCsv(current); toast(`${current.length} van records exported in Consignee Finder CSV format`);
+        });
+        $('#commitPhotoImport').addEventListener('click', () => {
+          const current = readPhotoReviewRows(); if (!updatePhotoReviewValidation()) { toast('Correct the highlighted container numbers first'); return; }
+          mergeGuideItems(current.map(item => ({ van: item.container, consignee: item.consignee, loadType: item.loadType, vessel: item.vessel, voyage: item.voyage })), files.length === 1 ? files[0].name : `${files.length} guide photos`);
+        });
+      }
+      function readPhotoReviewRows() {
+        const containers = $$('.photo-container'), consignees = $$('.photo-consignee'), types = $$('.photo-load-type'), vessels = $$('.photo-vessel'), voyages = $$('.photo-voyage');
+        return containers.map((input,i) => ({ container: formatContainerNumber(input.value), consignee: consignees[i].value.trim(), loadType: types[i].value, vessel: vessels[i].value.trim(), voyage: voyages[i].value.trim() })).filter(item => item.container);
+      }
+      function downloadGuideCsv(items) {
+        const cell = value => { const text = String(value ?? ''); return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text; };
+        const rows = [['Container','Consignee','Type','Bay Location','Checked','Vessel','Voyage']];
+        for (const item of items) {
+          const names = consigneeParts(item.consignee); const lcl = deriveLoadType(item.loadType,item.consignee) === 'LCL';
+          const values = names.length ? names : [''];
+          for (const consignee of values) rows.push([formatContainerNumber(item.container),consignee,lcl ? 'LCL' : 'FCL','','',item.vessel,item.voyage]);
+        }
+        const csv = rows.map(row => row.map(cell).join(',')).join('\r\n');
+        const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `loading-guide-${new Date().toISOString().slice(0,10)}.csv`; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      }
+      function detectColumns(rows) {
+        const vanNames = ['vannumber','vanno','containernumber','containerno','containerid','container','van'];
+        const consigneeNames = ['consignee','consigneename','customer','receiver'];
+        const vesselNames = ['vessel','vesselname','shipname']; const voyageNames = ['voyage','voyagenumber','voyageno']; const typeNames = ['type','lclfcl','loadtype'];
+        for (let i=0;i<Math.min(rows.length,30);i++) {
+          const vals = (rows[i] || []).map(norm); let van = -1, consignee = -1, vessel = -1, voyage = -1, loadType = -1;
+          vals.forEach((v,j) => { if (van < 0 && vanNames.includes(v)) van = j; if (consignee < 0 && consigneeNames.includes(v)) consignee = j; if (vessel < 0 && vesselNames.includes(v)) vessel = j; if (voyage < 0 && voyageNames.includes(v)) voyage = j; if (loadType < 0 && typeNames.includes(v)) loadType = j; });
+          if (van >= 0 && consignee >= 0) return { van, consignee, vessel, voyage, loadType, headerRow: i };
+        }
+        return null;
+      }
+      function showColumnPicker(rows, fileName) {
+        const previewRow = rows[Math.min(rows.length - 1, 0)] || [];
+        const opts = `<option value="-1">Not included</option>${previewRow.map((v,i) => `<option value="${i}">${escapeHtml(String(v || `Column ${i + 1}`).slice(0,60))}</option>`).join('')}`;
+        const guessVan = previewRow.findIndex(v => /van|container/i.test(v)); const guessCons = previewRow.findIndex(v => /consignee|customer|receiver/i.test(v));
+        const guessVessel = previewRow.findIndex(v => /vessel/i.test(v)), guessVoyage = previewRow.findIndex(v => /voyage/i.test(v)), guessType = previewRow.findIndex(v => /type|lcl\s*\/\s*fcl/i.test(v));
+        modal(`<div class="modal-head"><div><h2>Choose loading guide columns</h2><p>${escapeHtml(fileName)} · ${rows.length} rows detected</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><p class="modal-info">Choose the row containing column names, then match the fields. Vessel, voyage, and type are optional.</p><div class="field"><label for="headerRow">Header row</label><input type="number" min="1" value="1" id="headerRow"></div><div class="field"><label for="vanColumn">Van number column</label><select id="vanColumn">${opts}</select></div><div class="field"><label for="consigneeColumn">Consignee column</label><select id="consigneeColumn">${opts}</select></div><div class="field"><label for="typeColumn">Type (FCL / LCL)</label><select id="typeColumn">${opts}</select></div><div class="field"><label for="vesselColumn">Vessel column</label><select id="vesselColumn">${opts}</select></div><div class="field"><label for="voyageColumn">Voyage column</label><select id="voyageColumn">${opts}</select></div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button id="confirmImport" class="btn primary">Add / update vans</button></div></div>`);
+        if (guessVan >= 0) $('#vanColumn').value = String(guessVan); if (guessCons >= 0 && guessCons !== guessVan) $('#consigneeColumn').value = String(guessCons);
+        if (guessVessel >= 0) $('#vesselColumn').value = String(guessVessel); if (guessVoyage >= 0) $('#voyageColumn').value = String(guessVoyage); if (guessType >= 0) $('#typeColumn').value = String(guessType);
+        $('#confirmImport').addEventListener('click', () => { const vanIndex = Number($('#vanColumn').value), consigneeIndex = Number($('#consigneeColumn').value); if (vanIndex < 0 || consigneeIndex < 0) { toast('Choose both the van number and consignee columns'); return; } const headerRow = Math.max(1, Number($('#headerRow').value) || 1)-1; completeImport(rows, vanIndex, consigneeIndex, headerRow, fileName, Number($('#vesselColumn').value), Number($('#voyageColumn').value), Number($('#typeColumn').value)); closeModal(); });
+      }
+      function completeImport(rows, vanIndex, consigneeIndex, headerRow, fileName, vesselIndex = -1, voyageIndex = -1, loadTypeIndex = -1) {
+        const items = [];
+        for (let i = headerRow + 1; i < rows.length; i++) { const row = rows[i] || []; const van = String(row[vanIndex] ?? '').trim(); if (!van) continue; items.push({ van, consignee: String(row[consigneeIndex] ?? '').trim(), loadType: loadTypeIndex >= 0 ? String(row[loadTypeIndex] ?? '').trim() : '', vessel: vesselIndex >= 0 ? String(row[vesselIndex] ?? '').trim() : '', voyage: voyageIndex >= 0 ? String(row[voyageIndex] ?? '').trim() : '' }); }
+        mergeGuideItems(items, fileName);
+      }
+      function mergeGuideItems(items, fileName) {
+        if (!items.length) { toast('No van numbers found in the selected column'); return; }
+        const grouped = new Map();
+        for (const item of items) { const id = norm(item.van); if (!id) continue; const prior = grouped.get(id); if (prior) { prior.consignee = combineConsignees(prior.consignee, item.consignee); prior.explicitLcl ||= /lcl/i.test(item.loadType); if (item.vessel) prior.vessel = item.vessel; if (item.voyage) prior.voyage = item.voyage; } else grouped.set(id, { ...item, id, explicitLcl: /lcl/i.test(item.loadType) }); }
+        for (const item of grouped.values()) item.loadType = deriveLoadType(item.explicitLcl ? 'LCL' : item.loadType,item.consignee);
+        const byId = new Map(state.records.map(r => [r.id, r])); let added = 0, updated = 0;
+        for (const item of grouped.values()) {
+          const prior = byId.get(item.id);
+          if (prior) {
+            const returning = prior.status === 'withdrawn';
+            if (item.consignee) prior.consignee = item.consignee; if (item.vessel) prior.vessel = item.vessel; if (item.voyage) prior.voyage = item.voyage; prior.loadType = deriveLoadType(item.loadType,item.consignee);
+            prior.updatedAt = new Date().toISOString();
+            if (returning) { prior.status = 'in-yard'; prior.withdrawnAt = ''; prior.cyStrippedAt = ''; prior.bay = ''; prior.face = ''; prior.block = ''; prior.stack = 0; prior.level = 0; addHistory('incoming-full', prior, `Incoming full · returned on ${fileName}`); }
+            else addHistory('guide-update', prior, `Updated from ${fileName}`);
+            updated++;
+          }
+          else { const at = new Date().toISOString(); const record = { id:item.id, van:formatContainerNumber(item.van), consignee:item.consignee || '', loadType:item.loadType || 'FCL', vessel:item.vessel || '', voyage:item.voyage || '', bay:'', face:'', block:'', stack:0, level:0, status:'in-yard', cyStrippedAt:'', withdrawnAt:'', createdAt:at, updatedAt:at }; byId.set(item.id, record); addHistory('incoming-full', record, `Incoming full · added from ${fileName}`); added++; }
+        }
+        state.records = Array.from(byId.values()); state.loadingPage = 1; state.loadingFilter = 'all'; state.sharedSnapshot = false; save(); render(); closeModal(); $('#fileInput').value = '';
+        toast(`${added} added${updated ? ` · ${updated} updated` : ''} from ${fileName}`);
+      }
+      function showSearch(query) {
+        const results = $('#searchResults'); const q = norm(query);
+        if (q.length < 2) { results.classList.remove('open'); return; }
+        const matches = state.records.filter(r => norm(r.van).includes(q) || norm(r.consignee).includes(q)).slice(0,12);
+        results.innerHTML = `<div class="result-heading">${matches.length ? `Search results · ${matches.length}${state.records.filter(r => norm(r.van).includes(q) || norm(r.consignee).includes(q)).length > 12 ? '+' : ''}` : 'No matching vans'}</div>${matches.length ? matches.map(r => `<div class="result" data-id="${escapeHtml(r.id)}"><div class="result-main"><strong>${escapeHtml(r.van)}${r.loadType === 'LCL' ? '<span class="type-pill">LCL</span>' : ''}</strong><small>${escapeHtml(r.consignee || 'No consignee listed')}${r.status !== 'in-yard' ? ` · ${statusLabel(r)}` : ''}</small><small>${escapeHtml([r.vessel && `Vessel ${r.vessel}`,r.voyage && `Voyage ${r.voyage}`].filter(Boolean).join(' · ') || 'Vessel / voyage not listed')}</small><span class="result-loc">${r.bay ? escapeHtml(locationDetail(r)) : 'Not assigned'}</span></div>${r.status === 'withdrawn' ? '' : `<button class="btn small result-assign" data-id="${escapeHtml(r.id)}">${r.bay ? 'Change location' : 'Assign Bay / Block'}</button>`}</div>`).join('') : '<div class="search-empty">Try another van number or consignee name.</div>'}`;
+        results.classList.add('open');
+        $$('.result', results).forEach(el => el.addEventListener('click', event => { if (event.target.closest('.result-assign')) return; const rec = state.records.find(r => r.id === el.dataset.id); if (rec?.bay && rec.status !== 'withdrawn') { state.selectedBay = rec.bay; state.selectedFace = rec.face || ''; state.selectedBlock = rec.block; state.highlightRecordId = rec.id; setPage('yard'); } else if (rec?.status === 'withdrawn') { state.historyVanId = rec.id; state.historyFilter = 'outgoing'; setPage('history'); } else setPage('loading'); $('#globalSearch').value = rec?.van || ''; results.classList.remove('open'); }));
+        $$('.result-assign', results).forEach(button => button.addEventListener('click', event => { event.stopPropagation(); $('#globalSearch').value = state.records.find(r => r.id === button.dataset.id)?.van || $('#globalSearch').value; showLocationPicker(button.dataset.id); }));
+      }
+      $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => { if (btn.dataset.page === 'history') { state.historyVanId = ''; state.historyFilter = 'all'; } setPage(btn.dataset.page); }));
+      $$('[data-go-page]').forEach(button => button.addEventListener('click', () => setPage(button.dataset.goPage)));
+      $('#fileInput').addEventListener('change', e => handleSelectedFiles(e.target.files));
+      $('#globalSearch').addEventListener('input', e => showSearch(e.target.value));
+      $('#globalSearch').addEventListener('focus', e => showSearch(e.target.value));
+      document.addEventListener('click', e => { if (!e.target.closest('.search-wrap')) $('#searchResults').classList.remove('open'); });
+      document.addEventListener('keydown', e => { if (e.key === '/' && !/input|textarea|select/i.test(document.activeElement.tagName)) { e.preventDefault(); $('#globalSearch').focus(); } if (e.key === 'Escape') closeModal(); });
+      $('#saveShared').addEventListener('click', () => { save(); state.sharedSnapshot = false; $('#sharedBanner').classList.remove('show'); history.replaceState(null, '', location.href.split('#')[0]); toast('Shared snapshot saved on this device'); render(); });
+      $('#dismissShared').addEventListener('click', () => { state.sharedSnapshot = false; loadSaved(); $('#sharedBanner').classList.remove('show'); history.replaceState(null, '', location.href.split('#')[0]); render(); });
+      if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('./sw.js').catch(() => {});
+      loadSaved(); render(); decodeShared().then(() => { if (state.sharedSnapshot) { state.page = 'yard'; const first = assignedRecords()[0]; if (first) { state.selectedBay = first.bay; state.selectedFace = first.face || ''; state.selectedBlock = first.block; } render(); } });
+    })();
+  </script>
+</body>
+</html>
