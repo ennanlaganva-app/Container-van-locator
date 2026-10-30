@@ -194,20 +194,27 @@
     .stack-label { font-size: 9px; color: #636c67; font-weight: 650; margin-top: 5px; }
     .stack-height { font-size: 8px; color: #9ca19e; margin-top: 2px; }
     .yard-note { color: #919793; font-size: 9px; padding: 0 14px 12px; line-height: 1.5; }
-    .arrival-grid { display: grid; grid-template-columns: minmax(0,1.35fr) minmax(280px,.8fr); gap: 14px; align-items: start; }
-    .arrival-form { display: grid; gap: 12px; padding: 15px; }
-    .arrival-van-entry { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: end; }
-    .arrival-van-entry .field { margin: 0; }
-    .arrival-records { display: grid; gap: 7px; padding: 10px 14px 14px; max-height: 560px; overflow: auto; }
-    .arrival-record { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 10px; border: 1px solid #eceeeb; border-radius: 7px; padding: 9px 10px; background: #fff; }
-    .arrival-record strong { display: block; font-size: 11px; }
-    .arrival-record small { display: block; color: var(--muted); margin-top: 3px; font-size: 10px; }
-    .arrival-location { border-radius: 5px; background: var(--yellow-soft); color: #635316; font-size: 10px; font-weight: 650; padding: 5px 7px; white-space: nowrap; }
-    .keypad-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; margin-top: 10px; }
-    .keypad-key { min-height: 48px; border: 1px solid #e2e5e1; border-radius: 7px; background: #fff; color: var(--ink); font-size: 17px; font-weight: 650; }
-    .keypad-key:hover { border-color: #d1b53e; background: #fffbee; }
-    .keypad-key.utility { background: #f7f8f6; font-size: 12px; }
-    .keypad-hint { color: var(--muted); font-size: 10px; line-height: 1.45; margin-top: 9px; }
+    .guide-intro { border: 1px solid #ecd985; background: #fff9df; border-radius: 9px; padding: 15px 17px; color: #675b30; line-height: 1.55; }
+    .guide-intro strong { color: #342f20; }
+    .guide-toc { display: flex; flex-wrap: wrap; gap: 7px; margin: 13px 0 16px; }
+    .guide-toc a { color: #62531b; background: #fff; border: 1px solid #e8e4d3; border-radius: 999px; padding: 6px 10px; text-decoration: none; font-size: 10px; font-weight: 650; }
+    .guide-toc a:hover { background: #fff8d9; border-color: #d9bd4e; }
+    .guide-section { margin-top: 13px; padding: 16px 17px; scroll-margin-top: 78px; }
+    .guide-section h2 { margin: 0 0 7px; font-size: 15px; font-weight: 680; letter-spacing: -.01em; }
+    .guide-section h3 { margin: 14px 0 5px; font-size: 11px; font-weight: 700; }
+    .guide-section p { margin: 6px 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .guide-section ul, .guide-section ol { margin: 7px 0 0; padding-left: 18px; color: #59625d; font-size: 11px; line-height: 1.65; }
+    .guide-steps { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; margin-top: 12px; }
+    .guide-step { min-height: 102px; border: 1px solid #e8eae5; border-radius: 7px; padding: 11px; background: #fff; }
+    .guide-step-number { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #fff1b9; color: #6d5810; font-size: 10px; font-weight: 750; }
+    .guide-step strong { display: block; margin-top: 7px; color: #343b36; font-size: 11px; }
+    .guide-step span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.4; }
+    .guide-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; margin-top: 11px; }
+    .guide-detail { border: 1px solid #e9ebe7; border-radius: 7px; padding: 11px 12px; background: #fbfcfa; }
+    .guide-detail strong { color: #343b36; font-size: 11px; }
+    .guide-detail p { margin: 4px 0 0; }
+    .walkthrough-note { border-left: 3px solid #e6c43e; background: #fff9e4; padding: 9px 11px; border-radius: 0 5px 5px 0; color: #6a5c32; font-size: 10px; line-height: 1.5; margin-top: 10px; }
+    .guide-action { margin-top: 10px; }
     .type-pill { display: inline-flex; vertical-align: middle; border-radius: 999px; padding: 2px 6px; margin-left: 4px; background: #fff3d0; color: #80600a; font-size: 8px; font-weight: 750; letter-spacing: .03em; }
     .photo-review-warning { color: #875417; background: #fff7e3; border: 1px solid #f0d995; border-radius: 5px; padding: 3px 6px; font-size: 8px; font-weight: 700; }
     .shift-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
@@ -333,6 +340,7 @@
       .yard-layout { grid-template-columns: 1fr; }
       .yard-side { grid-template-columns: 1fr 1fr; }
       .shift-block { width: 145px; }
+      .guide-steps { grid-template-columns: repeat(2,minmax(0,1fr)); }
     }
     @media (max-width: 760px) {
       .app { display: block; }
@@ -407,8 +415,10 @@
       .shift-scroller { padding: 9px; overscroll-behavior-x: contain; scroll-snap-type: x proximity; }
       .shift-block { scroll-snap-align: start; }
       .shift-route-panels { grid-template-columns: minmax(0,1fr); }
-      .arrival-grid { grid-template-columns: 1fr; }
-      .arrival-records { max-height: 44dvh; }
+      .guide-steps, .guide-grid { grid-template-columns: 1fr; }
+      .guide-section { padding: 13px; }
+      .guide-toc { gap: 5px; }
+      .guide-toc a { padding: 6px 8px; }
       .shift-destination-block { width: 154px; min-height: 260px; scroll-snap-align: start; }
       .shift-destination-columns { gap: 6px; }
       .shift-move-any { min-height: 38px !important; padding: 5px 8px !important; font-size: 10px !important; }
@@ -491,7 +501,7 @@
         <button class="nav-btn active" data-page="loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3.8h8l4 4v12.4H6z" stroke-linejoin="round"/><path d="M14 3.8v4h4M9 12h6M9 15.5h6" stroke-linecap="round"/></svg>Loading list</button>
         <button class="nav-btn" data-page="yard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="4" width="7" height="6.5" rx="1"/><rect x="13.5" y="4" width="7" height="6.5" rx="1"/><rect x="3.5" y="13.5" width="7" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="7" height="6.5" rx="1"/></svg>Yard view</button>
         <button class="nav-btn" data-page="shift"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h15m0 0-3-3m3 3-3 3M20 17H5m0 0 3-3m-3 3 3 3" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10v4m5-4v4m5-4v4" stroke-linecap="round"/></svg>Quick shift</button>
-        <button class="nav-btn" data-page="arrival"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7h12l3 4h3v6h-2.5M3 7v10h2.5m0 0a2 2 0 1 0 4 0m-4 0h4m5 0h1m0 0a2 2 0 1 0 4 0" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 3v6m-3-3h6" stroke-linecap="round"/></svg>Actual arrivals</button>
+        <button class="nav-btn" data-page="help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 4.3 1.7c-1.2 1.1-1.9 1.5-1.9 3M12 17.5v.1" stroke-linecap="round"/></svg>App guide</button>
         <button class="nav-btn" data-page="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10" stroke-linecap="round"/><circle cx="18" cy="18" r="3.4"/><path d="M18 16.5V18l1.1.8" stroke-linecap="round"/></svg>History</button>
       </nav>
       <div class="sidebar-spacer"></div>
@@ -518,8 +528,51 @@
         <section id="loadingPage"></section>
         <section id="yardPage" class="hidden"></section>
         <section id="shiftPage" class="hidden"></section>
-        <section id="arrivalPage" class="hidden"></section>
         <section id="historyPage" class="hidden"></section>
+        <section id="helpPage" class="hidden">
+          <div class="page-head"><div><div class="eyebrow">How to use the workspace</div><h1>App guide</h1><p class="page-desc">A practical walkthrough of importing a loading guide, locating vans, updating yard positions, and sharing your records.</p></div></div>
+          <div class="guide-intro"><strong>What this app does.</strong> Container Van Locator turns loading-guide records into a searchable yard list. Assign each van to its bay and block, see its stack position, and record moves and withdrawal status. The dedicated Actual arrivals page is paused for now; add incoming vans by importing an additional loading guide, then assign their locations from the list or search.</div>
+          <nav class="guide-toc" aria-label="Guide topics"><a href="#guide-start">Getting started</a><a href="#guide-import">Import guide</a><a href="#guide-yard">Yard map</a><a href="#guide-search">Search and assign</a><a href="#guide-shift">Move vans</a><a href="#guide-status">Status and history</a><a href="#guide-picking">Picking tags</a><a href="#guide-share">Save and share</a></nav>
+
+          <section class="panel guide-section" id="guide-start"><h2>1. A complete yard workflow</h2><p>Follow these steps when a new loading guide arrives or when you need to update van locations.</p><div class="guide-steps">
+            <div class="guide-step"><i class="guide-step-number">1</i><strong>Import the guide</strong><span>Upload an Excel/CSV file or select loading-guide photos on the Loading list page.</span></div>
+            <div class="guide-step"><i class="guide-step-number">2</i><strong>Check the records</strong><span>Review photo extraction, van numbers, consignee names, and any LCL labels.</span></div>
+            <div class="guide-step"><i class="guide-step-number">3</i><strong>Assign a location</strong><span>Choose the bay or side and block beside each van, or assign it from search.</span></div>
+            <div class="guide-step"><i class="guide-step-number">4</i><strong>Confirm in Yard view</strong><span>Open the bay and block to see each van in its exact stack slot.</span></div>
+            <div class="guide-step"><i class="guide-step-number">5</i><strong>Keep the yard current</strong><span>Use Quick shift when vans move, and update status after stripping or withdrawal.</span></div>
+            <div class="guide-step"><i class="guide-step-number">6</i><strong>Back up or share</strong><span>Download a JSON backup or send a point-in-time snapshot link to a teammate.</span></div>
+          </div><button class="btn small primary guide-action" data-go-page="loading">Open Loading list</button></section>
+
+          <section class="panel guide-section" id="guide-import"><h2>2. Import loading guides and photos</h2><p>From <strong>Loading list</strong>, use Browse files or drop a file into the upload area.</p><div class="guide-grid">
+            <div class="guide-detail"><strong>Spreadsheets and CSV</strong><p>Excel, CSV, and TSV files are supported. The app looks for container/van number and consignee headings. If it cannot match them, choose the correct columns in the prompt. A CSV from Consignee Finder can be imported here.</p></div>
+            <div class="guide-detail"><strong>Loading-guide photos</strong><p>JPG, PNG, and WEBP photos can be selected together. The photo reader targets the printed <em>Container No.</em> and <em>Consignee Name</em> columns; it does not use the seal or shipper columns. Photos whose filenames contain a timestamp are read in timestamp order.</p></div>
+            <div class="guide-detail"><strong>Review before adding</strong><p>Check the extracted van number and consignee in the review table. Incomplete numbers and ISO container check-digit mismatches are highlighted and must be corrected before importing or exporting the photo CSV. Clear, straight-on photos give the reader the best chance.</p></div>
+            <div class="guide-detail"><strong>Multiple consignees · LCL</strong><p>When a van has two or more distinct consignee names, they are combined under that van and marked <b>LCL</b>. The Consignee Finder CSV export writes a separate row for each consignee, with the same van number and LCL type.</p></div>
+          </div><div class="walkthrough-note">The photo CSV uses <b>Container, Consignee, Type, Bay Location, Checked</b>, with Vessel and Voyage appended. Handwritten yard notes on a photo are not used to assign the location; assign the bay and block in this app after import.</div><h3>Adding a later guide</h3><p>Import the additional guide from Loading list. New van numbers are added; matching numbers have consignee, vessel, voyage, and load type refreshed. Their existing yard location and status are kept. New rows wait for a location assignment.</p><h3>Where incoming records appear</h3><p>For now, use an updated loading guide to add incoming vans. The paused Actual arrivals page is not available for direct on-the-spot entry. New guide records appear in the <strong>Incoming full</strong> History filter.</p></section>
+
+          <section class="panel guide-section" id="guide-yard"><h2>3. Yard map, blocks, and stack numbering</h2><p>Choose a bay in <strong>Yard view</strong>, then select one of its block tiles to see the vans and the visual stack.</p><div class="guide-grid">
+            <div class="guide-detail"><strong>Bay and block layout</strong><p>Bay A has 11 blocks, Bay B has 12, Bay C has 7, Bay D has 5 front and 5 back blocks, and Bay E has 7 front and 7 back blocks. D/E labels show their side, for example <b>D-F1</b> and <b>E-B1</b>. The whole yard has 54 sections/blocks and up to 594 van slots.</p></div>
+            <div class="guide-detail"><strong>Four stack lanes</strong><p>Each block has four lanes with capacities <b>3 / 3 / 3 / 2</b>, for 11 vans maximum. The yard diagram labels FRONT and REAR. Use the displayed stack and level along with the position number.</p></div>
+          </div><div class="walkthrough-note">Position <b>#1</b> starts at the rear lane’s bottom. Number upward through that lane, then start at the bottom of the next lane toward the front. If a rear lane is empty, the first occupied slot in the next lane becomes #1. Numbers recalculate as vans move or leave the active yard.</div><p>Select an occupied tile to highlight its van. Select an open tile to assign a van to that exact stack slot. The inventory list also lets you change the stack position from its selector.</p><button class="btn small guide-action" data-go-page="yard">Open Yard view</button></section>
+
+          <section class="panel guide-section" id="guide-search"><h2>4. Search and assign a van</h2><ol><li>Use the search box at the top and enter at least two characters from the van number or consignee name.</li><li>Read the result for its van number, consignee, vessel/voyage, status, and current location.</li><li>Choose <b>Assign Bay / Block</b> for an unassigned van, or <b>Change location</b> to move a placed van. Pick a bay/side and block, then confirm.</li><li>Click a placed result to open its block in Yard view and highlight the exact slot. A withdrawn van opens its History records.</li></ol><p>The Loading list also has bay/side and block selectors in each row. Assignments save automatically in the current browser.</p><button class="btn small guide-action" data-go-page="loading">Open Loading list</button></section>
+
+          <section class="panel guide-section" id="guide-shift"><h2>5. Shift vans between blocks</h2><p><strong>Quick shift</strong> shows the source and destination block columns. Choose the source bay/side and block, then move a van to any available destination block—including another bay or the front/back section of D or E.</p><ul><li>Scroll the block columns sideways to reach later blocks. The page keeps the working scroll position after a move.</li><li>On Android, swipe the columns horizontally; on a tablet, landscape view gives more room.</li><li>Each block holds up to 11 vans. Full blocks and occupied stack slots cannot be selected.</li><li>Every successful move updates the location and adds a time-stamped entry to History.</li></ul><button class="btn small guide-action" data-go-page="shift">Open Quick shift</button></section>
+
+          <section class="panel guide-section" id="guide-status"><h2>6. Status, dates, and History</h2><p>In the Yard inventory row, use the status buttons to keep a van’s progress visible.</p><div class="guide-grid">
+            <div class="guide-detail"><strong>CY Stripped</strong><p>Marks the van as CY Stripped and saves the date and time. It remains assigned to its yard position until moved or withdrawn.</p></div>
+            <div class="guide-detail"><strong>Withdrawn</strong><p>Marks the van withdrawn, records its time and last location, and removes it from the active yard layout. The record remains in the Loading list and History.</p></div>
+          </div><p>The History page shows incoming full records, withdrawals, location moves, and status changes, newest first. Use its filter or click a van’s history from Search to narrow the list. Times display in the device’s local time zone.</p><button class="btn small guide-action" data-go-page="history">Open History</button></section>
+
+          <section class="panel guide-section" id="guide-picking"><h2>7. Print a picking tag</h2><ol><li>Open the van’s block in Yard view.</li><li>Find the van in the inventory list and choose <b>Picking tag</b>.</li><li>Enter the FL operator name. This field is manually inputted.</li><li>Choose <b>Print picking tag</b> and print or save it from the device’s print dialog.</li></ol><p>The tag includes date, van number, consignee, FCL/LCL type, voyage, vessel, bay, block, stack and position, plus the FL operator.</p></section>
+
+          <section class="panel guide-section" id="guide-share"><h2>8. Save, back up, share, and install</h2><div class="guide-grid">
+            <div class="guide-detail"><strong>Saved on this device</strong><p>The app automatically saves the list and History in this browser. It does not use an account or shared database, so another phone or computer will not automatically see your edits.</p></div>
+            <div class="guide-detail"><strong>JSON backup</strong><p>Choose Backup and keep the downloaded JSON file somewhere safe. Import that file later to restore or merge van records and History.</p></div>
+            <div class="guide-detail"><strong>Share snapshot</strong><p>Share snapshot creates a link with a copy of the current records and History. The recipient can view it and choose Save to this device. It is a point-in-time copy, not live syncing; later changes require a new link.</p></div>
+            <div class="guide-detail"><strong>Android, laptop, and tablet</strong><p>Open the HTTPS app link on Android in Chrome, then choose <b>⋮ → Install app</b> or <b>Add to Home screen</b>. The same link works on laptop/desktop. Tablets can rotate to landscape. No separate APK is required.</p></div>
+          </div><div class="walkthrough-note">A snapshot link contains the data visible in that snapshot. Share it only with people who should see those van, consignee, and location details. Photo OCR and Excel reading need an internet connection to load their free browser libraries; CSV import works without them.</div><p>To open this guide again, choose <strong>App guide</strong> in the workspace menu.</p></section>
+        </section>
       </div>
     </main>
   </div>
@@ -546,7 +599,7 @@
       const blocksFor = section => Array.from({ length: SECTION_BY_KEY[section]?.blocks || 0 }, (_, i) => String(i + 1).padStart(2, '0'));
       const STACK_CAPACITIES = [3, 3, 3, 2];
       const PAGE_SIZE = 15;
-      const state = { records: [], history: [], page: 'loading', loadingPage: 1, selectedBay: 'A', selectedFace: '', selectedBlock: '01', arrivalSection: 'A', arrivalBlock: '01', loadingFilter: 'all', historyFilter: 'all', historyVanId: '', pendingRows: null, pendingFile: '', sharedSnapshot: false, photoObjectUrl: null, ocrRunning: false, shiftFromSection: 'A', shiftToSection: 'A', shiftFromScroll: 0, shiftToScroll: 0, highlightRecordId: '', migratedLocationCount: 0 };
+      const state = { records: [], history: [], page: 'loading', loadingPage: 1, selectedBay: 'A', selectedFace: '', selectedBlock: '01', loadingFilter: 'all', historyFilter: 'all', historyVanId: '', pendingRows: null, pendingFile: '', sharedSnapshot: false, photoObjectUrl: null, ocrRunning: false, shiftFromSection: 'A', shiftToSection: 'A', shiftFromScroll: 0, shiftToScroll: 0, highlightRecordId: '', migratedLocationCount: 0 };
       let tesseractLoadPromise = null;
       const $ = (selector, root = document) => root.querySelector(selector);
       const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -666,15 +719,15 @@
         addHistory(eventType, record, `${before} → ${locationDetail(record)}`, before);
         return true;
       }
-      function render() { renderLoading(); renderYard(); renderShift(); renderArrival(); renderHistory(); updateNav(); }
+      function render() { renderLoading(); renderYard(); renderShift(); renderHistory(); updateNav(); }
       function updateNav() {
         $$('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.page === state.page));
         $('#loadingPage').classList.toggle('hidden', state.page !== 'loading');
         $('#yardPage').classList.toggle('hidden', state.page !== 'yard');
         $('#shiftPage').classList.toggle('hidden', state.page !== 'shift');
-        $('#arrivalPage').classList.toggle('hidden', state.page !== 'arrival');
         $('#historyPage').classList.toggle('hidden', state.page !== 'history');
-        $('#crumbPage').textContent = state.page === 'loading' ? 'Loading list' : state.page === 'yard' ? 'Yard view' : state.page === 'history' ? 'History' : state.page === 'arrival' ? 'Actual arrivals' : 'Quick shift';
+        $('#helpPage').classList.toggle('hidden', state.page !== 'help');
+        $('#crumbPage').textContent = ({ loading: 'Loading list', yard: 'Yard view', shift: 'Quick shift', history: 'History', help: 'App guide' })[state.page] || 'Loading list';
       }
       function renderLoading() {
         const total = state.records.length, placed = assignedRecords().length, pending = state.records.filter(r => r.status !== 'withdrawn' && (!r.bay || !r.block)).length;
@@ -736,66 +789,6 @@
         $$('.remove-record').forEach(btn => btn.addEventListener('click', () => { state.records = state.records.filter(r => r.id !== btn.dataset.id); save(); render(); toast('Van removed from this list'); }));
         const dz = $('#dropzone');
         if (dz) { dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); }); dz.addEventListener('dragleave', () => dz.classList.remove('dragover')); dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); handleSelectedFiles(e.dataTransfer.files); }); }
-      }
-      function arrivalBlockOptions(section, selected = '') {
-        const info = SECTION_BY_KEY[section]; if (!info) return '<option value="">Choose block</option>';
-        return `<option value="">Choose block</option>${blocksFor(section).map(block => { const full = blockCount(info.bay, block, '', info.face) >= 11; return `<option value="${block}" ${block === selected ? 'selected' : ''} ${full ? 'disabled' : ''}>${sectionBlockLabel(section,block)}${full ? ' · Full' : ''}</option>`; }).join('')}`;
-      }
-      function renderArrival() {
-        const info = SECTION_BY_KEY[state.arrivalSection] || SECTION_BY_KEY.A;
-        const firstOpen = firstOpenBlock(info.bay, info.face);
-        if (!blocksFor(state.arrivalSection).includes(state.arrivalBlock) || blockCount(info.bay, state.arrivalBlock, '', info.face) >= 11) state.arrivalBlock = firstOpen || '';
-        const arrivals = state.history.filter(event => event.type === 'incoming-full').slice(0, 10);
-        const recentRows = arrivals.length ? arrivals.map(event => `<div class="arrival-record"><div><strong>${escapeHtml(event.van)}${event.loadType === 'LCL' ? '<span class="type-pill">LCL</span>' : ''}</strong><small>${escapeHtml(event.consignee || 'No consignee listed')} · ${escapeHtml(formatTime(event.at))}</small></div><span class="arrival-location">${escapeHtml(sectionBlockLabel(sectionKey(event.bay,event.face),event.block))}</span></div>`).join('') : '<div class="empty-state"><strong>No actual arrivals recorded yet</strong><p>Vans put away from this page will appear here.</p></div>';
-        $('#arrivalPage').innerHTML = `<div class="page-head"><div><div class="eyebrow">Physical yard intake</div><h1>Actual arrivals</h1><p class="page-desc">Record a van when it physically arrives, then put it straight into its bay and block.</p></div><div class="head-actions"><button class="btn" id="arrivalExport">${icon('download')}Backup</button><button class="btn primary" id="arrivalShare">${icon('share')}Share snapshot</button></div></div><div class="stats"><div class="stat"><div class="stat-label">Vans in loading guide</div><div class="stat-value">${state.records.length.toLocaleString()}</div><div class="stat-foot">Guides can arrive ahead of the actual van</div></div><div class="stat"><div class="stat-label">Waiting for a yard slot</div><div class="stat-value">${state.records.filter(r => r.status !== 'withdrawn' && !r.bay).length.toLocaleString()}</div><div class="stat-foot">Imported but not yet put away</div></div><div class="stat"><div class="stat-label">Incoming put-away history</div><div class="stat-value">${state.history.filter(event => event.type === 'incoming-full').length.toLocaleString()}</div><div class="stat-foot">Actual arrivals and guide additions</div></div><div class="stat"><div class="stat-label">Total yard capacity</div><div class="stat-value">${(YARD_BLOCK_TOTAL * 11).toLocaleString()}</div><div class="stat-foot">${YARD_BLOCK_TOTAL} blocks across all bays</div></div></div><div class="arrival-grid"><div class="panel"><div class="panel-head"><div><div class="panel-title">Put away an arrived van</div><div class="panel-sub">Match a loading-guide record or enter a van that was not listed.</div></div></div><div class="arrival-form"><div class="arrival-van-entry"><div class="field"><label for="arrivalVan">Van number</label><input id="arrivalVan" type="text" autocomplete="off" autocapitalize="characters" placeholder="e.g. PSAU 318205-7" aria-label="Van number for actual arrival"></div><button class="btn" id="arrivalKeypad" type="button">Number pad</button></div><div id="arrivalMatch" class="modal-info">Enter the full van number. Use the keypad for its digits; type the four-letter prefix normally.</div><div class="field"><label for="arrivalConsignee">Consignee name</label><input id="arrivalConsignee" type="text" placeholder="Consignee or multiple names separated by semicolons"></div><div class="field-row"><div class="field"><label for="arrivalVessel">Vessel</label><input id="arrivalVessel" type="text" placeholder="Vessel name"></div><div class="field"><label for="arrivalVoyage">Voyage</label><input id="arrivalVoyage" type="text" placeholder="Voyage number"></div></div><div class="field-row"><div class="field"><label for="arrivalLoadType">Load type</label><select id="arrivalLoadType"><option value="">Automatic</option><option value="FCL">FCL</option><option value="LCL">LCL</option></select></div><div class="field"><label for="arrivalSection">Bay / side</label><select id="arrivalSection">${SECTION_CONFIG.map(section => `<option value="${section.key}" ${section.key === state.arrivalSection ? 'selected' : ''}>${escapeHtml(section.label)}</option>`).join('')}</select></div></div><div class="field"><label for="arrivalBlock">Block</label><select id="arrivalBlock">${arrivalBlockOptions(state.arrivalSection,state.arrivalBlock)}</select></div><div class="modal-info">The app assigns the first open stack position, starting at the rear bottom. Arrival time and exact location are added to History.</div><button class="btn primary" id="recordArrival">Record arrival and put away</button></div></div><div class="panel"><div class="panel-head"><div><div class="panel-title">Recent actual arrivals</div><div class="panel-sub">Latest incoming vans with their assigned yard locations.</div></div><span class="panel-meta">${arrivals.length} shown</span></div><div class="arrival-records">${recentRows}</div></div></div>`;
-        $('#arrivalExport')?.addEventListener('click', exportBackup); $('#arrivalShare')?.addEventListener('click', shareSnapshot);
-        $('#arrivalSection')?.addEventListener('change', event => { state.arrivalSection = event.target.value; const sectionInfo = SECTION_BY_KEY[state.arrivalSection]; state.arrivalBlock = firstOpenBlock(sectionInfo.bay,sectionInfo.face) || ''; $('#arrivalBlock').innerHTML = arrivalBlockOptions(state.arrivalSection,state.arrivalBlock); });
-        $('#arrivalBlock')?.addEventListener('change', event => { state.arrivalBlock = event.target.value; });
-        $('#arrivalVan')?.addEventListener('input', updateArrivalMatch); $('#arrivalVan')?.addEventListener('change', updateArrivalMatch);
-        $('#arrivalKeypad')?.addEventListener('click', showArrivalKeypad);
-        $('#recordArrival')?.addEventListener('click', recordActualArrival);
-      }
-      function updateArrivalMatch() {
-        const input = $('#arrivalVan'), matchBox = $('#arrivalMatch'); if (!input || !matchBox) return;
-        const record = state.records.find(item => item.id === norm(input.value));
-        if (!record) { $('#arrivalConsignee').value = ''; $('#arrivalVessel').value = ''; $('#arrivalVoyage').value = ''; $('#arrivalLoadType').value = ''; matchBox.textContent = input.value.trim() ? 'No exact loading-guide match. This arrival will be added as a new van.' : 'Enter the full van number. Use the keypad for its digits; type the four-letter prefix normally.'; return; }
-        $('#arrivalConsignee').value = record.consignee || '';
-        $('#arrivalVessel').value = record.vessel || ''; $('#arrivalVoyage').value = record.voyage || '';
-        $('#arrivalLoadType').value = record.loadType || '';
-        matchBox.textContent = record.status === 'withdrawn' ? 'Matched a previously withdrawn van. Recording arrival will return it to active yard stock.' : record.bay ? `This van is already assigned to ${formatLocation(record)}.` : 'Loading-guide match found. Confirm the actual arrival location below.';
-      }
-      function showArrivalKeypad() {
-        const input = $('#arrivalVan'); if (!input) return;
-        const keys = ['1','2','3','4','5','6','7','8','9','Space','0','⌫','Clear','-','Done'];
-        modal(`<div class="modal-head"><div><h2>Van number keypad</h2><p>Type the prefix in the van field, then enter its digits here.</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="field"><label for="keypadVanPreview">Van number</label><input id="keypadVanPreview" type="text" value="${escapeHtml(input.value)}" readonly></div><div class="keypad-grid">${keys.map(key => `<button class="keypad-key ${['Space','⌫','Clear','-','Done'].includes(key) ? 'utility' : ''}" type="button" data-keypad-value="${escapeHtml(key)}">${key === 'Space' ? 'Space' : escapeHtml(key)}</button>`).join('')}</div><div class="keypad-hint">Use the letters on your regular keyboard for the container prefix. The number pad writes directly into the van number field.</div></div>`);
-        const preview = $('#keypadVanPreview');
-        $$('[data-keypad-value]').forEach(button => button.addEventListener('click', () => {
-          const key = button.dataset.keypadValue;
-          if (key === 'Done') { closeModal(); input.focus(); return; }
-          if (key === 'Clear') input.value = '';
-          else { const start = input.selectionStart ?? input.value.length, end = input.selectionEnd ?? start; if (key === '⌫') { const cursor = start === end ? Math.max(0,start - 1) : start; input.setRangeText('',cursor,end,'end'); } else input.setRangeText(key === 'Space' ? ' ' : key,start,end,'end'); }
-          preview.value = input.value; input.dispatchEvent(new Event('input',{ bubbles:true }));
-        }));
-      }
-      function recordActualArrival() {
-        const van = $('#arrivalVan').value.trim().replace(/\s+/g,' ').toUpperCase();
-        const section = SECTION_BY_KEY[$('#arrivalSection').value], block = $('#arrivalBlock').value;
-        if (!van) { toast('Enter a van number'); $('#arrivalVan').focus(); return; }
-        if (!isCompleteContainerNumber(van)) { toast('Enter the full container number: four letters, six digits, and its check digit'); $('#arrivalVan').focus(); return; }
-        if (!section || !block) { toast('Choose a bay and block with space'); return; }
-        if (blockCount(section.bay,block,'',section.face) >= 11 || !freeSlots(section.bay,block,'',section.face).length) { toast(`${sectionBlockLabel(state.arrivalSection,block)} is full; choose another block`); return; }
-        let record = state.records.find(item => item.id === norm(van));
-        if (record?.bay && record.status !== 'withdrawn') { toast(`${record.van} is already in the yard at ${formatLocation(record)}`); return; }
-        const at = new Date().toISOString(), consignee = $('#arrivalConsignee').value.trim(), isNew = !record;
-        if (!record) { record = { id:norm(van), van:formatContainerNumber(van), consignee:'', loadType:'FCL', vessel:'', voyage:'', bay:'', face:'', block:'', stack:0, level:0, status:'in-yard', cyStrippedAt:'', withdrawnAt:'', createdAt:at, updatedAt:at }; state.records.push(record); }
-        const previous = isNew ? null : { ...record };
-        if (consignee) record.consignee = combineConsignees(record.consignee,consignee);
-        record.loadType = deriveLoadType($('#arrivalLoadType').value || record.loadType,record.consignee);
-        record.vessel = $('#arrivalVessel').value.trim() || record.vessel; record.voyage = $('#arrivalVoyage').value.trim() || record.voyage;
-        record.status = 'in-yard'; record.withdrawnAt = ''; record.cyStrippedAt = '';
-        if (!moveToBlock(record,section.bay,block,section.face,'incoming-full')) { if (isNew) state.records = state.records.filter(item => item !== record); else Object.assign(record,previous); toast('No open stack position in that block'); return; }
-        state.arrivalBlock = firstOpenBlock(section.bay,section.face) || '';
-        save(); render(); $('#arrivalVan').focus(); toast(`${record.van} recorded at ${sectionBlockLabel(state.arrivalSection,block)}`);
       }
       function renderYard() {
         const bayCounts = Object.fromEntries(BAY_NAMES.map(b => [b, bayItems(b).length]));
@@ -986,7 +979,7 @@
         $('#historyExport')?.addEventListener('click', exportBackup);
       }
       let draggedVanId = '';
-      function setPage(page) { state.page = page; updateNav(); if (page === 'yard') renderYard(); else if (page === 'shift') renderShift(); else if (page === 'arrival') renderArrival(); else if (page === 'history') renderHistory(); else renderLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      function setPage(page) { state.page = page; updateNav(); if (page === 'yard') renderYard(); else if (page === 'shift') renderShift(); else if (page === 'history') renderHistory(); else if (page !== 'help') renderLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
       function toast(message) { const el = $('#toast'); el.textContent = message; el.classList.add('show'); clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.remove('show'), 2600); }
       function exportBackup() {
         const blob = new Blob([JSON.stringify({ app: 'Container Van Locator', version: 3, exportedAt: new Date().toISOString(), records: state.records, history: state.history }, null, 2)], { type: 'application/json' });
@@ -1317,6 +1310,7 @@
         $$('.result-assign', results).forEach(button => button.addEventListener('click', event => { event.stopPropagation(); $('#globalSearch').value = state.records.find(r => r.id === button.dataset.id)?.van || $('#globalSearch').value; showLocationPicker(button.dataset.id); }));
       }
       $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => { if (btn.dataset.page === 'history') { state.historyVanId = ''; state.historyFilter = 'all'; } setPage(btn.dataset.page); }));
+      $$('[data-go-page]').forEach(button => button.addEventListener('click', () => setPage(button.dataset.goPage)));
       $('#fileInput').addEventListener('change', e => handleSelectedFiles(e.target.files));
       $('#globalSearch').addEventListener('input', e => showSearch(e.target.value));
       $('#globalSearch').addEventListener('focus', e => showSearch(e.target.value));
