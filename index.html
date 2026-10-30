@@ -71,6 +71,8 @@
     .result strong { font-size: 12px; }
     .result small { display: block; color: var(--muted); margin-top: 3px; font-size: 10px; }
     .result-loc { flex-shrink: 0; color: #635316; background: var(--yellow-soft); border-radius: 5px; padding: 5px 7px; font-size: 10px; font-weight: 650; }
+    .result-main { min-width: 0; }
+    .result-assign { flex: 0 0 auto; }
     .search-empty { padding: 15px 10px; color: var(--muted); font-size: 12px; }
     .top-status { display: flex; align-items: center; gap: 7px; color: #707875; font-size: 11px; white-space: nowrap; }
     .status-light { width: 7px; height: 7px; border-radius: 50%; background: #64a77a; }
@@ -144,6 +146,11 @@
     .bay-letter { font-size: 16px; line-height: 1; font-weight: 700; }
     .bay-tag { color: #9a9f9a; font-size: 9px; }
     .bay-count { margin-top: 7px; color: #69716d; font-size: 10px; }
+    .bay-card-sided { cursor: default; }
+    .bay-faces { display: grid; gap: 5px; margin-top: 9px; }
+    .bay-face-btn { display: flex; align-items: center; justify-content: space-between; gap: 6px; border: 1px solid #e8eae6; border-radius: 5px; background: #fafbf9; padding: 6px 7px; color: #59625c; font-size: 10px; font-weight: 650; text-align: left; }
+    .bay-face-btn span { color: #939a95; font-size: 8px; font-weight: 500; white-space: nowrap; }
+    .bay-face-btn.selected { border-color: #d1aa20; background: #fff8dc; color: #544715; }
     .meter { height: 4px; border-radius: 3px; background: #eef0eb; margin-top: 8px; overflow: hidden; }
     .meter-fill { height: 100%; background: var(--yellow); border-radius: inherit; }
     .yard-lower { margin-top: 14px; display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; }
@@ -194,6 +201,34 @@
     .shift-bay-btn.active { background: var(--yellow-soft); border-color: #d7b737; color: #4b3f12; }
     .shift-toolbar-note { display: flex; align-items: center; gap: 6px; color: #8a918d; font-size: 10px; }
     .shift-toolbar-note svg { width: 14px; height: 14px; }
+    .shift-yard-panel { margin-bottom: 12px; }
+    .shift-route-summary { display: flex; align-items: center; gap: 8px; color: #818984; font-size: 10px; white-space: nowrap; }
+    .shift-route-summary strong { color: #3e4842; font-weight: 680; }
+    .yard-map-scroll { overflow-x: auto; overscroll-behavior-x: contain; padding: 12px 15px 8px; }
+    .yard-map-layout { min-width: 600px; display: grid; grid-template-columns: 95px minmax(300px, 1fr) 112px; grid-template-rows: repeat(6, minmax(42px,auto)); gap: 7px; }
+    .yard-map-entrance { grid-column: 1; grid-row: 1 / span 6; display: grid; place-items: center; border-right: 1px dashed #d9ddd8; color: #8a938d; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-align: center; line-height: 1.5; }
+    .yard-map-c { grid-column: 2; grid-row: 1; }
+    .yard-map-df { grid-column: 2; grid-row: 2; }
+    .yard-map-db { grid-column: 2; grid-row: 3; }
+    .yard-map-ef { grid-column: 2; grid-row: 4; }
+    .yard-map-eb { grid-column: 2; grid-row: 5; }
+    .yard-map-a { grid-column: 2; grid-row: 6; }
+    .yard-map-b { grid-column: 3; grid-row: 1 / span 6; }
+    .yard-map-section { min-height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid #e4e8e2; border-radius: 7px; background: #fbfcfa; padding: 5px 8px; transition: background .12s,border-color .12s; }
+    .yard-map-section.route-from { border-color: #9fb6aa; background: #f1f7f2; }
+    .yard-map-section.route-to { border-color: #d3b43a; background: #fff8dc; }
+    .yard-map-section.route-from.route-to { border-color: #d3b43a; background: #fff8dc; box-shadow: inset 3px 0 #9fb6aa; }
+    .yard-map-title strong { display: block; color: #3d4741; font-size: 10px; }
+    .yard-map-title span { display: block; color: #8e9690; font-size: 8px; margin-top: 2px; }
+    .yard-map-actions { display: flex; gap: 4px; flex: 0 0 auto; }
+    .map-route-btn { border: 1px solid #e3e6e1; border-radius: 4px; background: white; color: #7a837d; padding: 4px 6px; font-size: 8px; font-weight: 650; }
+    .map-route-btn.active[data-route="from"] { border-color: #a8baad; background: #e5efe7; color: #365d43; }
+    .map-route-btn.active[data-route="to"] { border-color: #d3b43a; background: #ffed9f; color: #4b3f12; }
+    .yard-map-legend { display: flex; gap: 14px; padding: 0 16px 11px; color: #818984; font-size: 9px; }
+    .route-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; background: #9fb6aa; }
+    .route-dot.to { background: #d6b535; }
+    .shift-route-panels { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: start; gap: 12px; }
+    .shift-route-panels > .panel { min-width: 0; overflow: hidden; }
     .shift-scroll-actions { display: flex; gap: 5px; }
     .shift-scroll-btn { border: 1px solid #e3e5e1; border-radius: 5px; background: #fff; color: #66706a; width: 28px; height: 27px; font-size: 14px; line-height: 1; }
     .shift-scroll-btn:hover { background: #f8f9f6; }
@@ -219,6 +254,13 @@
     .shift-nudge:hover:not(:disabled) { border-color: #d8bf5a; background: #fff9e3; color: #4c4115; }
     .shift-nudge:disabled { opacity: .35; cursor: default; }
     .shift-empty { border: 1px dashed #dfe3dc; border-radius: 5px; padding: 12px 5px; color: #a0a69f; font-size: 9px; text-align: center; }
+    .shift-move-any { padding: 3px 6px !important; font-size: 8px !important; }
+    .shift-destination-columns { display: grid; grid-auto-flow: column; grid-auto-columns: 154px; gap: 8px; width: max-content; min-width: 100%; align-items: stretch; }
+    .shift-destination-block { width: 154px; min-height: 300px; border: 1px solid #e5e8e3; border-radius: 8px; background: #fafbf9; padding: 8px; transition: background .15s,border-color .15s,box-shadow .15s; }
+    .shift-destination-block.drag-over { background: #fff7d8; border-color: #d1ad32; box-shadow: 0 0 0 2px rgba(243,198,41,.18); }
+    .destination-vans { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 4px; padding-top: 8px; }
+    .destination-van { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid #e2e5df; border-radius: 4px; background: #fff; padding: 4px 5px; color: #59615c; font-size: 8px; }
+    .destination-empty { width: 100%; border: 1px dashed #dfe3dc; border-radius: 5px; padding: 12px 5px; color: #a0a69f; font-size: 9px; text-align: center; }
     .shift-footer { padding: 10px 14px; border-top: 1px solid #eff0ed; color: #8b928d; font-size: 9px; line-height: 1.5; }
     .status-pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 3px 7px; font-size: 9px; font-weight: 650; background: #edf5ec; color: #427049; white-space: nowrap; }
     .status-pill.stripped { color: #725d18; background: #fff5d2; }
@@ -320,8 +362,10 @@
       .remove-record { min-height: 40px; }
       .bay-strip { display: flex; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; padding: 9px; gap: 7px; }
       .bay-card { flex: 0 0 92px; scroll-snap-align: start; padding: 9px 8px; }
+      .bay-card-sided { flex-basis: 160px; }
       .bay-letter { font-size: 14px; }
       .bay-count { font-size: 9px; }
+      .bay-face-btn { min-height: 34px; }
       .blocks { grid-template-columns: repeat(2,minmax(0,1fr)); padding: 9px; gap: 7px; }
       .block-card { min-height: 78px; padding: 10px; }
       .inventory-list { padding: 4px 12px 12px; max-height: 45dvh; }
@@ -343,6 +387,12 @@
       .shift-block { width: 154px; min-height: 260px; }
       .shift-scroller { padding: 9px; overscroll-behavior-x: contain; scroll-snap-type: x proximity; }
       .shift-block { scroll-snap-align: start; }
+      .shift-route-panels { grid-template-columns: minmax(0,1fr); }
+      .shift-destination-block { width: 154px; min-height: 260px; scroll-snap-align: start; }
+      .shift-destination-columns { gap: 6px; }
+      .shift-move-any { min-height: 38px !important; padding: 5px 8px !important; font-size: 10px !important; }
+      .shift-route-summary { flex-wrap: wrap; justify-content: flex-end; white-space: normal; }
+      .yard-map-legend { font-size: 9px; }
       .shift-scroll-btn { width: 40px; height: 40px; font-size: 19px; }
       .shift-nudge { min-width: 58px; min-height: 42px; padding: 0 6px; font-size: 12px; border-radius: 7px; touch-action: manipulation; }
       .shift-van { padding: 9px 7px; }
@@ -459,10 +509,21 @@
     (() => {
       const STORAGE_KEY = 'container-van-locator-v1';
       const BAY_NAMES = ['A', 'B', 'C', 'D', 'E'];
-      const BLOCKS = Array.from({ length: 10 }, (_, i) => String(i + 1).padStart(2, '0'));
+      const SECTION_CONFIG = [
+        { key: 'A', bay: 'A', face: '', label: 'Bay A', blocks: 11 },
+        { key: 'B', bay: 'B', face: '', label: 'Bay B', blocks: 12 },
+        { key: 'C', bay: 'C', face: '', label: 'Bay C', blocks: 7 },
+        { key: 'D-front', bay: 'D', face: 'front', label: 'Bay D · Front', blocks: 5 },
+        { key: 'D-back', bay: 'D', face: 'back', label: 'Bay D · Back', blocks: 5 },
+        { key: 'E-front', bay: 'E', face: 'front', label: 'Bay E · Front', blocks: 7 },
+        { key: 'E-back', bay: 'E', face: 'back', label: 'Bay E · Back', blocks: 7 }
+      ];
+      const SECTION_BY_KEY = Object.fromEntries(SECTION_CONFIG.map(section => [section.key, section]));
+      const YARD_BLOCK_TOTAL = SECTION_CONFIG.reduce((total, section) => total + section.blocks, 0);
+      const blocksFor = section => Array.from({ length: SECTION_BY_KEY[section]?.blocks || 0 }, (_, i) => String(i + 1).padStart(2, '0'));
       const STACK_CAPACITIES = [3, 3, 3, 2];
       const PAGE_SIZE = 15;
-      const state = { records: [], history: [], page: 'loading', loadingPage: 1, selectedBay: 'A', selectedBlock: '01', loadingFilter: 'all', historyFilter: 'all', historyVanId: '', pendingRows: null, pendingFile: '', sharedSnapshot: false, photoObjectUrl: null, ocrRunning: false, shiftScrollLeft: 0, highlightRecordId: '' };
+      const state = { records: [], history: [], page: 'loading', loadingPage: 1, selectedBay: 'A', selectedFace: '', selectedBlock: '01', loadingFilter: 'all', historyFilter: 'all', historyVanId: '', pendingRows: null, pendingFile: '', sharedSnapshot: false, photoObjectUrl: null, ocrRunning: false, shiftFromSection: 'A', shiftToSection: 'A', shiftFromScroll: 0, shiftToScroll: 0, highlightRecordId: '', migratedLocationCount: 0 };
       let tesseractLoadPromise = null;
       const $ = (selector, root = document) => root.querySelector(selector);
       const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -482,9 +543,9 @@
         bays: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="8" height="7" rx="1"/><rect x="13" y="4" width="8" height="7" rx="1"/><rect x="3" y="13" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/></svg>'
       }[name] || '');
       function loadSaved() {
-        try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); if (saved && Array.isArray(saved.records)) { state.records = cleanRecords(saved.records); state.history = Array.isArray(saved.history) ? saved.history : []; normalizePositions(); } } catch { state.records = []; state.history = []; }
+        try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); if (saved && Array.isArray(saved.records)) { state.migratedLocationCount = 0; state.records = cleanRecords(saved.records, true); state.history = Array.isArray(saved.history) ? saved.history : []; normalizePositions(); if (state.migratedLocationCount) setTimeout(() => toast(`${state.migratedLocationCount} saved van location${state.migratedLocationCount === 1 ? '' : 's'} need a new block after the yard layout update. The van records are still in your list.`), 450); } } catch { state.records = []; state.history = []; }
       }
-      function cleanRecords(records) {
+      function cleanRecords(records, trackMigration = false) {
         const seen = new Map();
         for (const raw of records) {
           const van = String(raw.van ?? raw.vanNumber ?? '').trim();
@@ -492,32 +553,45 @@
           const key = norm(van);
           const stack = Number(raw.stack), level = Number(raw.level);
           const validSlot = Number.isInteger(stack) && stack >= 1 && stack <= 4 && Number.isInteger(level) && level >= 1 && level <= STACK_CAPACITIES[stack - 1];
-          const item = { id: key, van, consignee: String(raw.consignee ?? '').trim(), vessel: String(raw.vessel ?? '').trim(), voyage: String(raw.voyage ?? '').trim(), bay: BAY_NAMES.includes(raw.bay) ? raw.bay : '', block: raw.bay && BLOCKS.includes(String(raw.block).padStart(2, '0')) ? String(raw.block).padStart(2, '0') : '', stack: validSlot ? stack : 0, level: validSlot ? level : 0, lastPosition: Number(raw.lastPosition) || 0, status: ['in-yard','cy-stripped','withdrawn'].includes(raw.status) ? raw.status : 'in-yard', cyStrippedAt: String(raw.cyStrippedAt || ''), withdrawnAt: String(raw.withdrawnAt || ''), createdAt: String(raw.createdAt || ''), updatedAt: String(raw.updatedAt || '') };
+          const bay = BAY_NAMES.includes(raw.bay) ? raw.bay : '';
+          const rawBlock = String(raw.block ?? '').match(/\d+/)?.[0] || '';
+          let blockNumber = Number(rawBlock), face = normalizeFace(bay, raw.face);
+          if ((bay === 'D' || bay === 'E') && !raw.face && blockNumber > SECTION_BY_KEY[`${bay}-front`].blocks) { face = 'back'; blockNumber -= SECTION_BY_KEY[`${bay}-front`].blocks; }
+          const section = sectionKey(bay, face), validBlock = !!bay && blocksFor(section).includes(String(blockNumber).padStart(2, '0'));
+          if (trackMigration && bay && rawBlock && !validBlock) state.migratedLocationCount++;
+          const item = { id: key, van, consignee: String(raw.consignee ?? '').trim(), vessel: String(raw.vessel ?? '').trim(), voyage: String(raw.voyage ?? '').trim(), bay: validBlock ? bay : '', face: validBlock ? face : '', block: validBlock ? String(blockNumber).padStart(2, '0') : '', stack: validSlot ? stack : 0, level: validSlot ? level : 0, lastPosition: Number(raw.lastPosition) || 0, status: ['in-yard','cy-stripped','withdrawn'].includes(raw.status) ? raw.status : 'in-yard', cyStrippedAt: String(raw.cyStrippedAt || ''), withdrawnAt: String(raw.withdrawnAt || ''), createdAt: String(raw.createdAt || ''), updatedAt: String(raw.updatedAt || '') };
           const old = seen.get(key);
-          if (old) { old.consignee = combineConsignees(old.consignee, item.consignee); if (item.bay && item.block) { old.bay = item.bay; old.block = item.block; } if (item.vessel) old.vessel = item.vessel; if (item.voyage) old.voyage = item.voyage; if (item.stack && item.level) { old.stack = item.stack; old.level = item.level; } if (item.lastPosition) old.lastPosition = item.lastPosition; if (item.withdrawnAt) old.withdrawnAt = item.withdrawnAt; if (item.cyStrippedAt) old.cyStrippedAt = item.cyStrippedAt; if (item.status !== 'in-yard') old.status = item.status; }
+          if (old) { old.consignee = combineConsignees(old.consignee, item.consignee); if (item.bay && item.block) { old.bay = item.bay; old.face = item.face; old.block = item.block; } if (item.vessel) old.vessel = item.vessel; if (item.voyage) old.voyage = item.voyage; if (item.stack && item.level) { old.stack = item.stack; old.level = item.level; } if (item.lastPosition) old.lastPosition = item.lastPosition; if (item.withdrawnAt) old.withdrawnAt = item.withdrawnAt; if (item.cyStrippedAt) old.cyStrippedAt = item.cyStrippedAt; if (item.status !== 'in-yard') old.status = item.status; }
           else seen.set(key, item);
         }
         return Array.from(seen.values());
       }
       function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ records: state.records, history: state.history, updated: new Date().toISOString() })); } catch { toast('This list is too large for browser storage. Export a backup to keep it safe.'); } }
       function assignedRecords() { return state.records.filter(r => r.bay && r.block && r.status !== 'withdrawn'); }
-      function blockLabel(bay, block) { return `${bay}${Number(block) || ''}`; }
-      function formatLocation(record) { return record.bay && record.block ? `Bay ${record.bay} · ${blockLabel(record.bay, record.block)}` : ''; }
+      function normalizeFace(bay, face) { return bay === 'D' || bay === 'E' ? (face === 'back' ? 'back' : 'front') : ''; }
+      function sectionKey(bay, face = '') { if (!BAY_NAMES.includes(bay)) return ''; return (bay === 'D' || bay === 'E') ? `${bay}-${normalizeFace(bay, face)}` : bay; }
+      function sectionForRecord(record) { return sectionKey(record?.bay, record?.face); }
+      function sectionLabel(section) { return SECTION_BY_KEY[section]?.label || ''; }
+      function sectionBlockLabel(section, block) { const info = SECTION_BY_KEY[section]; if (!info) return ''; const prefix = info.face ? `${info.bay}-${info.face === 'front' ? 'F' : 'B'}` : info.bay; return `${prefix}${Number(block) || ''}`; }
+      function blockLabel(bay, block, face = '') { return sectionBlockLabel(sectionKey(bay, face), block); }
+      function formatLocation(record) { return record.bay && record.block ? `${sectionLabel(sectionForRecord(record))} · ${blockLabel(record.bay, record.block, record.face)}` : ''; }
       function locationDetail(record) { const position = record.status === 'withdrawn' ? record.lastPosition : positionNumber(record); return record.bay && record.block ? `${formatLocation(record)}${record.stack ? ` · Stack ${record.stack} · Position ${position || '—'} (level ${record.level})` : ''}${record.status === 'withdrawn' ? ' · withdrawn' : ''}` : 'Not assigned'; }
-      function blockCount(bay, block, exceptId = '') { return state.records.filter(r => r.id !== exceptId && r.status !== 'withdrawn' && r.bay === bay && r.block === block).length; }
-      function firstOpenBlock(bay, exceptId = '') { return BLOCKS.find(b => blockCount(bay, b, exceptId) < 11) || ''; }
-      function freeSlots(bay, block, exceptId = '') {
-        const used = new Set(state.records.filter(r => r.id !== exceptId && r.status !== 'withdrawn' && r.bay === bay && r.block === block && r.stack && r.level).map(r => `${r.stack}:${r.level}`));
+      function bayItems(bay, block = '', face = '') { return state.records.filter(r => r.status !== 'withdrawn' && r.bay === bay && (face === '' || normalizeFace(r.bay, r.face) === normalizeFace(bay, face)) && (!block || r.block === block)); }
+      function sectionItems(section, block = '') { const info = SECTION_BY_KEY[section]; return info ? bayItems(info.bay, block, info.face) : []; }
+      function blockCount(bay, block, exceptId = '', face = '') { return state.records.filter(r => r.id !== exceptId && r.status !== 'withdrawn' && r.bay === bay && normalizeFace(r.bay, r.face) === normalizeFace(bay, face) && r.block === block).length; }
+      function firstOpenBlock(bay, face = '', exceptId = '') { const section = sectionKey(bay, face); return blocksFor(section).find(b => blockCount(bay, b, exceptId, face) < 11) || ''; }
+      function freeSlots(bay, block, exceptId = '', face = '') {
+        const used = new Set(state.records.filter(r => r.id !== exceptId && r.status !== 'withdrawn' && r.bay === bay && normalizeFace(r.bay, r.face) === normalizeFace(bay, face) && r.block === block && r.stack && r.level).map(r => `${r.stack}:${r.level}`));
         return STACK_CAPACITIES.flatMap((capacity, index) => Array.from({ length: capacity }, (_, level) => ({ stack: index + 1, level: level + 1 })).filter(slot => !used.has(`${slot.stack}:${slot.level}`)));
       }
-      function assignFreeSlot(record, bay = record.bay, block = record.block) {
-        const slot = freeSlots(bay, block, record.id)[0];
+      function assignFreeSlot(record, bay = record.bay, block = record.block, face = record.face) {
+        const slot = freeSlots(bay, block, record.id, face)[0];
         if (!slot) return false;
         record.stack = slot.stack; record.level = slot.level; return true;
       }
       function normalizePositions() {
         for (const record of assignedRecords()) {
-          const duplicates = state.records.filter(other => other !== record && other.bay === record.bay && other.block === record.block && other.stack === record.stack && other.level === record.level);
+          const duplicates = state.records.filter(other => other !== record && other.bay === record.bay && normalizeFace(other.bay, other.face) === normalizeFace(record.bay, record.face) && other.block === record.block && other.stack === record.stack && other.level === record.level);
           const valid = record.stack >= 1 && record.stack <= 4 && record.level >= 1 && record.level <= STACK_CAPACITIES[record.stack - 1] && !duplicates.some(other => other.id.localeCompare(record.id) < 0);
           if (!valid) { record.stack = 0; record.level = 0; }
         }
@@ -525,11 +599,11 @@
       }
       function positionNumber(record) {
         if (!record?.stack || !record?.level) return 0;
-        const ordered = bayItems(record.bay, record.block).filter(r => r.stack && r.level).sort((a,b) => a.stack - b.stack || b.level - a.level);
+        const ordered = bayItems(record.bay, record.block, record.face).filter(r => r.stack && r.level).sort((a,b) => a.stack - b.stack || b.level - a.level);
         return ordered.findIndex(r => r.id === record.id) + 1;
       }
-      function describePosition(stack, level, bay = state.selectedBay, block = state.selectedBlock) {
-        const slotRecord = state.records.find(r => r.bay === bay && r.block === block && r.stack === stack && r.level === level);
+      function describePosition(stack, level, bay = state.selectedBay, block = state.selectedBlock, face = state.selectedFace) {
+        const slotRecord = state.records.find(r => r.bay === bay && normalizeFace(r.bay, r.face) === normalizeFace(bay, face) && r.block === block && r.stack === stack && r.level === level);
         return slotRecord ? `Stack ${stack} · Position ${positionNumber(slotRecord)} · level ${level}` : `Stack ${stack} · level ${level}`;
       }
       function statusLabel(record) { return record.status === 'withdrawn' ? 'Withdrawn' : record.status === 'cy-stripped' ? 'CY Stripped' : record.bay && record.block ? 'In yard' : 'Awaiting location'; }
@@ -538,14 +612,15 @@
       function statusClass(record) { return record.status === 'withdrawn' ? 'withdrawn' : record.status === 'cy-stripped' ? 'stripped' : ''; }
       function addHistory(type, record, detail = '', from = '') {
         const at = new Date().toISOString();
-        state.history.unshift({ id: `${Date.now()}-${Math.random().toString(36).slice(2,8)}`, at, type, van: record?.van || '', consignee: record?.consignee || '', vessel: record?.vessel || '', voyage: record?.voyage || '', bay: record?.bay || '', block: record?.block || '', stack: record?.stack || 0, level: record?.level || 0, from, detail });
+        state.history.unshift({ id: `${Date.now()}-${Math.random().toString(36).slice(2,8)}`, at, type, van: record?.van || '', consignee: record?.consignee || '', vessel: record?.vessel || '', voyage: record?.voyage || '', bay: record?.bay || '', face: record?.face || '', block: record?.block || '', stack: record?.stack || 0, level: record?.level || 0, from, detail });
       }
-      function moveToBlock(record, bay, block, eventType = 'location-move') {
+      function moveToBlock(record, bay, block, face = record.face, eventType = 'location-move') {
         const before = record.bay ? locationDetail(record) : 'Not assigned';
-        if (blockCount(bay, block, record.id) >= 11) return false;
-        const previous = { bay: record.bay, block: record.block, stack: record.stack, level: record.level };
-        record.bay = bay; record.block = block; record.stack = 0; record.level = 0;
-        if (!assignFreeSlot(record, bay, block)) { Object.assign(record, previous); return false; }
+        face = normalizeFace(bay, face);
+        if (!blocksFor(sectionKey(bay, face)).includes(block) || blockCount(bay, block, record.id, face) >= 11) return false;
+        const previous = { bay: record.bay, face: record.face, block: record.block, stack: record.stack, level: record.level };
+        record.bay = bay; record.face = face; record.block = block; record.stack = 0; record.level = 0;
+        if (!assignFreeSlot(record, bay, block, face)) { Object.assign(record, previous); return false; }
         record.updatedAt = new Date().toISOString();
         addHistory(eventType, record, `${before} → ${locationDetail(record)}`, before);
         return true;
@@ -568,7 +643,7 @@
         const tableBody = rows.length ? rows.map(r => `<tr>
           <td class="van-cell">${escapeHtml(r.van)}</td><td class="consignee" title="${escapeHtml(r.consignee)}">${escapeHtml(r.consignee || '—')}<span class="record-meta"><span class="status-pill ${statusClass(r)}">${statusLabel(r)}</span>${statusTimestamp(r) ? ` · ${escapeHtml(statusTimestamp(r))}` : ''}</span></td><td class="vessel-cell">${escapeHtml([r.vessel && `Vessel ${r.vessel}`, r.voyage && `Voyage ${r.voyage}`].filter(Boolean).join(' · ') || '—')}</td>
           <td><span class="loc-pill ${r.bay ? 'assigned' : 'pending'}">${r.bay ? escapeHtml(formatLocation(r)) : 'Not assigned'}</span></td>
-          <td><div class="assign-cell"><select class="assign-select" aria-label="Assign ${escapeHtml(r.van)} to a bay" data-field="bay" data-id="${escapeHtml(r.id)}" ${r.status === 'withdrawn' ? 'disabled' : ''}><option value="">Choose bay</option>${BAY_NAMES.map(b => `<option value="${b}" ${r.bay === b ? 'selected' : ''}>Bay ${b}</option>`).join('')}</select><select class="assign-select block" aria-label="Choose a block" data-field="block" data-id="${escapeHtml(r.id)}" ${r.bay && r.status !== 'withdrawn' ? '' : 'disabled'}><option value="">Block</option>${BLOCKS.map(b => `<option value="${b}" ${r.block === b ? 'selected' : ''}>${blockLabel(r.bay || 'A',b)}</option>`).join('')}</select></div></td>
+          <td><div class="assign-cell"><select class="assign-select" aria-label="Assign ${escapeHtml(r.van)} to a bay and side" data-field="section" data-id="${escapeHtml(r.id)}" ${r.status === 'withdrawn' ? 'disabled' : ''}><option value="">Choose bay</option>${SECTION_CONFIG.map(section => `<option value="${section.key}" ${sectionForRecord(r) === section.key ? 'selected' : ''}>${escapeHtml(section.label)}</option>`).join('')}</select><select class="assign-select block" aria-label="Choose a block" data-field="block" data-id="${escapeHtml(r.id)}" ${r.bay && r.status !== 'withdrawn' ? '' : 'disabled'}><option value="">Block</option>${blocksFor(sectionForRecord(r) || 'A').map(b => `<option value="${b}" ${r.block === b ? 'selected' : ''}>${sectionBlockLabel(sectionForRecord(r) || 'A',b)}</option>`).join('')}</select></div></td>
           <td><button class="btn text small danger remove-record" data-id="${escapeHtml(r.id)}" title="Remove van">Remove</button></td></tr>`).join('') : '';
         $('#loadingPage').innerHTML = `
           <div class="page-head"><div><div class="eyebrow">Inventory intake</div><h1>Loading list</h1><p class="page-desc">Import the loading guide, then assign each van to its yard location.</p></div><div class="head-actions"><button class="btn" id="exportBtn">${icon('download')}Backup</button><button class="btn primary" id="shareBtn">${icon('share')}Share snapshot</button></div></div>
@@ -576,7 +651,7 @@
             <div class="stat"><div class="stat-label">Vans in list <span class="stat-icon">${icon('van')}</span></div><div class="stat-value">${total.toLocaleString()}</div><div class="stat-foot">Imported from loading guides</div></div>
             <div class="stat"><div class="stat-label">Assigned <span class="stat-icon">${icon('pin')}</span></div><div class="stat-value">${placed.toLocaleString()}</div><div class="stat-foot">With a bay and block location</div></div>
             <div class="stat"><div class="stat-label">Awaiting location <span class="stat-icon">${icon('clock')}</span></div><div class="stat-value">${pending.toLocaleString()}</div><div class="stat-foot">Ready to be placed in the yard</div></div>
-            <div class="stat"><div class="stat-label">Yard capacity <span class="stat-icon">${icon('bays')}</span></div><div class="stat-value">550</div><div class="stat-foot">5 bays · 10 blocks · 11 slots per block</div></div>
+            <div class="stat"><div class="stat-label">Yard capacity <span class="stat-icon">${icon('bays')}</span></div><div class="stat-value">${(YARD_BLOCK_TOTAL * 11).toLocaleString()}</div><div class="stat-foot">${YARD_BLOCK_TOTAL} blocks · 11 slots per block</div></div>
           </div>
           <div class="guide-note">Incoming guides add new vans and refresh consignee, vessel, and voyage details on matching van numbers. Existing yard locations and status are kept.</div>
           <div class="panel">
@@ -598,19 +673,21 @@
         $('#nextPage')?.addEventListener('click', () => { state.loadingPage++; renderLoading(); });
         $$('.assign-select').forEach(sel => sel.addEventListener('change', e => {
           const rec = state.records.find(r => r.id === e.target.dataset.id); if (!rec) return;
-          if (e.target.dataset.field === 'bay') {
-            const newBay = e.target.value;
-            if (!newBay) { const before = locationDetail(rec); addHistory('location-move', rec, `${before} → Not assigned`, before); rec.bay = ''; rec.block = ''; rec.stack = 0; rec.level = 0; rec.updatedAt = new Date().toISOString(); }
+          if (e.target.dataset.field === 'section') {
+            const newSection = e.target.value;
+            if (!newSection) { const before = locationDetail(rec); addHistory('location-move', rec, `${before} → Not assigned`, before); rec.bay = ''; rec.face = ''; rec.block = ''; rec.stack = 0; rec.level = 0; rec.updatedAt = new Date().toISOString(); }
             else {
-              const nextBlock = rec.block && blockCount(newBay, rec.block, rec.id) < 11 ? rec.block : firstOpenBlock(newBay, rec.id);
-              if (!nextBlock) { toast(`Bay ${newBay} is full across all blocks`); renderLoading(); return; }
-              if (!moveToBlock(rec, newBay, nextBlock, rec.bay ? 'location-move' : 'put-away')) { toast(`Bay ${newBay}, ${blockLabel(newBay,nextBlock)} has no open stack slot`); renderLoading(); return; }
+              const info = SECTION_BY_KEY[newSection];
+              const nextBlock = rec.block && blocksFor(newSection).includes(rec.block) && blockCount(info.bay, rec.block, rec.id, info.face) < 11 ? rec.block : firstOpenBlock(info.bay, info.face, rec.id);
+              if (!nextBlock) { toast(`${sectionLabel(newSection)} is full across all blocks`); renderLoading(); return; }
+              if (!moveToBlock(rec, info.bay, nextBlock, info.face, rec.bay ? 'location-move' : 'put-away')) { toast(`${sectionLabel(newSection)}, ${sectionBlockLabel(newSection,nextBlock)} has no open stack slot`); renderLoading(); return; }
             }
           } else {
             const nextBlock = e.target.value;
-            if (nextBlock && blockCount(rec.bay, nextBlock, rec.id) >= 11) { toast(`${blockLabel(rec.bay,nextBlock)} has reached its 11-van capacity`); renderLoading(); return; }
-            if (nextBlock && !moveToBlock(rec, rec.bay, nextBlock, 'location-move')) { toast(`${blockLabel(rec.bay,nextBlock)} has no open stack slot`); renderLoading(); return; }
-            if (!nextBlock) { const before = locationDetail(rec); rec.block = ''; rec.stack = 0; rec.level = 0; rec.updatedAt = new Date().toISOString(); addHistory('location-move', rec, `${before} → Bay ${rec.bay} · block not selected`, before); }
+            const section = sectionForRecord(rec);
+            if (nextBlock && blockCount(rec.bay, nextBlock, rec.id, rec.face) >= 11) { toast(`${sectionBlockLabel(section,nextBlock)} has reached its 11-van capacity`); renderLoading(); return; }
+            if (nextBlock && !moveToBlock(rec, rec.bay, nextBlock, rec.face, 'location-move')) { toast(`${sectionBlockLabel(section,nextBlock)} has no open stack slot`); renderLoading(); return; }
+            if (!nextBlock) { const before = locationDetail(rec); rec.block = ''; rec.stack = 0; rec.level = 0; rec.updatedAt = new Date().toISOString(); addHistory('location-move', rec, `${before} → ${sectionLabel(section)} · block not selected`, before); }
           }
           save(); render();
         }));
@@ -618,37 +695,45 @@
         const dz = $('#dropzone');
         if (dz) { dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); }); dz.addEventListener('dragleave', () => dz.classList.remove('dragover')); dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); handleSelectedFiles(e.dataTransfer.files); }); }
       }
-      function bayItems(bay, block) { return state.records.filter(r => r.status !== 'withdrawn' && r.bay === bay && (!block || r.block === block)); }
       function renderYard() {
         const bayCounts = Object.fromEntries(BAY_NAMES.map(b => [b, bayItems(b).length]));
-        const blocksHtml = BLOCKS.map(block => {
-          const count = bayItems(state.selectedBay, block).length;
-          return `<button class="block-card ${state.selectedBlock === block ? 'selected' : ''}" data-block="${block}"><div class="block-name">${blockLabel(state.selectedBay, block)}</div><div class="block-card-foot"><span>${count ? 'In use' : 'Empty'}</span><strong>${count} / 11</strong></div><div class="block-bar"><span style="width:${Math.min(100, count / 11 * 100)}%"></span></div></button>`;
+        const selectedSection = sectionKey(state.selectedBay, state.selectedFace);
+        const sectionCount = sectionItems(selectedSection).length;
+        const blocks = blocksFor(selectedSection);
+        const blocksHtml = blocks.map(block => {
+          const count = sectionItems(selectedSection, block).length;
+          return `<button class="block-card ${state.selectedBlock === block ? 'selected' : ''}" data-block="${block}"><div class="block-name">${sectionBlockLabel(selectedSection, block)}</div><div class="block-card-foot"><span>${count ? 'In use' : 'Empty'}</span><strong>${count} / 11</strong></div><div class="block-bar"><span style="width:${Math.min(100, count / 11 * 100)}%"></span></div></button>`;
         }).join('');
-        const selectedItems = bayItems(state.selectedBay, state.selectedBlock).sort((a,b) => a.stack - b.stack || b.level - a.level || a.van.localeCompare(b.van, undefined, { numeric: true }));
+        const selectedItems = sectionItems(selectedSection, state.selectedBlock).sort((a,b) => a.stack - b.stack || b.level - a.level || a.van.localeCompare(b.van, undefined, { numeric: true }));
         const stackLanes = STACK_CAPACITIES.map((height,i) => `<div class="stack-lane"><div class="stack-pile">${Array.from({ length: height }, (_, j) => {
           const level = j + 1, record = selectedItems.find(r => r.stack === i + 1 && r.level === level), position = record ? positionNumber(record) : '';
           return `<button class="stack-slot ${record ? '' : 'empty'} ${record?.id === state.highlightRecordId ? 'selected' : ''}" data-stack-slot="${i + 1}:${level}" ${record ? `data-id="${escapeHtml(record.id)}"` : ''} title="${record ? `${record.van} · ${record.consignee || 'No consignee'} · Position ${position}` : `Open slot · Stack ${i + 1}, level ${level}`}" aria-label="${record ? `${record.van}, position ${position}, stack ${i + 1}, level ${level}` : `Move a van to stack ${i + 1}, level ${level}`}" ><span class="stack-slot-number">${record ? `#${position}` : 'Open'}</span><span class="stack-slot-van">${record ? escapeHtml(record.van) : `Level ${level}`}</span></button>`;
         }).join('')}</div><div class="stack-label">Stack ${i + 1}</div><div class="stack-height">${height} high</div></div>`).join('');
         const inventory = selectedItems.length ? selectedItems.map(r => {
           const slots = STACK_CAPACITIES.flatMap((capacity, index) => Array.from({ length: capacity }, (_, level) => ({ stack:index + 1, level:level + 1 })));
-          const occupied = new Set(state.records.filter(other => other.id !== r.id && other.status !== 'withdrawn' && other.bay === r.bay && other.block === r.block).map(other => `${other.stack}:${other.level}`));
+          const occupied = new Set(state.records.filter(other => other.id !== r.id && other.status !== 'withdrawn' && sectionForRecord(other) === sectionForRecord(r) && other.block === r.block).map(other => `${other.stack}:${other.level}`));
           return `<div class="inventory-row" id="van-row-${escapeHtml(r.id)}"><div class="inventory-primary"><strong>${escapeHtml(r.van)}</strong><span title="${escapeHtml(r.consignee)}">${escapeHtml(r.consignee || 'No consignee listed')}</span><span class="record-meta">${escapeHtml([r.vessel && `Vessel ${r.vessel}`, r.voyage && `Voyage ${r.voyage}`].filter(Boolean).join(' · ') || 'Vessel / voyage not listed')}</span><span class="record-meta"><span class="status-pill ${statusClass(r)}">${statusLabel(r)}</span>${statusTimestamp(r) ? ` · ${escapeHtml(statusTimestamp(r))}` : ''}</span></div><div class="record-actions"><select class="assign-select slot-select" data-slot-record="${escapeHtml(r.id)}" aria-label="Change ${escapeHtml(r.van)} stack position">${slots.map(slot => { const value = `${slot.stack}:${slot.level}`, current = r.stack === slot.stack && r.level === slot.level; return `<option value="${value}" ${current ? 'selected' : ''} ${!current && occupied.has(value) ? 'disabled' : ''}>S${slot.stack} · L${slot.level}${current ? ` · Pos ${positionNumber(r)}` : ''}</option>`; }).join('')}</select><button class="btn small status-cy" data-id="${escapeHtml(r.id)}" ${r.status === 'cy-stripped' || r.status === 'withdrawn' ? 'disabled' : ''}>CY Stripped</button><button class="btn small status-withdraw" data-id="${escapeHtml(r.id)}" ${r.status === 'withdrawn' ? 'disabled' : ''}>Withdrawn</button><button class="btn small picking-tag" data-id="${escapeHtml(r.id)}">Picking tag</button></div></div>`;
-        }).join('') : `<div class="empty-state" style="padding:25px 10px"><strong>This block is empty</strong><p>Assign vans from the loading list to ${blockLabel(state.selectedBay, state.selectedBlock)}.</p><button class="btn small open-loading">Go to loading list</button></div>`;
+        }).join('') : `<div class="empty-state" style="padding:25px 10px"><strong>This block is empty</strong><p>Assign vans from the loading list to ${sectionBlockLabel(selectedSection, state.selectedBlock)}.</p><button class="btn small open-loading">Go to loading list</button></div>`;
+        const bayCards = BAY_NAMES.map(bay => {
+          const sectionKeys = SECTION_CONFIG.filter(section => section.bay === bay);
+          if (sectionKeys.length > 1) return `<div class="bay-card bay-card-sided ${state.selectedBay === bay ? 'selected' : ''}"><div class="bay-card-top"><span class="bay-letter">${bay}</span><span class="bay-tag">BAY · ${bayCounts[bay]} VANS</span></div><div class="bay-faces">${sectionKeys.map(section => `<button class="bay-face-btn ${selectedSection === section.key ? 'selected' : ''}" data-yard-section="${section.key}">${section.face === 'front' ? 'Front' : 'Back'} <span>${sectionItems(section.key).length} vans · ${section.blocks} blocks</span></button>`).join('')}</div></div>`;
+          const section = sectionKeys[0];
+          return `<button class="bay-card ${selectedSection === section.key ? 'selected' : ''}" data-yard-section="${section.key}"><div class="bay-card-top"><span class="bay-letter">${bay}</span><span class="bay-tag">BAY</span></div><div class="bay-count">${bayCounts[bay]} vans · ${section.blocks} blocks</div><div class="meter"><div class="meter-fill" style="width:${Math.min(100, bayCounts[bay] / (section.blocks * 11) * 100)}%"></div></div></button>`;
+        }).join('');
         $('#yardPage').innerHTML = `
           <div class="page-head"><div><div class="eyebrow">Yard inventory</div><h1>Yard view</h1><p class="page-desc">Select a bay and block to review or move its vans.</p></div><div class="head-actions"><button class="btn" id="yardExport">${icon('download')}Backup</button><button class="btn primary" id="yardShare">${icon('share')}Share snapshot</button></div></div>
-          <div class="panel"><div class="panel-head"><div><div class="panel-title">Bay overview</div><div class="panel-sub">Choose a bay to view its ten blocks.</div></div><span class="panel-meta">${assignedRecords().length} vans placed</span></div><div class="bay-strip">${BAY_NAMES.map(b => `<button class="bay-card ${state.selectedBay === b ? 'selected' : ''}" data-bay="${b}"><div class="bay-card-top"><span class="bay-letter">${b}</span><span class="bay-tag">BAY</span></div><div class="bay-count">${bayCounts[b]} vans · 10 blocks</div><div class="meter"><div class="meter-fill" style="width:${Math.min(100, bayCounts[b] / 110 * 100)}%"></div></div></button>`).join('')}</div></div>
-          <div class="yard-lower"><div class="panel"><div class="panel-head"><div><div class="panel-title">Bay ${state.selectedBay} blocks</div><div class="panel-sub">Block labels combine the bay and block, such as A1. Each block holds 11 positions.</div></div><span class="panel-meta">${bayCounts[state.selectedBay]} vans total</span></div><div class="blocks">${blocksHtml}</div></div>
-            <div class="yard-side"><div class="panel"><div class="panel-head"><div><div class="panel-title">${blockLabel(state.selectedBay, state.selectedBlock)} inventory</div><div class="panel-sub">Stack lanes follow the access order from front to rear.</div></div><span class="panel-meta">${selectedItems.length} / 11 vans</span></div><div class="inventory-list">${inventory}</div></div>
+          <div class="panel"><div class="panel-head"><div><div class="panel-title">Bay overview</div><div class="panel-sub">Choose a bay. D and E have separate front and back sections.</div></div><span class="panel-meta">${assignedRecords().length} vans placed</span></div><div class="bay-strip">${bayCards}</div></div>
+          <div class="yard-lower"><div class="panel"><div class="panel-head"><div><div class="panel-title">${sectionLabel(selectedSection)} blocks</div><div class="panel-sub">Block labels identify their bay and side. Each block holds 11 positions.</div></div><span class="panel-meta">${sectionCount} vans · ${blocks.length} blocks</span></div><div class="blocks">${blocksHtml}</div></div>
+            <div class="yard-side"><div class="panel"><div class="panel-head"><div><div class="panel-title">${sectionBlockLabel(selectedSection, state.selectedBlock)} inventory</div><div class="panel-sub">Stack lanes follow the access order from front to rear.</div></div><span class="panel-meta">${selectedItems.length} / 11 vans</span></div><div class="inventory-list">${inventory}</div></div>
             <div class="panel"><div class="panel-head"><div><div class="panel-title">Exact stack positions</div><div class="panel-sub">Select an open tile to place a van in this block.</div></div></div><div class="stack-plan"><div class="stack-caption"><span>FRONT</span><span>REAR</span></div><div class="stack-bays">${stackLanes}</div></div><div class="yard-note">Capacities: 3 / 3 / 3 / 2. Position #1 is the first accessible van; numbers update after each stack move.</div></div></div>
           </div>`;
-        $$('.bay-card').forEach(btn => btn.addEventListener('click', () => { state.selectedBay = btn.dataset.bay; state.selectedBlock = '01'; state.highlightRecordId = ''; renderYard(); }));
+        $$('[data-yard-section]').forEach(btn => btn.addEventListener('click', () => { const info = SECTION_BY_KEY[btn.dataset.yardSection]; if (!info) return; state.selectedBay = info.bay; state.selectedFace = info.face; state.selectedBlock = '01'; state.highlightRecordId = ''; renderYard(); }));
         $$('.block-card').forEach(btn => btn.addEventListener('click', () => { state.selectedBlock = btn.dataset.block; renderYard(); }));
-        $$('.slot-select').forEach(sel => sel.addEventListener('change', e => { const rec = state.records.find(r => r.id === e.target.dataset.slotRecord); if (!rec) return; const [stack, level] = e.target.value.split(':').map(Number); if (state.records.some(other => other.id !== rec.id && other.status !== 'withdrawn' && other.bay === rec.bay && other.block === rec.block && other.stack === stack && other.level === level)) { toast('That stack position is already occupied'); renderYard(); return; } const before = locationDetail(rec); rec.stack = stack; rec.level = level; rec.updatedAt = new Date().toISOString(); addHistory('stack-move', rec, `${before} → ${locationDetail(rec)}`, before); state.highlightRecordId = rec.id; save(); render(); toast(`${rec.van} moved to Stack ${stack}, level ${level}`); }));
+        $$('.slot-select').forEach(sel => sel.addEventListener('change', e => { const rec = state.records.find(r => r.id === e.target.dataset.slotRecord); if (!rec) return; const [stack, level] = e.target.value.split(':').map(Number); if (state.records.some(other => other.id !== rec.id && other.status !== 'withdrawn' && sectionForRecord(other) === sectionForRecord(rec) && other.block === rec.block && other.stack === stack && other.level === level)) { toast('That stack position is already occupied'); renderYard(); return; } const before = locationDetail(rec); rec.stack = stack; rec.level = level; rec.updatedAt = new Date().toISOString(); addHistory('stack-move', rec, `${before} → ${locationDetail(rec)}`, before); state.highlightRecordId = rec.id; save(); render(); toast(`${rec.van} moved to Stack ${stack}, level ${level}`); }));
         $$('.status-cy').forEach(btn => btn.addEventListener('click', () => setVanStatus(btn.dataset.id, 'cy-stripped')));
         $$('.status-withdraw').forEach(btn => btn.addEventListener('click', () => setVanStatus(btn.dataset.id, 'withdrawn')));
         $$('.picking-tag').forEach(btn => btn.addEventListener('click', () => showPickingTag(btn.dataset.id)));
-        $$('.stack-slot').forEach(slot => slot.addEventListener('click', () => { const [stack, level] = slot.dataset.stackSlot.split(':').map(Number); if (slot.dataset.id) { state.highlightRecordId = slot.dataset.id; renderYard(); $('#van-row-' + CSS.escape(slot.dataset.id))?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } else showSlotPicker(state.selectedBay, state.selectedBlock, stack, level); }));
+        $$('.stack-slot').forEach(slot => slot.addEventListener('click', () => { const [stack, level] = slot.dataset.stackSlot.split(':').map(Number); if (slot.dataset.id) { state.highlightRecordId = slot.dataset.id; renderYard(); $('#van-row-' + CSS.escape(slot.dataset.id))?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } else showSlotPicker(state.selectedBay, state.selectedFace, state.selectedBlock, stack, level); }));
         $$('.open-loading').forEach(btn => btn.addEventListener('click', () => setPage('loading')));
         $('#yardExport')?.addEventListener('click', exportBackup); $('#yardShare')?.addEventListener('click', shareSnapshot);
       }
@@ -659,15 +744,44 @@
         else if (status === 'withdrawn') { record.lastPosition = positionNumber(record); const lastLocation = locationDetail(record); record.status = 'withdrawn'; record.withdrawnAt = at; addHistory('withdrawal', record, `Outgoing withdrawal · ${lastLocation}`); }
         record.updatedAt = at; save(); render(); toast(`${record.van} marked ${status === 'cy-stripped' ? 'CY Stripped' : 'Withdrawn'}`);
       }
-      function showSlotPicker(bay, block, stack, level) {
-        const records = bayItems(bay, block).sort((a,b) => a.van.localeCompare(b.van, undefined, { numeric: true }));
+      function showSlotPicker(bay, face, block, stack, level) {
+        const records = bayItems(bay, block, face).sort((a,b) => a.van.localeCompare(b.van, undefined, { numeric: true }));
         if (!records.length) { toast('There are no vans in this block to move'); return; }
-        modal(`<div class="modal-head"><div><h2>Place van at Stack ${stack}, level ${level}</h2><p>${blockLabel(bay,block)} · Open position</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="field"><label for="slotVanSelect">Choose a van in this block</label><select id="slotVanSelect">${records.map(r => `<option value="${escapeHtml(r.id)}">${escapeHtml(r.van)} · ${escapeHtml(r.consignee || 'No consignee')}</option>`).join('')}</select></div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button class="btn primary" id="applyStackSlot">Move to position</button></div></div>`);
+        modal(`<div class="modal-head"><div><h2>Place van at Stack ${stack}, level ${level}</h2><p>${blockLabel(bay,block,face)} · Open position</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="field"><label for="slotVanSelect">Choose a van in this block</label><select id="slotVanSelect">${records.map(r => `<option value="${escapeHtml(r.id)}">${escapeHtml(r.van)} · ${escapeHtml(r.consignee || 'No consignee')}</option>`).join('')}</select></div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button class="btn primary" id="applyStackSlot">Move to position</button></div></div>`);
         $('#applyStackSlot').addEventListener('click', () => {
           const record = state.records.find(r => r.id === $('#slotVanSelect').value); if (!record) return;
-          if (state.records.some(other => other.id !== record.id && other.status !== 'withdrawn' && other.bay === bay && other.block === block && other.stack === stack && other.level === level)) { toast('That stack position is already occupied'); closeModal(); return; }
+          if (state.records.some(other => other.id !== record.id && other.status !== 'withdrawn' && other.bay === bay && normalizeFace(other.bay, other.face) === normalizeFace(bay, face) && other.block === block && other.stack === stack && other.level === level)) { toast('That stack position is already occupied'); closeModal(); return; }
           const before = locationDetail(record); record.stack = stack; record.level = level; record.updatedAt = new Date().toISOString();
           addHistory('stack-move', record, `${before} → ${locationDetail(record)}`, before); state.highlightRecordId = record.id; save(); closeModal(); render(); toast(`${record.van} moved to Stack ${stack}, level ${level}`);
+        });
+      }
+      function showLocationPicker(id, defaults = {}) {
+        const record = state.records.find(r => r.id === id); if (!record) return;
+        if (record.status === 'withdrawn') { toast('A withdrawn van cannot be assigned to a yard block'); return; }
+        const initialSection = SECTION_BY_KEY[defaults.section] ? defaults.section : (sectionForRecord(record) || 'A');
+        const initialBlocks = blocksFor(initialSection), initialInfo = SECTION_BY_KEY[initialSection];
+        const initialBlock = initialBlocks.includes(record.block) ? record.block : (initialBlocks.find(block => blockCount(initialInfo.bay, block, record.id, initialInfo.face) < 11) || initialBlocks[0]);
+        const renderBlockOptions = section => {
+          const info = SECTION_BY_KEY[section];
+          return blocksFor(section).map(block => {
+            const full = blockCount(info.bay, block, record.id, info.face) >= 11 && !(section === sectionForRecord(record) && block === record.block);
+            return `<option value="${block}" ${block === initialBlock ? 'selected' : ''} ${full ? 'disabled' : ''}>${sectionBlockLabel(section,block)}${full ? ' · Full' : ''}</option>`;
+          }).join('');
+        };
+        modal(`<div class="modal-head"><div><h2>Assign van location</h2><p>${escapeHtml(record.van)} · ${escapeHtml(record.consignee || 'No consignee listed')}</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="field"><label for="locationSection">Bay / side</label><select id="locationSection">${SECTION_CONFIG.map(section => `<option value="${section.key}" ${section.key === initialSection ? 'selected' : ''}>${escapeHtml(section.label)}</option>`).join('')}</select></div><div class="field"><label for="locationBlock">Block</label><select id="locationBlock">${renderBlockOptions(initialSection)}</select></div><div class="modal-info">The van will be placed in the first open stack position in that block.</div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button class="btn primary" id="saveLocation">Save location</button></div></div>`);
+        $('#locationSection').addEventListener('change', event => {
+          const section = event.target.value, blocks = blocksFor(section);
+          $('#locationBlock').innerHTML = renderBlockOptions(section);
+          const info = SECTION_BY_KEY[section], first = blocks.find(block => blockCount(info.bay, block, record.id, info.face) < 11) || '';
+          if (first) $('#locationBlock').value = first;
+        });
+        $('#saveLocation').addEventListener('click', () => {
+          const section = $('#locationSection').value, info = SECTION_BY_KEY[section], block = $('#locationBlock').value;
+          if (!info || !block) { toast('Choose a bay and block'); return; }
+          if (sectionForRecord(record) === section && record.block === block) { closeModal(); return; }
+          if (!moveToBlock(record, info.bay, block, info.face, record.bay ? 'location-move' : 'put-away')) { toast('Choose a block with an open position'); return; }
+          state.selectedBay = info.bay; state.selectedFace = info.face; state.selectedBlock = block; state.highlightRecordId = record.id;
+          save(); closeModal(); render(); showSearch($('#globalSearch').value); toast(`${record.van} assigned to ${sectionBlockLabel(section,block)}`);
         });
       }
       function showPickingTag(id) {
@@ -683,52 +797,77 @@
         const cleanup = () => area.remove(); window.addEventListener('afterprint', cleanup, { once: true });
         setTimeout(() => { window.print(); setTimeout(cleanup, 1500); }, 100);
       }
-      function renderShift() {
-        const bay = state.selectedBay;
-        const total = bayItems(bay).length;
-        const savedScrollLeft = state.shiftScrollLeft;
-        const touchLayout = window.matchMedia('(max-width: 760px)').matches;
-        const shiftHelp = touchLayout ? 'Tap the arrows to move a van one block at a time.' : 'Drag a van to a block, or use its left/right arrows.';
-        const shiftDetail = touchLayout ? 'Use the left and right buttons on each van to change blocks.' : 'Arrows move one adjacent block at a time. Drag and drop can move directly to another block.';
-        const columns = BLOCKS.map((block,index) => {
-          const records = bayItems(bay, block).sort((a,b) => a.van.localeCompare(b.van, undefined, { numeric: true }));
-          const vans = records.length ? records.map(record => {
-            const leftBlock = BLOCKS[index - 1] || '';
-            const rightBlock = BLOCKS[index + 1] || '';
-            const leftDisabled = !leftBlock || blockCount(bay, leftBlock, record.id) >= 11;
-            const rightDisabled = !rightBlock || blockCount(bay, rightBlock, record.id) >= 11;
-            return `<div class="shift-van" draggable="true" data-shift-id="${escapeHtml(record.id)}" title="Drag this van to another block"><span class="shift-van-code">${escapeHtml(record.van)}</span><span class="shift-van-consignee" title="${escapeHtml(record.consignee)}">${escapeHtml(record.consignee || 'No consignee listed')}</span><span class="record-meta">${escapeHtml([record.vessel && `Vessel ${record.vessel}`,record.voyage && `Voyage ${record.voyage}`].filter(Boolean).join(' · '))}</span><span class="record-meta"><span class="status-pill ${statusClass(record)}">${statusLabel(record)}</span>${statusTimestamp(record) ? ` · ${escapeHtml(statusTimestamp(record))}` : ''}</span><div class="shift-van-actions"><button class="shift-nudge shift-left" data-id="${escapeHtml(record.id)}" data-to="${leftBlock}" aria-label="Move ${escapeHtml(record.van)} left to ${leftBlock ? blockLabel(bay,leftBlock) : 'none'}" ${leftDisabled ? 'disabled' : ''}>← ${leftBlock ? Number(leftBlock) : ''}</button><button class="shift-nudge shift-right" data-id="${escapeHtml(record.id)}" data-to="${rightBlock}" aria-label="Move ${escapeHtml(record.van)} right to ${rightBlock ? blockLabel(bay,rightBlock) : 'none'}" ${rightDisabled ? 'disabled' : ''}>${rightBlock ? Number(rightBlock) : ''} →</button></div></div>`;
-          }).join('') : '<div class="shift-empty">Drop van here</div>';
-          return `<div class="shift-block" data-shift-block="${block}"><div class="shift-block-head"><div class="shift-block-top"><span class="shift-block-name">${blockLabel(bay,block)}</span><span class="shift-count ${records.length >= 11 ? 'full' : ''}">${records.length}/11</span></div><div class="shift-meter"><span style="width:${Math.min(100,records.length/11*100)}%"></span></div></div><div class="shift-vans">${vans}</div></div>`;
+      function renderShiftColumns(section, role) {
+        const info = SECTION_BY_KEY[section]; if (!info) return '';
+        const blocks = blocksFor(section);
+        return blocks.map((block, index) => {
+          const records = sectionItems(section, block).sort((a,b) => a.van.localeCompare(b.van, undefined, { numeric: true }));
+          if (role === 'source') {
+            const vans = records.length ? records.map(record => {
+              const leftBlock = blocks[index - 1] || '', rightBlock = blocks[index + 1] || '';
+              const leftDisabled = !leftBlock || blockCount(info.bay, leftBlock, record.id, info.face) >= 11;
+              const rightDisabled = !rightBlock || blockCount(info.bay, rightBlock, record.id, info.face) >= 11;
+              return `<div class="shift-van" draggable="true" data-shift-id="${escapeHtml(record.id)}" title="Drag this van to a block in the destination area"><span class="shift-van-code">${escapeHtml(record.van)}</span><span class="shift-van-consignee" title="${escapeHtml(record.consignee)}">${escapeHtml(record.consignee || 'No consignee listed')}</span><span class="record-meta">${escapeHtml([record.vessel && `Vessel ${record.vessel}`,record.voyage && `Voyage ${record.voyage}`].filter(Boolean).join(' · '))}</span><span class="record-meta"><span class="status-pill ${statusClass(record)}">${statusLabel(record)}</span>${statusTimestamp(record) ? ` · ${escapeHtml(statusTimestamp(record))}` : ''}</span><div class="shift-van-actions"><button class="shift-nudge shift-left" data-id="${escapeHtml(record.id)}" data-to="${leftBlock}" aria-label="Move ${escapeHtml(record.van)} left to ${leftBlock ? sectionBlockLabel(section,leftBlock) : 'none'}" ${leftDisabled ? 'disabled' : ''}>← ${leftBlock ? Number(leftBlock) : ''}</button><button class="shift-nudge shift-right" data-id="${escapeHtml(record.id)}" data-to="${rightBlock}" aria-label="Move ${escapeHtml(record.van)} right to ${rightBlock ? sectionBlockLabel(section,rightBlock) : 'none'}" ${rightDisabled ? 'disabled' : ''}>${rightBlock ? Number(rightBlock) : ''} →</button><button class="btn small shift-move-any" data-id="${escapeHtml(record.id)}">Move to…</button></div></div>`;
+            }).join('') : '<div class="shift-empty">No vans in this block</div>';
+            return `<div class="shift-block" data-shift-block="${block}"><div class="shift-block-head"><div class="shift-block-top"><span class="shift-block-name">${sectionBlockLabel(section,block)}</span><span class="shift-count ${records.length >= 11 ? 'full' : ''}">${records.length}/11</span></div><div class="shift-meter"><span style="width:${Math.min(100,records.length/11*100)}%"></span></div></div><div class="shift-vans">${vans}</div></div>`;
+          }
+          const vans = records.length ? records.map(record => `<span class="destination-van" title="${escapeHtml(record.van)} · ${escapeHtml(record.consignee || 'No consignee')}">${escapeHtml(record.van)}</span>`).join('') : '<span class="destination-empty">Drop van here</span>';
+          return `<div class="shift-destination-block" data-shift-target-section="${section}" data-shift-target-block="${block}"><div class="shift-block-head"><div class="shift-block-top"><span class="shift-block-name">${sectionBlockLabel(section,block)}</span><span class="shift-count ${records.length >= 11 ? 'full' : ''}">${records.length}/11</span></div><div class="shift-meter"><span style="width:${Math.min(100,records.length/11*100)}%"></span></div></div><div class="destination-vans">${vans}</div></div>`;
         }).join('');
+      }
+      function renderShift() {
+        const source = state.shiftFromSection, destination = state.shiftToSection;
+        const sourceCount = sectionItems(source).length, destinationCount = sectionItems(destination).length;
+        const touchLayout = window.matchMedia('(max-width: 760px)').matches;
+        const routeTile = section => {
+          const info = SECTION_BY_KEY[section], vans = sectionItems(section).length;
+          const activeFrom = source === section, activeTo = destination === section;
+          return `<div class="yard-map-section ${activeFrom ? 'route-from' : ''} ${activeTo ? 'route-to' : ''}"><div class="yard-map-title"><strong>${escapeHtml(info.label.replace('Bay ',''))}</strong><span>${info.blocks} blocks · ${vans} vans</span></div><div class="yard-map-actions"><button class="map-route-btn ${activeFrom ? 'active' : ''}" data-route="from" data-section="${section}">From</button><button class="map-route-btn ${activeTo ? 'active' : ''}" data-route="to" data-section="${section}">To</button></div></div>`;
+        };
+        const mapLayout = `<div class="yard-map-scroll"><div class="yard-map-layout"><div class="yard-map-entrance">YARD<br>ENTRANCE</div><div class="yard-map-c">${routeTile('C')}</div><div class="yard-map-df">${routeTile('D-front')}</div><div class="yard-map-db">${routeTile('D-back')}</div><div class="yard-map-ef">${routeTile('E-front')}</div><div class="yard-map-eb">${routeTile('E-back')}</div><div class="yard-map-a">${routeTile('A')}</div><div class="yard-map-b">${routeTile('B')}</div></div></div>`;
+        const sourceColumns = renderShiftColumns(source, 'source');
+        const destinationColumns = renderShiftColumns(destination, 'destination');
         $('#shiftPage').innerHTML = `
-          <div class="page-head"><div><div class="eyebrow">Fast yard moves</div><h1>Quick shift</h1><p class="page-desc">Move vans sideways between block columns within the same bay.</p></div><div class="head-actions"><button class="btn" id="shiftExport">${icon('download')}Backup</button><button class="btn primary" id="shiftShare">${icon('share')}Share snapshot</button></div></div>
-          <div class="shift-toolbar"><div class="shift-bays">${BAY_NAMES.map(b => `<button class="shift-bay-btn ${bay === b ? 'active' : ''}" data-shift-bay="${b}">Bay ${b}</button>`).join('')}</div><div class="shift-toolbar-note">${shiftHelp} · ${total} vans in Bay ${bay}</div></div>
-          <div class="panel"><div class="panel-head"><div><div class="panel-title">Bay ${bay} · side-by-side blocks</div><div class="panel-sub">${shiftDetail}</div></div><div class="shift-scroll-actions"><button class="shift-scroll-btn" id="scrollBlocksLeft" aria-label="Scroll blocks left">‹</button><button class="shift-scroll-btn" id="scrollBlocksRight" aria-label="Scroll blocks right">›</button></div></div><div class="shift-scroller" id="shiftColumnsScroller" tabindex="0"><div class="shift-columns">${columns}</div></div><div class="shift-footer">Eleven positions per block (3 / 3 / 3 / 2). Moves that would exceed capacity are disabled.${touchLayout ? ' Swipe across the columns to see all blocks.' : ' Drop a van on any block column to change its location.'}</div></div>`;
-        const scroller = $('#shiftColumnsScroller'); if (scroller) { scroller.scrollLeft = savedScrollLeft; scroller.addEventListener('scroll', () => { state.shiftScrollLeft = scroller.scrollLeft; }, { passive: true }); }
-        $$('[data-shift-bay]').forEach(button => button.addEventListener('click', () => { state.selectedBay = button.dataset.shiftBay; state.selectedBlock = '01'; state.shiftScrollLeft = 0; renderShift(); }));
-        $$('.shift-left, .shift-right').forEach(button => button.addEventListener('click', () => shiftVan(button.dataset.id, button.dataset.to)));
+          <div class="page-head"><div><div class="eyebrow">Fast yard moves</div><h1>Quick shift</h1><p class="page-desc">Move a van between any block in the yard, including across bays and front/back sides.</p></div><div class="head-actions"><button class="btn" id="shiftExport">${icon('download')}Backup</button><button class="btn primary" id="shiftShare">${icon('share')}Share snapshot</button></div></div>
+          <div class="panel shift-yard-panel"><div class="panel-head"><div><div class="panel-title">Yard layout</div><div class="panel-sub">Choose the source and destination sections from the yard map.</div></div><div class="shift-route-summary"><span>From <strong>${escapeHtml(sectionLabel(source))}</strong></span><span>→</span><span>To <strong>${escapeHtml(sectionLabel(destination))}</strong></span></div></div>${mapLayout}<div class="yard-map-legend"><span><i class="route-dot from"></i>From · ${sourceCount} vans</span><span><i class="route-dot to"></i>To · ${destinationCount} vans</span></div></div>
+          <div class="shift-route-panels"><div class="panel"><div class="panel-head"><div><div class="panel-title">From · ${escapeHtml(sectionLabel(source))}</div><div class="panel-sub">${sourceCount} vans · use arrows for neighboring blocks or choose Move to…</div></div><div class="shift-scroll-actions"><button class="shift-scroll-btn" id="scrollFromLeft" aria-label="Scroll source blocks left">‹</button><button class="shift-scroll-btn" id="scrollFromRight" aria-label="Scroll source blocks right">›</button></div></div><div class="shift-scroller" id="shiftFromScroller" tabindex="0"><div class="shift-columns">${sourceColumns}</div></div></div>
+            <div class="panel"><div class="panel-head"><div><div class="panel-title">To · ${escapeHtml(sectionLabel(destination))}</div><div class="panel-sub">Drop a van on any block here or use Move to… on its card.</div></div><div class="shift-scroll-actions"><button class="shift-scroll-btn" id="scrollToLeft" aria-label="Scroll destination blocks left">‹</button><button class="shift-scroll-btn" id="scrollToRight" aria-label="Scroll destination blocks right">›</button></div></div><div class="shift-scroller" id="shiftToScroller" tabindex="0"><div class="shift-destination-columns">${destinationColumns}</div></div><div class="shift-footer">Each block holds 11 vans in four stack lanes (3 / 3 / 3 / 2). Full blocks cannot receive another van.</div></div></div>`;
+        const fromScroller = $('#shiftFromScroller'), toScroller = $('#shiftToScroller');
+        if (fromScroller) { fromScroller.scrollLeft = state.shiftFromScroll; fromScroller.addEventListener('scroll', () => { state.shiftFromScroll = fromScroller.scrollLeft; }, { passive: true }); }
+        if (toScroller) { toScroller.scrollLeft = state.shiftToScroll; toScroller.addEventListener('scroll', () => { state.shiftToScroll = toScroller.scrollLeft; }, { passive: true }); }
+        $$('[data-route]').forEach(button => button.addEventListener('click', () => {
+          const section = button.dataset.section; if (!SECTION_BY_KEY[section]) return;
+          if (button.dataset.route === 'from') { state.shiftFromSection = section; state.shiftFromScroll = 0; }
+          else { state.shiftToSection = section; state.shiftToScroll = 0; }
+          renderShift();
+        }));
+        $$('.shift-left, .shift-right').forEach(button => button.addEventListener('click', () => shiftVan(button.dataset.id, source, button.dataset.to)));
+        $$('.shift-move-any').forEach(button => button.addEventListener('click', () => showLocationPicker(button.dataset.id, { section: destination })));
         $$('.shift-van[draggable="true"]').forEach(card => {
           card.addEventListener('dragstart', event => { draggedVanId = card.dataset.shiftId; event.dataTransfer.setData('text/plain', draggedVanId); event.dataTransfer.effectAllowed = 'move'; card.classList.add('dragging'); });
-          card.addEventListener('dragend', () => { draggedVanId = ''; card.classList.remove('dragging'); $$('.shift-block').forEach(block => block.classList.remove('drag-over')); });
+          card.addEventListener('dragend', () => { draggedVanId = ''; card.classList.remove('dragging'); $$('.shift-destination-block').forEach(block => block.classList.remove('drag-over')); });
         });
-        $$('.shift-block').forEach(block => {
+        $$('.shift-destination-block').forEach(block => {
           block.addEventListener('dragover', event => { event.preventDefault(); event.dataTransfer.dropEffect = 'move'; block.classList.add('drag-over'); });
           block.addEventListener('dragleave', event => { if (!block.contains(event.relatedTarget)) block.classList.remove('drag-over'); });
-          block.addEventListener('drop', event => { event.preventDefault(); block.classList.remove('drag-over'); const id = event.dataTransfer.getData('text/plain') || draggedVanId; if (id) shiftVan(id, block.dataset.shiftBlock); });
+          block.addEventListener('drop', event => { event.preventDefault(); block.classList.remove('drag-over'); const id = event.dataTransfer.getData('text/plain') || draggedVanId; if (id) shiftVan(id, block.dataset.shiftTargetSection, block.dataset.shiftTargetBlock); });
         });
-        $('#scrollBlocksLeft')?.addEventListener('click', () => $('#shiftColumnsScroller').scrollBy({ left: -Math.round($('#shiftColumnsScroller').clientWidth * .8), behavior: 'smooth' }));
-        $('#scrollBlocksRight')?.addEventListener('click', () => $('#shiftColumnsScroller').scrollBy({ left: Math.round($('#shiftColumnsScroller').clientWidth * .8), behavior: 'smooth' }));
+        for (const [leftId,rightId,scrollerId] of [['scrollFromLeft','scrollFromRight','shiftFromScroller'],['scrollToLeft','scrollToRight','shiftToScroller']]) {
+          $(`#${leftId}`)?.addEventListener('click', () => $(`#${scrollerId}`).scrollBy({ left: -Math.round($(`#${scrollerId}`).clientWidth * .8), behavior: 'smooth' }));
+          $(`#${rightId}`)?.addEventListener('click', () => $(`#${scrollerId}`).scrollBy({ left: Math.round($(`#${scrollerId}`).clientWidth * .8), behavior: 'smooth' }));
+        }
         $('#shiftExport')?.addEventListener('click', exportBackup); $('#shiftShare')?.addEventListener('click', shareSnapshot);
       }
-      function shiftVan(id, destination) {
+      function shiftVan(id, destinationSection, destinationBlock) {
         const record = state.records.find(r => r.id === id);
-        if (!record || !BLOCKS.includes(destination) || record.block === destination) return;
-        state.shiftScrollLeft = $('#shiftColumnsScroller')?.scrollLeft ?? state.shiftScrollLeft;
-        if (blockCount(record.bay, destination, record.id) >= 11) { toast(`${blockLabel(record.bay,destination)} has reached its 11-van capacity`); renderShift(); return; }
-        const before = locationDetail(record); record.block = destination; record.stack = 0; record.level = 0;
-        if (!assignFreeSlot(record, record.bay, destination)) { toast(`${blockLabel(record.bay,destination)} has no open stack position`); renderShift(); return; }
-        record.updatedAt = new Date().toISOString(); addHistory('location-move', record, `${before} → ${locationDetail(record)}`, before); state.selectedBlock = destination; save(); render(); toast(`${record.van} moved to ${blockLabel(record.bay,destination)}`);
+        const target = SECTION_BY_KEY[destinationSection];
+        if (!record || !target || !blocksFor(destinationSection).includes(destinationBlock) || (sectionForRecord(record) === destinationSection && record.block === destinationBlock)) return;
+        state.shiftFromScroll = $('#shiftFromScroller')?.scrollLeft ?? state.shiftFromScroll;
+        state.shiftToScroll = $('#shiftToScroller')?.scrollLeft ?? state.shiftToScroll;
+        if (blockCount(target.bay, destinationBlock, record.id, target.face) >= 11) { toast(`${sectionBlockLabel(destinationSection,destinationBlock)} has reached its 11-van capacity`); renderShift(); return; }
+        if (!moveToBlock(record, target.bay, destinationBlock, target.face, 'location-move')) { toast(`${sectionBlockLabel(destinationSection,destinationBlock)} has no open stack position`); renderShift(); return; }
+        state.selectedBay = target.bay; state.selectedFace = target.face; state.selectedBlock = destinationBlock; state.highlightRecordId = record.id;
+        save(); render(); toast(`${record.van} moved to ${sectionBlockLabel(destinationSection,destinationBlock)}`);
       }
       function historyName(type) {
         return ({ 'incoming-full':'Incoming full', 'withdrawal':'Outgoing withdrawal', 'cy-stripped':'CY Stripped', 'location-move':'Location moved', 'stack-move':'Stack position moved', 'put-away':'Put-away', 'guide-update':'Guide details updated' })[type] || 'Activity';
@@ -748,7 +887,7 @@
       function setPage(page) { state.page = page; updateNav(); if (page === 'yard') renderYard(); else if (page === 'shift') renderShift(); else if (page === 'history') renderHistory(); else renderLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
       function toast(message) { const el = $('#toast'); el.textContent = message; el.classList.add('show'); clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.remove('show'), 2600); }
       function exportBackup() {
-        const blob = new Blob([JSON.stringify({ app: 'Container Van Locator', version: 2, exportedAt: new Date().toISOString(), records: state.records, history: state.history }, null, 2)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify({ app: 'Container Van Locator', version: 3, exportedAt: new Date().toISOString(), records: state.records, history: state.history }, null, 2)], { type: 'application/json' });
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `container-van-locator-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href); toast('Backup downloaded');
       }
       function bytesToBase64Url(bytes) { let binary = ''; for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000)); return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/,''); }
@@ -756,7 +895,7 @@
         if (!state.records.length) { toast('Upload a loading guide before sharing a snapshot'); return; }
         let url = '';
         try {
-          const data = new TextEncoder().encode(JSON.stringify({ v: 2, records: state.records, history: state.history }));
+          const data = new TextEncoder().encode(JSON.stringify({ v: 3, records: state.records, history: state.history }));
           let bytes = data;
           if ('CompressionStream' in window) { const stream = new Blob([data]).stream().pipeThrough(new CompressionStream('gzip')); bytes = new Uint8Array(await new Response(stream).arrayBuffer()); }
           url = `${location.href.split('#')[0]}#share=${bytesToBase64Url(bytes)}`;
@@ -983,11 +1122,11 @@
             const returning = prior.status === 'withdrawn';
             if (item.consignee) prior.consignee = item.consignee; if (item.vessel) prior.vessel = item.vessel; if (item.voyage) prior.voyage = item.voyage;
             prior.updatedAt = new Date().toISOString();
-            if (returning) { prior.status = 'in-yard'; prior.withdrawnAt = ''; prior.cyStrippedAt = ''; prior.bay = ''; prior.block = ''; prior.stack = 0; prior.level = 0; addHistory('incoming-full', prior, `Incoming full · returned on ${fileName}`); }
+            if (returning) { prior.status = 'in-yard'; prior.withdrawnAt = ''; prior.cyStrippedAt = ''; prior.bay = ''; prior.face = ''; prior.block = ''; prior.stack = 0; prior.level = 0; addHistory('incoming-full', prior, `Incoming full · returned on ${fileName}`); }
             else addHistory('guide-update', prior, `Updated from ${fileName}`);
             updated++;
           }
-          else { const at = new Date().toISOString(); const record = { id:item.id, van:item.van, consignee:item.consignee || '', vessel:item.vessel || '', voyage:item.voyage || '', bay:'', block:'', stack:0, level:0, status:'in-yard', cyStrippedAt:'', withdrawnAt:'', createdAt:at, updatedAt:at }; byId.set(item.id, record); addHistory('incoming-full', record, `Incoming full · added from ${fileName}`); added++; }
+          else { const at = new Date().toISOString(); const record = { id:item.id, van:item.van, consignee:item.consignee || '', vessel:item.vessel || '', voyage:item.voyage || '', bay:'', face:'', block:'', stack:0, level:0, status:'in-yard', cyStrippedAt:'', withdrawnAt:'', createdAt:at, updatedAt:at }; byId.set(item.id, record); addHistory('incoming-full', record, `Incoming full · added from ${fileName}`); added++; }
         }
         state.records = Array.from(byId.values()); state.loadingPage = 1; state.loadingFilter = 'all'; state.sharedSnapshot = false; save(); render(); closeModal(); $('#fileInput').value = '';
         toast(`${added} added${updated ? ` · ${updated} updated` : ''} from ${fileName}`);
@@ -996,9 +1135,10 @@
         const results = $('#searchResults'); const q = norm(query);
         if (q.length < 2) { results.classList.remove('open'); return; }
         const matches = state.records.filter(r => norm(r.van).includes(q) || norm(r.consignee).includes(q)).slice(0,12);
-        results.innerHTML = `<div class="result-heading">${matches.length ? `Search results · ${matches.length}${state.records.filter(r => norm(r.van).includes(q) || norm(r.consignee).includes(q)).length > 12 ? '+' : ''}` : 'No matching vans'}</div>${matches.length ? matches.map(r => `<div class="result" data-id="${escapeHtml(r.id)}"><div><strong>${escapeHtml(r.van)}</strong><small>${escapeHtml(r.consignee || 'No consignee listed')}${r.status !== 'in-yard' ? ` · ${statusLabel(r)}` : ''}</small><small>${escapeHtml([r.vessel && `Vessel ${r.vessel}`,r.voyage && `Voyage ${r.voyage}`].filter(Boolean).join(' · ') || 'Vessel / voyage not listed')}</small></div><span class="result-loc">${r.bay ? escapeHtml(locationDetail(r)) : 'Not assigned'}</span></div>`).join('') : '<div class="search-empty">Try another van number or consignee name.</div>'}`;
+        results.innerHTML = `<div class="result-heading">${matches.length ? `Search results · ${matches.length}${state.records.filter(r => norm(r.van).includes(q) || norm(r.consignee).includes(q)).length > 12 ? '+' : ''}` : 'No matching vans'}</div>${matches.length ? matches.map(r => `<div class="result" data-id="${escapeHtml(r.id)}"><div class="result-main"><strong>${escapeHtml(r.van)}</strong><small>${escapeHtml(r.consignee || 'No consignee listed')}${r.status !== 'in-yard' ? ` · ${statusLabel(r)}` : ''}</small><small>${escapeHtml([r.vessel && `Vessel ${r.vessel}`,r.voyage && `Voyage ${r.voyage}`].filter(Boolean).join(' · ') || 'Vessel / voyage not listed')}</small><span class="result-loc">${r.bay ? escapeHtml(locationDetail(r)) : 'Not assigned'}</span></div>${r.status === 'withdrawn' ? '' : `<button class="btn small result-assign" data-id="${escapeHtml(r.id)}">${r.bay ? 'Change location' : 'Assign Bay / Block'}</button>`}</div>`).join('') : '<div class="search-empty">Try another van number or consignee name.</div>'}`;
         results.classList.add('open');
-        $$('.result', results).forEach(el => el.addEventListener('click', () => { const rec = state.records.find(r => r.id === el.dataset.id); if (rec?.bay && rec.status !== 'withdrawn') { state.selectedBay = rec.bay; state.selectedBlock = rec.block; state.highlightRecordId = rec.id; setPage('yard'); } else if (rec?.status === 'withdrawn') { state.historyVanId = rec.id; state.historyFilter = 'outgoing'; setPage('history'); } else setPage('loading'); $('#globalSearch').value = rec?.van || ''; results.classList.remove('open'); }));
+        $$('.result', results).forEach(el => el.addEventListener('click', event => { if (event.target.closest('.result-assign')) return; const rec = state.records.find(r => r.id === el.dataset.id); if (rec?.bay && rec.status !== 'withdrawn') { state.selectedBay = rec.bay; state.selectedFace = rec.face || ''; state.selectedBlock = rec.block; state.highlightRecordId = rec.id; setPage('yard'); } else if (rec?.status === 'withdrawn') { state.historyVanId = rec.id; state.historyFilter = 'outgoing'; setPage('history'); } else setPage('loading'); $('#globalSearch').value = rec?.van || ''; results.classList.remove('open'); }));
+        $$('.result-assign', results).forEach(button => button.addEventListener('click', event => { event.stopPropagation(); $('#globalSearch').value = state.records.find(r => r.id === button.dataset.id)?.van || $('#globalSearch').value; showLocationPicker(button.dataset.id); }));
       }
       $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => { if (btn.dataset.page === 'history') { state.historyVanId = ''; state.historyFilter = 'all'; } setPage(btn.dataset.page); }));
       $('#fileInput').addEventListener('change', e => handleSelectedFiles(e.target.files));
@@ -1009,7 +1149,7 @@
       $('#saveShared').addEventListener('click', () => { save(); state.sharedSnapshot = false; $('#sharedBanner').classList.remove('show'); history.replaceState(null, '', location.href.split('#')[0]); toast('Shared snapshot saved on this device'); render(); });
       $('#dismissShared').addEventListener('click', () => { state.sharedSnapshot = false; loadSaved(); $('#sharedBanner').classList.remove('show'); history.replaceState(null, '', location.href.split('#')[0]); render(); });
       if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('./sw.js').catch(() => {});
-      loadSaved(); render(); decodeShared().then(() => { if (state.sharedSnapshot) { state.page = 'yard'; state.selectedBay = BAY_NAMES.find(b => bayItems(b).length) || 'A'; const firstBlock = BLOCKS.find(b => bayItems(state.selectedBay,b).length); state.selectedBlock = firstBlock || '01'; render(); } });
+      loadSaved(); render(); decodeShared().then(() => { if (state.sharedSnapshot) { state.page = 'yard'; const first = assignedRecords()[0]; if (first) { state.selectedBay = first.bay; state.selectedFace = first.face || ''; state.selectedBlock = first.block; } render(); } });
     })();
   </script>
 </body>

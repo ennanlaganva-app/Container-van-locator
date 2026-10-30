@@ -4,17 +4,20 @@ A free, static yard locator for desktop, laptop, Android phones, and tablets.
 
 ## Features
 
-- Five bays (A–E), ten blocks per bay, and 11 positions per block.
-- Block names combine the bay and block number, such as A1.
+- Yard layout: Bay A (11 blocks), Bay B (12), Bay C (7), Bay D front/back (5 each), and Bay E front/back (7 each), for 54 blocks and 594 positions.
+- Block labels identify bay and side, such as A1, D-F1, and E-B1.
 - Four physical stack lanes with capacities 3 / 3 / 3 / 2. Each van gets an exact stack and level; accessible position numbers recalculate after a move.
 - Yard view that highlights a searched van in its exact stack position.
-- Quick shift columns that keep their horizontal working position after a move.
+- Quick shift follows the yard map and moves vans between any two blocks, including across bays and between front/back sections. The current working scroll position stays in place after a move.
+- Search results include direct Bay/side and block assignment.
 - Status dates for CY Stripped and Withdrawn, with a History page for incoming full vans, withdrawals, status changes, and location moves.
 - Import Excel, CSV, TSV, and loading guide photos. Photo review can export a CSV with van number, consignee, vessel, and voyage.
 - Additional guides add new vans and update consignee, vessel, and voyage on existing records while keeping their yard location and status.
 - Print-ready Picking Tags with a manually entered FL operator.
 - Automatic save in the current browser, JSON backups, and point-in-time share links.
 - Android touch layout and a landscape tablet layout. The app supports home-screen installation.
+
+Older Bay D/E locations are mapped to their front/back sections. Older Bay C locations in blocks 8–10 remain in the list as awaiting location because Bay C now has only seven blocks; assign those vans to a current block.
 
 ## Storage and sharing
 
