@@ -34,7 +34,7 @@
     button, input, select { font: inherit; }
     button { cursor: pointer; }
     .app { min-height: 100vh; display: grid; grid-template-columns: 226px minmax(0, 1fr); }
-    .sidebar { background: #fff; border-right: 1px solid var(--line); padding: 22px 14px 16px; display: flex; flex-direction: column; }
+    .sidebar { background: #fff; border-right: 1px solid var(--line); padding: 22px 14px 16px; display: flex; flex-direction: column; position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; overscroll-behavior: contain; z-index: 11; }
     .brand { display: flex; align-items: center; gap: 11px; padding: 0 9px 24px; }
     .brand-mark { width: 34px; height: 34px; border-radius: 10px; background: var(--yellow); display: grid; place-items: center; color: #342c0d; }
     .brand-mark svg { width: 21px; height: 21px; }
@@ -194,6 +194,22 @@
     .stack-label { font-size: 9px; color: #636c67; font-weight: 650; margin-top: 5px; }
     .stack-height { font-size: 8px; color: #9ca19e; margin-top: 2px; }
     .yard-note { color: #919793; font-size: 9px; padding: 0 14px 12px; line-height: 1.5; }
+    .arrival-grid { display: grid; grid-template-columns: minmax(0,1.35fr) minmax(280px,.8fr); gap: 14px; align-items: start; }
+    .arrival-form { display: grid; gap: 12px; padding: 15px; }
+    .arrival-van-entry { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: end; }
+    .arrival-van-entry .field { margin: 0; }
+    .arrival-records { display: grid; gap: 7px; padding: 10px 14px 14px; max-height: 560px; overflow: auto; }
+    .arrival-record { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 10px; border: 1px solid #eceeeb; border-radius: 7px; padding: 9px 10px; background: #fff; }
+    .arrival-record strong { display: block; font-size: 11px; }
+    .arrival-record small { display: block; color: var(--muted); margin-top: 3px; font-size: 10px; }
+    .arrival-location { border-radius: 5px; background: var(--yellow-soft); color: #635316; font-size: 10px; font-weight: 650; padding: 5px 7px; white-space: nowrap; }
+    .keypad-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; margin-top: 10px; }
+    .keypad-key { min-height: 48px; border: 1px solid #e2e5e1; border-radius: 7px; background: #fff; color: var(--ink); font-size: 17px; font-weight: 650; }
+    .keypad-key:hover { border-color: #d1b53e; background: #fffbee; }
+    .keypad-key.utility { background: #f7f8f6; font-size: 12px; }
+    .keypad-hint { color: var(--muted); font-size: 10px; line-height: 1.45; margin-top: 9px; }
+    .type-pill { display: inline-flex; vertical-align: middle; border-radius: 999px; padding: 2px 6px; margin-left: 4px; background: #fff3d0; color: #80600a; font-size: 8px; font-weight: 750; letter-spacing: .03em; }
+    .photo-review-warning { color: #875417; background: #fff7e3; border: 1px solid #f0d995; border-radius: 5px; padding: 3px 6px; font-size: 8px; font-weight: 700; }
     .shift-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
     .shift-bays { display: flex; align-items: center; gap: 6px; }
     .shift-bay-btn { min-width: 72px; border: 1px solid #e1e4df; border-radius: 7px; padding: 8px 10px; background: #fff; color: #5e6661; font-size: 11px; font-weight: 620; }
@@ -300,7 +316,10 @@
     .photo-table th { top: 0; }
     .photo-table td { padding: 5px 8px; }
     .photo-table input { border: 1px solid #e3e6e1; border-radius: 4px; height: 29px; padding: 0 7px; width: 100%; font-size: 10px; }
+    .photo-table select { border: 1px solid #e3e6e1; border-radius: 4px; height: 29px; padding: 0 5px; width: 100%; font-size: 10px; background: #fff; color: var(--ink); }
     .photo-table .row-num { width: 34px; color: #a0a5a1; text-align: center; }
+    .photo-table .photo-container.invalid { border-color: #c46b26; background: #fff8ee; }
+    .photo-validation { display: block; color: #986323; font-size: 8px; line-height: 1.2; margin-top: 3px; }
     .shared-banner { display: none; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid #ead47e; background: #fff8dc; padding: 10px 13px; border-radius: 8px; margin-bottom: 14px; }
     .shared-banner.show { display: flex; }
     .shared-banner strong { display: block; font-size: 11px; }
@@ -317,10 +336,10 @@
     }
     @media (max-width: 760px) {
       .app { display: block; }
-      .sidebar { padding: 5px 8px calc(5px + env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--line); display: flex; flex-direction: row; align-items: center; gap: 0; position: fixed; inset: auto 0 0; z-index: 30; background: rgba(255,255,255,.97); box-shadow: 0 -5px 18px rgba(28,35,32,.06); backdrop-filter: blur(12px); }
+      .sidebar { padding: 5px 8px calc(5px + env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--line); display: flex; flex-direction: row; align-items: center; gap: 0; position: fixed; inset: auto 0 0; height: auto; align-self: auto; overflow: visible; z-index: 30; background: rgba(255,255,255,.97); box-shadow: 0 -5px 18px rgba(28,35,32,.06); backdrop-filter: blur(12px); }
       .brand, .nav-label, .sidebar-spacer, .storage-card, .sidebar-foot { display: none; }
-      .nav { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 4px; width: 100%; }
-      .nav-btn { width: 100%; min-height: 52px; padding: 6px 4px 5px; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; gap: 3px; font-size: 10px; line-height: 1.1; }
+      .nav { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 3px; width: 100%; }
+      .nav-btn { width: 100%; min-height: 52px; padding: 6px 2px 5px; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; gap: 3px; font-size: 9px; line-height: 1.1; }
       .nav-btn svg { width: 18px; height: 18px; }
       .topbar { position: sticky; top: 0; z-index: 10; min-height: 55px; padding: 7px 12px; }
       .crumb, .top-status { display: none; }
@@ -388,6 +407,8 @@
       .shift-scroller { padding: 9px; overscroll-behavior-x: contain; scroll-snap-type: x proximity; }
       .shift-block { scroll-snap-align: start; }
       .shift-route-panels { grid-template-columns: minmax(0,1fr); }
+      .arrival-grid { grid-template-columns: 1fr; }
+      .arrival-records { max-height: 44dvh; }
       .shift-destination-block { width: 154px; min-height: 260px; scroll-snap-align: start; }
       .shift-destination-columns { gap: 6px; }
       .shift-move-any { min-height: 38px !important; padding: 5px 8px !important; font-size: 10px !important; }
@@ -470,6 +491,7 @@
         <button class="nav-btn active" data-page="loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3.8h8l4 4v12.4H6z" stroke-linejoin="round"/><path d="M14 3.8v4h4M9 12h6M9 15.5h6" stroke-linecap="round"/></svg>Loading list</button>
         <button class="nav-btn" data-page="yard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="4" width="7" height="6.5" rx="1"/><rect x="13.5" y="4" width="7" height="6.5" rx="1"/><rect x="3.5" y="13.5" width="7" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="7" height="6.5" rx="1"/></svg>Yard view</button>
         <button class="nav-btn" data-page="shift"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h15m0 0-3-3m3 3-3 3M20 17H5m0 0 3-3m-3 3 3 3" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10v4m5-4v4m5-4v4" stroke-linecap="round"/></svg>Quick shift</button>
+        <button class="nav-btn" data-page="arrival"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7h12l3 4h3v6h-2.5M3 7v10h2.5m0 0a2 2 0 1 0 4 0m-4 0h4m5 0h1m0 0a2 2 0 1 0 4 0" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 3v6m-3-3h6" stroke-linecap="round"/></svg>Actual arrivals</button>
         <button class="nav-btn" data-page="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10" stroke-linecap="round"/><circle cx="18" cy="18" r="3.4"/><path d="M18 16.5V18l1.1.8" stroke-linecap="round"/></svg>History</button>
       </nav>
       <div class="sidebar-spacer"></div>
@@ -496,6 +518,7 @@
         <section id="loadingPage"></section>
         <section id="yardPage" class="hidden"></section>
         <section id="shiftPage" class="hidden"></section>
+        <section id="arrivalPage" class="hidden"></section>
         <section id="historyPage" class="hidden"></section>
       </div>
     </main>
@@ -523,7 +546,7 @@
       const blocksFor = section => Array.from({ length: SECTION_BY_KEY[section]?.blocks || 0 }, (_, i) => String(i + 1).padStart(2, '0'));
       const STACK_CAPACITIES = [3, 3, 3, 2];
       const PAGE_SIZE = 15;
-      const state = { records: [], history: [], page: 'loading', loadingPage: 1, selectedBay: 'A', selectedFace: '', selectedBlock: '01', loadingFilter: 'all', historyFilter: 'all', historyVanId: '', pendingRows: null, pendingFile: '', sharedSnapshot: false, photoObjectUrl: null, ocrRunning: false, shiftFromSection: 'A', shiftToSection: 'A', shiftFromScroll: 0, shiftToScroll: 0, highlightRecordId: '', migratedLocationCount: 0 };
+      const state = { records: [], history: [], page: 'loading', loadingPage: 1, selectedBay: 'A', selectedFace: '', selectedBlock: '01', arrivalSection: 'A', arrivalBlock: '01', loadingFilter: 'all', historyFilter: 'all', historyVanId: '', pendingRows: null, pendingFile: '', sharedSnapshot: false, photoObjectUrl: null, ocrRunning: false, shiftFromSection: 'A', shiftToSection: 'A', shiftFromScroll: 0, shiftToScroll: 0, highlightRecordId: '', migratedLocationCount: 0 };
       let tesseractLoadPromise = null;
       const $ = (selector, root = document) => root.querySelector(selector);
       const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -532,6 +555,23 @@
       function combineConsignees(first, second) {
         const values = [...String(first || '').split(';'), ...String(second || '').split(';')].map(v => v.trim()).filter(Boolean);
         const seen = new Set(); return values.filter(v => { const key = norm(v); if (!key || seen.has(key)) return false; seen.add(key); return true; }).join('; ');
+      }
+      function consigneeParts(value) { const values = String(value || '').split(';').map(v => v.trim()).filter(Boolean); const seen = new Set(); return values.filter(v => { const key = norm(v); if (!key || seen.has(key)) return false; seen.add(key); return true; }); }
+      function deriveLoadType(type, consignee) { return /lcl/i.test(String(type || '')) || consigneeParts(consignee).length > 1 ? 'LCL' : 'FCL'; }
+      function formatContainerNumber(value) {
+        const compact = String(value ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+        return /^([A-Z]{4})([0-9]{7})$/.test(compact) ? `${compact.slice(0,4)} ${compact.slice(4,10)}-${compact.slice(10)}` : String(value ?? '').trim().toUpperCase();
+      }
+      function iso6346CheckDigit(prefix, digits) {
+        const letterValue = letter => { let value = 10; for (let code = 65; code <= letter.charCodeAt(0); code++) { if (value % 11 === 0) value++; if (code === letter.charCodeAt(0)) return value; value++; } return 0; };
+        const characters = `${prefix}${digits}`; let sum = 0;
+        for (let i = 0; i < characters.length; i++) { const value = i < 4 ? letterValue(characters[i]) : Number(characters[i]); sum += value * (2 ** i); }
+        const remainder = sum % 11; return remainder === 10 ? 0 : remainder;
+      }
+      function isCompleteContainerNumber(value) {
+        const compact = String(value ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+        if (!/^[A-Z]{4}[0-9]{7}$/.test(compact)) return false;
+        return Number(compact[10]) === iso6346CheckDigit(compact.slice(0,4),compact.slice(4,10));
       }
       const icon = (name) => ({
         upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4.5 14.5v4A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5v-4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -559,9 +599,10 @@
           if ((bay === 'D' || bay === 'E') && !raw.face && blockNumber > SECTION_BY_KEY[`${bay}-front`].blocks) { face = 'back'; blockNumber -= SECTION_BY_KEY[`${bay}-front`].blocks; }
           const section = sectionKey(bay, face), validBlock = !!bay && blocksFor(section).includes(String(blockNumber).padStart(2, '0'));
           if (trackMigration && bay && rawBlock && !validBlock) state.migratedLocationCount++;
-          const item = { id: key, van, consignee: String(raw.consignee ?? '').trim(), vessel: String(raw.vessel ?? '').trim(), voyage: String(raw.voyage ?? '').trim(), bay: validBlock ? bay : '', face: validBlock ? face : '', block: validBlock ? String(blockNumber).padStart(2, '0') : '', stack: validSlot ? stack : 0, level: validSlot ? level : 0, lastPosition: Number(raw.lastPosition) || 0, status: ['in-yard','cy-stripped','withdrawn'].includes(raw.status) ? raw.status : 'in-yard', cyStrippedAt: String(raw.cyStrippedAt || ''), withdrawnAt: String(raw.withdrawnAt || ''), createdAt: String(raw.createdAt || ''), updatedAt: String(raw.updatedAt || '') };
+          const consignee = String(raw.consignee ?? '').trim();
+          const item = { id: key, van, consignee, loadType: deriveLoadType(raw.loadType ?? raw.type, consignee), vessel: String(raw.vessel ?? '').trim(), voyage: String(raw.voyage ?? '').trim(), bay: validBlock ? bay : '', face: validBlock ? face : '', block: validBlock ? String(blockNumber).padStart(2, '0') : '', stack: validSlot ? stack : 0, level: validSlot ? level : 0, lastPosition: Number(raw.lastPosition) || 0, status: ['in-yard','cy-stripped','withdrawn'].includes(raw.status) ? raw.status : 'in-yard', cyStrippedAt: String(raw.cyStrippedAt || ''), withdrawnAt: String(raw.withdrawnAt || ''), createdAt: String(raw.createdAt || ''), updatedAt: String(raw.updatedAt || '') };
           const old = seen.get(key);
-          if (old) { old.consignee = combineConsignees(old.consignee, item.consignee); if (item.bay && item.block) { old.bay = item.bay; old.face = item.face; old.block = item.block; } if (item.vessel) old.vessel = item.vessel; if (item.voyage) old.voyage = item.voyage; if (item.stack && item.level) { old.stack = item.stack; old.level = item.level; } if (item.lastPosition) old.lastPosition = item.lastPosition; if (item.withdrawnAt) old.withdrawnAt = item.withdrawnAt; if (item.cyStrippedAt) old.cyStrippedAt = item.cyStrippedAt; if (item.status !== 'in-yard') old.status = item.status; }
+          if (old) { old.consignee = combineConsignees(old.consignee, item.consignee); old.loadType = deriveLoadType(`${old.loadType} ${item.loadType}`, old.consignee); if (item.bay && item.block) { old.bay = item.bay; old.face = item.face; old.block = item.block; } if (item.vessel) old.vessel = item.vessel; if (item.voyage) old.voyage = item.voyage; if (item.stack && item.level) { old.stack = item.stack; old.level = item.level; } if (item.lastPosition) old.lastPosition = item.lastPosition; if (item.withdrawnAt) old.withdrawnAt = item.withdrawnAt; if (item.cyStrippedAt) old.cyStrippedAt = item.cyStrippedAt; if (item.status !== 'in-yard') old.status = item.status; }
           else seen.set(key, item);
         }
         return Array.from(seen.values());
@@ -582,7 +623,7 @@
       function firstOpenBlock(bay, face = '', exceptId = '') { const section = sectionKey(bay, face); return blocksFor(section).find(b => blockCount(bay, b, exceptId, face) < 11) || ''; }
       function freeSlots(bay, block, exceptId = '', face = '') {
         const used = new Set(state.records.filter(r => r.id !== exceptId && r.status !== 'withdrawn' && r.bay === bay && normalizeFace(r.bay, r.face) === normalizeFace(bay, face) && r.block === block && r.stack && r.level).map(r => `${r.stack}:${r.level}`));
-        return STACK_CAPACITIES.flatMap((capacity, index) => Array.from({ length: capacity }, (_, level) => ({ stack: index + 1, level: level + 1 })).filter(slot => !used.has(`${slot.stack}:${slot.level}`)));
+        return STACK_CAPACITIES.map((_, index) => index + 1).reverse().flatMap(stack => Array.from({ length: STACK_CAPACITIES[stack - 1] }, (_, level) => ({ stack, level: level + 1 })).filter(slot => !used.has(`${slot.stack}:${slot.level}`)));
       }
       function assignFreeSlot(record, bay = record.bay, block = record.block, face = record.face) {
         const slot = freeSlots(bay, block, record.id, face)[0];
@@ -599,7 +640,7 @@
       }
       function positionNumber(record) {
         if (!record?.stack || !record?.level) return 0;
-        const ordered = bayItems(record.bay, record.block, record.face).filter(r => r.stack && r.level).sort((a,b) => a.stack - b.stack || b.level - a.level);
+        const ordered = bayItems(record.bay, record.block, record.face).filter(r => r.stack && r.level).sort((a,b) => b.stack - a.stack || a.level - b.level);
         return ordered.findIndex(r => r.id === record.id) + 1;
       }
       function describePosition(stack, level, bay = state.selectedBay, block = state.selectedBlock, face = state.selectedFace) {
@@ -612,7 +653,7 @@
       function statusClass(record) { return record.status === 'withdrawn' ? 'withdrawn' : record.status === 'cy-stripped' ? 'stripped' : ''; }
       function addHistory(type, record, detail = '', from = '') {
         const at = new Date().toISOString();
-        state.history.unshift({ id: `${Date.now()}-${Math.random().toString(36).slice(2,8)}`, at, type, van: record?.van || '', consignee: record?.consignee || '', vessel: record?.vessel || '', voyage: record?.voyage || '', bay: record?.bay || '', face: record?.face || '', block: record?.block || '', stack: record?.stack || 0, level: record?.level || 0, from, detail });
+        state.history.unshift({ id: `${Date.now()}-${Math.random().toString(36).slice(2,8)}`, at, type, van: record?.van || '', consignee: record?.consignee || '', loadType: record?.loadType || 'FCL', vessel: record?.vessel || '', voyage: record?.voyage || '', bay: record?.bay || '', face: record?.face || '', block: record?.block || '', stack: record?.stack || 0, level: record?.level || 0, from, detail });
       }
       function moveToBlock(record, bay, block, face = record.face, eventType = 'location-move') {
         const before = record.bay ? locationDetail(record) : 'Not assigned';
@@ -625,14 +666,15 @@
         addHistory(eventType, record, `${before} → ${locationDetail(record)}`, before);
         return true;
       }
-      function render() { renderLoading(); renderYard(); renderShift(); renderHistory(); updateNav(); }
+      function render() { renderLoading(); renderYard(); renderShift(); renderArrival(); renderHistory(); updateNav(); }
       function updateNav() {
         $$('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.page === state.page));
         $('#loadingPage').classList.toggle('hidden', state.page !== 'loading');
         $('#yardPage').classList.toggle('hidden', state.page !== 'yard');
         $('#shiftPage').classList.toggle('hidden', state.page !== 'shift');
+        $('#arrivalPage').classList.toggle('hidden', state.page !== 'arrival');
         $('#historyPage').classList.toggle('hidden', state.page !== 'history');
-        $('#crumbPage').textContent = state.page === 'loading' ? 'Loading list' : state.page === 'yard' ? 'Yard view' : state.page === 'history' ? 'History' : 'Quick shift';
+        $('#crumbPage').textContent = state.page === 'loading' ? 'Loading list' : state.page === 'yard' ? 'Yard view' : state.page === 'history' ? 'History' : state.page === 'arrival' ? 'Actual arrivals' : 'Quick shift';
       }
       function renderLoading() {
         const total = state.records.length, placed = assignedRecords().length, pending = state.records.filter(r => r.status !== 'withdrawn' && (!r.bay || !r.block)).length;
@@ -641,7 +683,7 @@
         const start = (state.loadingPage - 1) * PAGE_SIZE;
         const rows = visible.slice(start, start + PAGE_SIZE);
         const tableBody = rows.length ? rows.map(r => `<tr>
-          <td class="van-cell">${escapeHtml(r.van)}</td><td class="consignee" title="${escapeHtml(r.consignee)}">${escapeHtml(r.consignee || '—')}<span class="record-meta"><span class="status-pill ${statusClass(r)}">${statusLabel(r)}</span>${statusTimestamp(r) ? ` · ${escapeHtml(statusTimestamp(r))}` : ''}</span></td><td class="vessel-cell">${escapeHtml([r.vessel && `Vessel ${r.vessel}`, r.voyage && `Voyage ${r.voyage}`].filter(Boolean).join(' · ') || '—')}</td>
+          <td class="van-cell">${escapeHtml(r.van)}</td><td class="consignee" title="${escapeHtml(r.consignee)}">${escapeHtml(r.consignee || '—')}${r.loadType === 'LCL' ? '<span class="type-pill">LCL</span>' : ''}<span class="record-meta"><span class="status-pill ${statusClass(r)}">${statusLabel(r)}</span>${statusTimestamp(r) ? ` · ${escapeHtml(statusTimestamp(r))}` : ''}</span></td><td class="vessel-cell">${escapeHtml([r.vessel && `Vessel ${r.vessel}`, r.voyage && `Voyage ${r.voyage}`].filter(Boolean).join(' · ') || '—')}</td>
           <td><span class="loc-pill ${r.bay ? 'assigned' : 'pending'}">${r.bay ? escapeHtml(formatLocation(r)) : 'Not assigned'}</span></td>
           <td><div class="assign-cell"><select class="assign-select" aria-label="Assign ${escapeHtml(r.van)} to a bay and side" data-field="section" data-id="${escapeHtml(r.id)}" ${r.status === 'withdrawn' ? 'disabled' : ''}><option value="">Choose bay</option>${SECTION_CONFIG.map(section => `<option value="${section.key}" ${sectionForRecord(r) === section.key ? 'selected' : ''}>${escapeHtml(section.label)}</option>`).join('')}</select><select class="assign-select block" aria-label="Choose a block" data-field="block" data-id="${escapeHtml(r.id)}" ${r.bay && r.status !== 'withdrawn' ? '' : 'disabled'}><option value="">Block</option>${blocksFor(sectionForRecord(r) || 'A').map(b => `<option value="${b}" ${r.block === b ? 'selected' : ''}>${sectionBlockLabel(sectionForRecord(r) || 'A',b)}</option>`).join('')}</select></div></td>
           <td><button class="btn text small danger remove-record" data-id="${escapeHtml(r.id)}" title="Remove van">Remove</button></td></tr>`).join('') : '';
@@ -653,9 +695,9 @@
             <div class="stat"><div class="stat-label">Awaiting location <span class="stat-icon">${icon('clock')}</span></div><div class="stat-value">${pending.toLocaleString()}</div><div class="stat-foot">Ready to be placed in the yard</div></div>
             <div class="stat"><div class="stat-label">Yard capacity <span class="stat-icon">${icon('bays')}</span></div><div class="stat-value">${(YARD_BLOCK_TOTAL * 11).toLocaleString()}</div><div class="stat-foot">${YARD_BLOCK_TOTAL} blocks · 11 slots per block</div></div>
           </div>
-          <div class="guide-note">Incoming guides add new vans and refresh consignee, vessel, and voyage details on matching van numbers. Existing yard locations and status are kept.</div>
+          <div class="guide-note">Incoming guides add new vans and refresh consignee, vessel, and voyage details on matching van numbers. Photo imports target the Container No. and Consignee Name columns, flag incomplete or invalid container check digits, and export in Consignee Finder CSV format. Existing yard locations and status are kept.</div>
           <div class="panel">
-            <div class="panel-head"><div><div class="panel-title">Loading guide data</div><div class="panel-sub">Van number and consignee are read from your file.</div></div><span class="panel-meta">${total.toLocaleString()} ${total === 1 ? 'van' : 'vans'}</span></div>
+            <div class="panel-head"><div><div class="panel-title">Loading guide data</div><div class="panel-sub">Van number and consignee are read from your file; multiple consignees for one van are marked LCL.</div></div><span class="panel-meta">${total.toLocaleString()} ${total === 1 ? 'van' : 'vans'}</span></div>
             <div class="dropzone" id="dropzone"><div class="drop-icon">${icon('upload')}</div><div class="drop-copy"><strong>Drop a loading guide here</strong><span>Excel / CSV, or select several guide photos · JPG, PNG, WEBP</span></div><span class="drop-hint">or</span><button class="btn small" id="browseBtn">Browse files</button></div>
             <div class="table-tools"><div class="table-info">${visible.length ? `Showing ${start + 1}–${Math.min(start + PAGE_SIZE, visible.length)} of ${visible.length}` : 'No rows to show'}</div><div class="filter-line"><span class="table-info">Show</span><select id="loadingFilter" class="filter-select"><option value="all" ${state.loadingFilter === 'all' ? 'selected' : ''}>All vans</option><option value="pending" ${state.loadingFilter === 'pending' ? 'selected' : ''}>Awaiting location</option><option value="placed" ${state.loadingFilter === 'placed' ? 'selected' : ''}>Assigned</option></select></div></div>
             ${total ? `<div class="table-scroll"><table><thead><tr><th>Van number</th><th>Consignee / status</th><th>Vessel / voyage</th><th>Current location</th><th>Assign bay / block</th><th></th></tr></thead><tbody>${tableBody || '<tr><td colspan="6"><div class="empty-state"><strong>No matching vans</strong><p>Change the list filter to see other records.</p></div></td></tr>'}</tbody></table></div>
@@ -695,6 +737,66 @@
         const dz = $('#dropzone');
         if (dz) { dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); }); dz.addEventListener('dragleave', () => dz.classList.remove('dragover')); dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); handleSelectedFiles(e.dataTransfer.files); }); }
       }
+      function arrivalBlockOptions(section, selected = '') {
+        const info = SECTION_BY_KEY[section]; if (!info) return '<option value="">Choose block</option>';
+        return `<option value="">Choose block</option>${blocksFor(section).map(block => { const full = blockCount(info.bay, block, '', info.face) >= 11; return `<option value="${block}" ${block === selected ? 'selected' : ''} ${full ? 'disabled' : ''}>${sectionBlockLabel(section,block)}${full ? ' · Full' : ''}</option>`; }).join('')}`;
+      }
+      function renderArrival() {
+        const info = SECTION_BY_KEY[state.arrivalSection] || SECTION_BY_KEY.A;
+        const firstOpen = firstOpenBlock(info.bay, info.face);
+        if (!blocksFor(state.arrivalSection).includes(state.arrivalBlock) || blockCount(info.bay, state.arrivalBlock, '', info.face) >= 11) state.arrivalBlock = firstOpen || '';
+        const arrivals = state.history.filter(event => event.type === 'incoming-full').slice(0, 10);
+        const recentRows = arrivals.length ? arrivals.map(event => `<div class="arrival-record"><div><strong>${escapeHtml(event.van)}${event.loadType === 'LCL' ? '<span class="type-pill">LCL</span>' : ''}</strong><small>${escapeHtml(event.consignee || 'No consignee listed')} · ${escapeHtml(formatTime(event.at))}</small></div><span class="arrival-location">${escapeHtml(sectionBlockLabel(sectionKey(event.bay,event.face),event.block))}</span></div>`).join('') : '<div class="empty-state"><strong>No actual arrivals recorded yet</strong><p>Vans put away from this page will appear here.</p></div>';
+        $('#arrivalPage').innerHTML = `<div class="page-head"><div><div class="eyebrow">Physical yard intake</div><h1>Actual arrivals</h1><p class="page-desc">Record a van when it physically arrives, then put it straight into its bay and block.</p></div><div class="head-actions"><button class="btn" id="arrivalExport">${icon('download')}Backup</button><button class="btn primary" id="arrivalShare">${icon('share')}Share snapshot</button></div></div><div class="stats"><div class="stat"><div class="stat-label">Vans in loading guide</div><div class="stat-value">${state.records.length.toLocaleString()}</div><div class="stat-foot">Guides can arrive ahead of the actual van</div></div><div class="stat"><div class="stat-label">Waiting for a yard slot</div><div class="stat-value">${state.records.filter(r => r.status !== 'withdrawn' && !r.bay).length.toLocaleString()}</div><div class="stat-foot">Imported but not yet put away</div></div><div class="stat"><div class="stat-label">Incoming put-away history</div><div class="stat-value">${state.history.filter(event => event.type === 'incoming-full').length.toLocaleString()}</div><div class="stat-foot">Actual arrivals and guide additions</div></div><div class="stat"><div class="stat-label">Total yard capacity</div><div class="stat-value">${(YARD_BLOCK_TOTAL * 11).toLocaleString()}</div><div class="stat-foot">${YARD_BLOCK_TOTAL} blocks across all bays</div></div></div><div class="arrival-grid"><div class="panel"><div class="panel-head"><div><div class="panel-title">Put away an arrived van</div><div class="panel-sub">Match a loading-guide record or enter a van that was not listed.</div></div></div><div class="arrival-form"><div class="arrival-van-entry"><div class="field"><label for="arrivalVan">Van number</label><input id="arrivalVan" type="text" autocomplete="off" autocapitalize="characters" placeholder="e.g. PSAU 318205-7" aria-label="Van number for actual arrival"></div><button class="btn" id="arrivalKeypad" type="button">Number pad</button></div><div id="arrivalMatch" class="modal-info">Enter the full van number. Use the keypad for its digits; type the four-letter prefix normally.</div><div class="field"><label for="arrivalConsignee">Consignee name</label><input id="arrivalConsignee" type="text" placeholder="Consignee or multiple names separated by semicolons"></div><div class="field-row"><div class="field"><label for="arrivalVessel">Vessel</label><input id="arrivalVessel" type="text" placeholder="Vessel name"></div><div class="field"><label for="arrivalVoyage">Voyage</label><input id="arrivalVoyage" type="text" placeholder="Voyage number"></div></div><div class="field-row"><div class="field"><label for="arrivalLoadType">Load type</label><select id="arrivalLoadType"><option value="">Automatic</option><option value="FCL">FCL</option><option value="LCL">LCL</option></select></div><div class="field"><label for="arrivalSection">Bay / side</label><select id="arrivalSection">${SECTION_CONFIG.map(section => `<option value="${section.key}" ${section.key === state.arrivalSection ? 'selected' : ''}>${escapeHtml(section.label)}</option>`).join('')}</select></div></div><div class="field"><label for="arrivalBlock">Block</label><select id="arrivalBlock">${arrivalBlockOptions(state.arrivalSection,state.arrivalBlock)}</select></div><div class="modal-info">The app assigns the first open stack position, starting at the rear bottom. Arrival time and exact location are added to History.</div><button class="btn primary" id="recordArrival">Record arrival and put away</button></div></div><div class="panel"><div class="panel-head"><div><div class="panel-title">Recent actual arrivals</div><div class="panel-sub">Latest incoming vans with their assigned yard locations.</div></div><span class="panel-meta">${arrivals.length} shown</span></div><div class="arrival-records">${recentRows}</div></div></div>`;
+        $('#arrivalExport')?.addEventListener('click', exportBackup); $('#arrivalShare')?.addEventListener('click', shareSnapshot);
+        $('#arrivalSection')?.addEventListener('change', event => { state.arrivalSection = event.target.value; const sectionInfo = SECTION_BY_KEY[state.arrivalSection]; state.arrivalBlock = firstOpenBlock(sectionInfo.bay,sectionInfo.face) || ''; $('#arrivalBlock').innerHTML = arrivalBlockOptions(state.arrivalSection,state.arrivalBlock); });
+        $('#arrivalBlock')?.addEventListener('change', event => { state.arrivalBlock = event.target.value; });
+        $('#arrivalVan')?.addEventListener('input', updateArrivalMatch); $('#arrivalVan')?.addEventListener('change', updateArrivalMatch);
+        $('#arrivalKeypad')?.addEventListener('click', showArrivalKeypad);
+        $('#recordArrival')?.addEventListener('click', recordActualArrival);
+      }
+      function updateArrivalMatch() {
+        const input = $('#arrivalVan'), matchBox = $('#arrivalMatch'); if (!input || !matchBox) return;
+        const record = state.records.find(item => item.id === norm(input.value));
+        if (!record) { $('#arrivalConsignee').value = ''; $('#arrivalVessel').value = ''; $('#arrivalVoyage').value = ''; $('#arrivalLoadType').value = ''; matchBox.textContent = input.value.trim() ? 'No exact loading-guide match. This arrival will be added as a new van.' : 'Enter the full van number. Use the keypad for its digits; type the four-letter prefix normally.'; return; }
+        $('#arrivalConsignee').value = record.consignee || '';
+        $('#arrivalVessel').value = record.vessel || ''; $('#arrivalVoyage').value = record.voyage || '';
+        $('#arrivalLoadType').value = record.loadType || '';
+        matchBox.textContent = record.status === 'withdrawn' ? 'Matched a previously withdrawn van. Recording arrival will return it to active yard stock.' : record.bay ? `This van is already assigned to ${formatLocation(record)}.` : 'Loading-guide match found. Confirm the actual arrival location below.';
+      }
+      function showArrivalKeypad() {
+        const input = $('#arrivalVan'); if (!input) return;
+        const keys = ['1','2','3','4','5','6','7','8','9','Space','0','⌫','Clear','-','Done'];
+        modal(`<div class="modal-head"><div><h2>Van number keypad</h2><p>Type the prefix in the van field, then enter its digits here.</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="field"><label for="keypadVanPreview">Van number</label><input id="keypadVanPreview" type="text" value="${escapeHtml(input.value)}" readonly></div><div class="keypad-grid">${keys.map(key => `<button class="keypad-key ${['Space','⌫','Clear','-','Done'].includes(key) ? 'utility' : ''}" type="button" data-keypad-value="${escapeHtml(key)}">${key === 'Space' ? 'Space' : escapeHtml(key)}</button>`).join('')}</div><div class="keypad-hint">Use the letters on your regular keyboard for the container prefix. The number pad writes directly into the van number field.</div></div>`);
+        const preview = $('#keypadVanPreview');
+        $$('[data-keypad-value]').forEach(button => button.addEventListener('click', () => {
+          const key = button.dataset.keypadValue;
+          if (key === 'Done') { closeModal(); input.focus(); return; }
+          if (key === 'Clear') input.value = '';
+          else { const start = input.selectionStart ?? input.value.length, end = input.selectionEnd ?? start; if (key === '⌫') { const cursor = start === end ? Math.max(0,start - 1) : start; input.setRangeText('',cursor,end,'end'); } else input.setRangeText(key === 'Space' ? ' ' : key,start,end,'end'); }
+          preview.value = input.value; input.dispatchEvent(new Event('input',{ bubbles:true }));
+        }));
+      }
+      function recordActualArrival() {
+        const van = $('#arrivalVan').value.trim().replace(/\s+/g,' ').toUpperCase();
+        const section = SECTION_BY_KEY[$('#arrivalSection').value], block = $('#arrivalBlock').value;
+        if (!van) { toast('Enter a van number'); $('#arrivalVan').focus(); return; }
+        if (!isCompleteContainerNumber(van)) { toast('Enter the full container number: four letters, six digits, and its check digit'); $('#arrivalVan').focus(); return; }
+        if (!section || !block) { toast('Choose a bay and block with space'); return; }
+        if (blockCount(section.bay,block,'',section.face) >= 11 || !freeSlots(section.bay,block,'',section.face).length) { toast(`${sectionBlockLabel(state.arrivalSection,block)} is full; choose another block`); return; }
+        let record = state.records.find(item => item.id === norm(van));
+        if (record?.bay && record.status !== 'withdrawn') { toast(`${record.van} is already in the yard at ${formatLocation(record)}`); return; }
+        const at = new Date().toISOString(), consignee = $('#arrivalConsignee').value.trim(), isNew = !record;
+        if (!record) { record = { id:norm(van), van:formatContainerNumber(van), consignee:'', loadType:'FCL', vessel:'', voyage:'', bay:'', face:'', block:'', stack:0, level:0, status:'in-yard', cyStrippedAt:'', withdrawnAt:'', createdAt:at, updatedAt:at }; state.records.push(record); }
+        const previous = isNew ? null : { ...record };
+        if (consignee) record.consignee = combineConsignees(record.consignee,consignee);
+        record.loadType = deriveLoadType($('#arrivalLoadType').value || record.loadType,record.consignee);
+        record.vessel = $('#arrivalVessel').value.trim() || record.vessel; record.voyage = $('#arrivalVoyage').value.trim() || record.voyage;
+        record.status = 'in-yard'; record.withdrawnAt = ''; record.cyStrippedAt = '';
+        if (!moveToBlock(record,section.bay,block,section.face,'incoming-full')) { if (isNew) state.records = state.records.filter(item => item !== record); else Object.assign(record,previous); toast('No open stack position in that block'); return; }
+        state.arrivalBlock = firstOpenBlock(section.bay,section.face) || '';
+        save(); render(); $('#arrivalVan').focus(); toast(`${record.van} recorded at ${sectionBlockLabel(state.arrivalSection,block)}`);
+      }
       function renderYard() {
         const bayCounts = Object.fromEntries(BAY_NAMES.map(b => [b, bayItems(b).length]));
         const selectedSection = sectionKey(state.selectedBay, state.selectedFace);
@@ -704,15 +806,15 @@
           const count = sectionItems(selectedSection, block).length;
           return `<button class="block-card ${state.selectedBlock === block ? 'selected' : ''}" data-block="${block}"><div class="block-name">${sectionBlockLabel(selectedSection, block)}</div><div class="block-card-foot"><span>${count ? 'In use' : 'Empty'}</span><strong>${count} / 11</strong></div><div class="block-bar"><span style="width:${Math.min(100, count / 11 * 100)}%"></span></div></button>`;
         }).join('');
-        const selectedItems = sectionItems(selectedSection, state.selectedBlock).sort((a,b) => a.stack - b.stack || b.level - a.level || a.van.localeCompare(b.van, undefined, { numeric: true }));
+        const selectedItems = sectionItems(selectedSection, state.selectedBlock).sort((a,b) => positionNumber(a) - positionNumber(b) || a.van.localeCompare(b.van, undefined, { numeric: true }));
         const stackLanes = STACK_CAPACITIES.map((height,i) => `<div class="stack-lane"><div class="stack-pile">${Array.from({ length: height }, (_, j) => {
           const level = j + 1, record = selectedItems.find(r => r.stack === i + 1 && r.level === level), position = record ? positionNumber(record) : '';
           return `<button class="stack-slot ${record ? '' : 'empty'} ${record?.id === state.highlightRecordId ? 'selected' : ''}" data-stack-slot="${i + 1}:${level}" ${record ? `data-id="${escapeHtml(record.id)}"` : ''} title="${record ? `${record.van} · ${record.consignee || 'No consignee'} · Position ${position}` : `Open slot · Stack ${i + 1}, level ${level}`}" aria-label="${record ? `${record.van}, position ${position}, stack ${i + 1}, level ${level}` : `Move a van to stack ${i + 1}, level ${level}`}" ><span class="stack-slot-number">${record ? `#${position}` : 'Open'}</span><span class="stack-slot-van">${record ? escapeHtml(record.van) : `Level ${level}`}</span></button>`;
         }).join('')}</div><div class="stack-label">Stack ${i + 1}</div><div class="stack-height">${height} high</div></div>`).join('');
         const inventory = selectedItems.length ? selectedItems.map(r => {
-          const slots = STACK_CAPACITIES.flatMap((capacity, index) => Array.from({ length: capacity }, (_, level) => ({ stack:index + 1, level:level + 1 })));
+          const slots = STACK_CAPACITIES.map((_,index) => index + 1).reverse().flatMap(stack => Array.from({ length: STACK_CAPACITIES[stack - 1] }, (_, level) => ({ stack, level:level + 1 })));
           const occupied = new Set(state.records.filter(other => other.id !== r.id && other.status !== 'withdrawn' && sectionForRecord(other) === sectionForRecord(r) && other.block === r.block).map(other => `${other.stack}:${other.level}`));
-          return `<div class="inventory-row" id="van-row-${escapeHtml(r.id)}"><div class="inventory-primary"><strong>${escapeHtml(r.van)}</strong><span title="${escapeHtml(r.consignee)}">${escapeHtml(r.consignee || 'No consignee listed')}</span><span class="record-meta">${escapeHtml([r.vessel && `Vessel ${r.vessel}`, r.voyage && `Voyage ${r.voyage}`].filter(Boolean).join(' · ') || 'Vessel / voyage not listed')}</span><span class="record-meta"><span class="status-pill ${statusClass(r)}">${statusLabel(r)}</span>${statusTimestamp(r) ? ` · ${escapeHtml(statusTimestamp(r))}` : ''}</span></div><div class="record-actions"><select class="assign-select slot-select" data-slot-record="${escapeHtml(r.id)}" aria-label="Change ${escapeHtml(r.van)} stack position">${slots.map(slot => { const value = `${slot.stack}:${slot.level}`, current = r.stack === slot.stack && r.level === slot.level; return `<option value="${value}" ${current ? 'selected' : ''} ${!current && occupied.has(value) ? 'disabled' : ''}>S${slot.stack} · L${slot.level}${current ? ` · Pos ${positionNumber(r)}` : ''}</option>`; }).join('')}</select><button class="btn small status-cy" data-id="${escapeHtml(r.id)}" ${r.status === 'cy-stripped' || r.status === 'withdrawn' ? 'disabled' : ''}>CY Stripped</button><button class="btn small status-withdraw" data-id="${escapeHtml(r.id)}" ${r.status === 'withdrawn' ? 'disabled' : ''}>Withdrawn</button><button class="btn small picking-tag" data-id="${escapeHtml(r.id)}">Picking tag</button></div></div>`;
+          return `<div class="inventory-row" id="van-row-${escapeHtml(r.id)}"><div class="inventory-primary"><strong>${escapeHtml(r.van)}${r.loadType === 'LCL' ? '<span class="type-pill">LCL</span>' : ''}</strong><span title="${escapeHtml(r.consignee)}">${escapeHtml(r.consignee || 'No consignee listed')}</span><span class="record-meta">${escapeHtml([r.vessel && `Vessel ${r.vessel}`, r.voyage && `Voyage ${r.voyage}`].filter(Boolean).join(' · ') || 'Vessel / voyage not listed')}</span><span class="record-meta"><span class="status-pill ${statusClass(r)}">${statusLabel(r)}</span>${statusTimestamp(r) ? ` · ${escapeHtml(statusTimestamp(r))}` : ''}</span></div><div class="record-actions"><select class="assign-select slot-select" data-slot-record="${escapeHtml(r.id)}" aria-label="Change ${escapeHtml(r.van)} stack position">${slots.map(slot => { const value = `${slot.stack}:${slot.level}`, current = r.stack === slot.stack && r.level === slot.level; return `<option value="${value}" ${current ? 'selected' : ''} ${!current && occupied.has(value) ? 'disabled' : ''}>S${slot.stack} · L${slot.level}${current ? ` · Pos ${positionNumber(r)}` : ''}</option>`; }).join('')}</select><button class="btn small status-cy" data-id="${escapeHtml(r.id)}" ${r.status === 'cy-stripped' || r.status === 'withdrawn' ? 'disabled' : ''}>CY Stripped</button><button class="btn small status-withdraw" data-id="${escapeHtml(r.id)}" ${r.status === 'withdrawn' ? 'disabled' : ''}>Withdrawn</button><button class="btn small picking-tag" data-id="${escapeHtml(r.id)}">Picking tag</button></div></div>`;
         }).join('') : `<div class="empty-state" style="padding:25px 10px"><strong>This block is empty</strong><p>Assign vans from the loading list to ${sectionBlockLabel(selectedSection, state.selectedBlock)}.</p><button class="btn small open-loading">Go to loading list</button></div>`;
         const bayCards = BAY_NAMES.map(bay => {
           const sectionKeys = SECTION_CONFIG.filter(section => section.bay === bay);
@@ -725,7 +827,7 @@
           <div class="panel"><div class="panel-head"><div><div class="panel-title">Bay overview</div><div class="panel-sub">Choose a bay. D and E have separate front and back sections.</div></div><span class="panel-meta">${assignedRecords().length} vans placed</span></div><div class="bay-strip">${bayCards}</div></div>
           <div class="yard-lower"><div class="panel"><div class="panel-head"><div><div class="panel-title">${sectionLabel(selectedSection)} blocks</div><div class="panel-sub">Block labels identify their bay and side. Each block holds 11 positions.</div></div><span class="panel-meta">${sectionCount} vans · ${blocks.length} blocks</span></div><div class="blocks">${blocksHtml}</div></div>
             <div class="yard-side"><div class="panel"><div class="panel-head"><div><div class="panel-title">${sectionBlockLabel(selectedSection, state.selectedBlock)} inventory</div><div class="panel-sub">Stack lanes follow the access order from front to rear.</div></div><span class="panel-meta">${selectedItems.length} / 11 vans</span></div><div class="inventory-list">${inventory}</div></div>
-            <div class="panel"><div class="panel-head"><div><div class="panel-title">Exact stack positions</div><div class="panel-sub">Select an open tile to place a van in this block.</div></div></div><div class="stack-plan"><div class="stack-caption"><span>FRONT</span><span>REAR</span></div><div class="stack-bays">${stackLanes}</div></div><div class="yard-note">Capacities: 3 / 3 / 3 / 2. Position #1 is the first accessible van; numbers update after each stack move.</div></div></div>
+            <div class="panel"><div class="panel-head"><div><div class="panel-title">Exact stack positions</div><div class="panel-sub">Select an open tile to place a van in this block.</div></div></div><div class="stack-plan"><div class="stack-caption"><span>FRONT</span><span>REAR</span></div><div class="stack-bays">${stackLanes}</div></div><div class="yard-note">Capacities: 3 / 3 / 3 / 2. Position #1 starts at the rear stack bottom, counts upward, then continues stack by stack toward the front.</div></div></div>
           </div>`;
         $$('[data-yard-section]').forEach(btn => btn.addEventListener('click', () => { const info = SECTION_BY_KEY[btn.dataset.yardSection]; if (!info) return; state.selectedBay = info.bay; state.selectedFace = info.face; state.selectedBlock = '01'; state.highlightRecordId = ''; renderYard(); }));
         $$('.block-card').forEach(btn => btn.addEventListener('click', () => { state.selectedBlock = btn.dataset.block; renderYard(); }));
@@ -786,13 +888,13 @@
       }
       function showPickingTag(id) {
         const record = state.records.find(r => r.id === id); if (!record) return;
-        modal(`<div class="modal-head"><div><h2>Picking tag</h2><p>Prepare a print-ready tag for this van.</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="field"><label for="flOperator">FL operator · manually inputted</label><input id="flOperator" maxlength="80" placeholder="Enter operator name"></div><div class="modal-info">${escapeHtml(record.van)} · ${escapeHtml(record.consignee || 'No consignee')} · ${escapeHtml(locationDetail(record))}</div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button id="printPickingTag" class="btn primary">Print picking tag</button></div></div>`);
+        modal(`<div class="modal-head"><div><h2>Picking tag</h2><p>Prepare a print-ready tag for this van.</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="field"><label for="flOperator">FL operator · manually inputted</label><input id="flOperator" maxlength="80" placeholder="Enter operator name"></div><div class="modal-info">${escapeHtml(record.van)} · ${escapeHtml(record.consignee || 'No consignee')} · ${record.loadType === 'LCL' ? 'LCL · ' : ''}${escapeHtml(locationDetail(record))}</div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button id="printPickingTag" class="btn primary">Print picking tag</button></div></div>`);
         $('#printPickingTag').addEventListener('click', () => { const operator = $('#flOperator').value.trim(); if (!operator) { $('#flOperator').focus(); toast('Enter the FL operator name'); return; } closeModal(); printPickingTag(record, operator); });
       }
       function printPickingTag(record, operator) {
         const field = (label,value) => `<div class="tag-field"><span class="tag-label">${escapeHtml(label)}</span><span class="tag-value">${escapeHtml(value || '—')}</span></div>`;
         const area = document.createElement('div'); area.id = 'printArea';
-        area.innerHTML = `<article class="tag-paper"><h1>PICKING TAG</h1>${field('Date', formatTime(new Date().toISOString()))}${field('Van No.', record.van)}${field('Consignee name', record.consignee)}${field('Voyage', record.voyage)}${field('Vessel', record.vessel)}${field('Van location', locationDetail(record))}${field('FL operator', operator)}</article>`;
+        area.innerHTML = `<article class="tag-paper"><h1>PICKING TAG</h1>${field('Date', formatTime(new Date().toISOString()))}${field('Van No.', record.van)}${field('Consignee name', record.consignee)}${field('Load type', record.loadType || 'FCL')}${field('Voyage', record.voyage)}${field('Vessel', record.vessel)}${field('Van location', locationDetail(record))}${field('FL operator', operator)}</article>`;
         document.body.appendChild(area);
         const cleanup = () => area.remove(); window.addEventListener('afterprint', cleanup, { once: true });
         setTimeout(() => { window.print(); setTimeout(cleanup, 1500); }, 100);
@@ -884,7 +986,7 @@
         $('#historyExport')?.addEventListener('click', exportBackup);
       }
       let draggedVanId = '';
-      function setPage(page) { state.page = page; updateNav(); if (page === 'yard') renderYard(); else if (page === 'shift') renderShift(); else if (page === 'history') renderHistory(); else renderLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      function setPage(page) { state.page = page; updateNav(); if (page === 'yard') renderYard(); else if (page === 'shift') renderShift(); else if (page === 'arrival') renderArrival(); else if (page === 'history') renderHistory(); else renderLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
       function toast(message) { const el = $('#toast'); el.textContent = message; el.classList.add('show'); clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.remove('show'), 2600); }
       function exportBackup() {
         const blob = new Blob([JSON.stringify({ app: 'Container Van Locator', version: 3, exportedAt: new Date().toISOString(), records: state.records, history: state.history }, null, 2)], { type: 'application/json' });
@@ -964,7 +1066,7 @@
           }
           state.pendingFile = file.name; state.pendingRows = rows;
           const mapping = detectColumns(rows);
-          if (mapping) completeImport(rows, mapping.van, mapping.consignee, mapping.headerRow, file.name, mapping.vessel, mapping.voyage);
+          if (mapping) completeImport(rows, mapping.van, mapping.consignee, mapping.headerRow, file.name, mapping.vessel, mapping.voyage, mapping.loadType);
           else showColumnPicker(rows, file.name);
         } catch (err) { console.error(err); toast('Could not read this file. Check that it is a valid spreadsheet or CSV.'); }
       }
@@ -989,19 +1091,39 @@
         if (allStamped) tagged.sort((a,b) => a.stamp.localeCompare(b.stamp));
         return tagged.map(item => item.file);
       }
+      async function preparePhoto(file) {
+        if (!window.createImageBitmap) return file;
+        let bitmap;
+        try {
+          bitmap = await createImageBitmap(file);
+          const scale = Math.min(1.6, 3000 / bitmap.width, 3000 / bitmap.height);
+          const canvas = document.createElement('canvas'); canvas.width = Math.max(1, Math.round(bitmap.width * scale)); canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+          const context = canvas.getContext('2d', { willReadFrequently: true }); context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+          const image = context.getImageData(0, 0, canvas.width, canvas.height), pixels = image.data;
+          for (let i = 0; i < pixels.length; i += 4) {
+            const gray = pixels[i] * .299 + pixels[i + 1] * .587 + pixels[i + 2] * .114;
+            const contrast = Math.max(0, Math.min(255, (gray - 128) * 1.22 + 128));
+            pixels[i] = pixels[i + 1] = pixels[i + 2] = contrast;
+          }
+          context.putImageData(image, 0, 0); return canvas;
+        } catch { return file; }
+        finally { bitmap?.close?.(); }
+      }
       async function importPhotos(files) {
         const ordered = orderPhotoFiles(files); let currentPage = 0;
         state.ocrRunning = true;
-        modal(`<div class="modal-head"><div><h2>Reading ${ordered.length === 1 ? 'loading guide photo' : `${ordered.length} loading guide photos`}</h2><p>Using the Container No. and Consignee Name columns from this report layout.</p></div></div><div class="modal-body"><div id="ocrStatus" class="modal-info">Loading the free OCR reader…</div><div class="ocr-progress"><span id="ocrProgressFill"></span></div><p class="modal-info" style="margin-top:10px">${ordered.length > 1 ? 'Photos with timestamp names are processed in time order. ' : ''}A clear, straight-on photo gives the best result.</p></div>`);
+        modal(`<div class="modal-head"><div><h2>Reading ${ordered.length === 1 ? 'loading guide photo' : `${ordered.length} loading guide photos`}</h2><p>Looking for Container No. and Consignee Name in the report table.</p></div></div><div class="modal-body"><div id="ocrStatus" class="modal-info">Loading the free OCR reader…</div><div class="ocr-progress"><span id="ocrProgressFill"></span></div><p class="modal-info" style="margin-top:10px">${ordered.length > 1 ? 'Photos with timestamp names are processed in time order. ' : ''}The app enlarges and sharpens the image before reading. Review every container number before importing.</p></div>`);
         let worker;
         try {
           const Tesseract = await loadTesseract();
           worker = await Tesseract.createWorker('eng', 1, { logger: message => updateOcrProgress(`Reading photo ${Math.min(currentPage + 1, ordered.length)} of ${ordered.length}…`, (currentPage + (message.progress || 0)) / ordered.length) });
-          const extracted = []; const metadata = { vessel: '', voyage: '' };
+          const extracted = []; const metadata = { vessel: '', voyage: '', columns: null };
           for (currentPage = 0; currentPage < ordered.length; currentPage++) {
             updateOcrProgress(`Reading photo ${currentPage + 1} of ${ordered.length}…`, currentPage / ordered.length);
-            const result = await worker.recognize(ordered[currentPage], {}, { tsv: true });
-            const page = parsePhotoOcr(result.data || {}); extracted.push(...page.items);
+            const prepared = await preparePhoto(ordered[currentPage]);
+            const result = await worker.recognize(prepared, {}, { tsv: true });
+            const page = parsePhotoOcr(result.data || {}, metadata.columns); extracted.push(...page.items);
+            if (page.columns) metadata.columns = page.columns;
             if (!metadata.vessel && page.vessel) metadata.vessel = page.vessel;
             if (!metadata.voyage && page.voyage) metadata.voyage = page.voyage;
           }
@@ -1012,19 +1134,20 @@
           modal(`<div class="modal-head"><div><h2>Photo could not be read</h2><p>${ordered.length} ${ordered.length === 1 ? 'photo' : 'photos'} selected</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><p class="modal-info">${escapeHtml(error.message || 'The OCR reader could not process this image.')}</p><div class="modal-actions"><button class="btn close-modal">Close</button></div></div>`);
         } finally { if (worker) { try { await worker.terminate(); } catch {} } state.ocrRunning = false; $('#fileInput').value = ''; }
       }
-      function parsePhotoOcr(data) {
+      function parsePhotoOcr(data, fallbackColumns = null) {
         const raw = String(data.tsv || ''); const lines = [];
-        const text = String(data.text || '');
-        const vessel = text.match(/Vessel\s*:\s*(.*?)(?:\s+Voyage\s*:|[\r\n]|$)/i)?.[1]?.trim() || '';
-        const voyage = text.match(/Voyage\s*:\s*([A-Z0-9-]+)/i)?.[1]?.trim() || '';
+        const pageText = String(data.text || '');
+        const vessel = pageText.match(/Vessel\s*:\s*(.*?)(?:\s+Voyage\s*:|[\r\n]|$)/i)?.[1]?.trim() || '';
+        const voyage = pageText.match(/Voyage\s*:\s*([A-Z0-9-]+)/i)?.[1]?.trim() || '';
         const words = raw.split(/\r?\n/).slice(1).map(line => {
           const c = line.split('\t'); if (c.length < 12 || c[0] !== '5') return null;
           const text = String(c[11] || '').trim(); if (!text) return null;
           return { text, left: Number(c[6]) || 0, top: Number(c[7]) || 0, width: Number(c[8]) || 0, height: Number(c[9]) || 0, confidence: Number(c[10]) || 0 };
-        }).filter(w => w && w.confidence >= 8);
-        if (!words.length) return { vessel, voyage, items: [] };
-        const heights = words.map(w => w.height).filter(h => h > 0).sort((a,b) => a-b);
-        const tolerance = Math.max(6, (heights[Math.floor(heights.length / 2)] || 12) * .7);
+        }).filter(w => w && w.confidence >= 0 && w.width > 0 && w.height > 0);
+        if (!words.length) return { vessel, voyage, items: [], columns: fallbackColumns };
+        const heights = words.map(w => w.height).sort((a,b) => a-b);
+        const medianHeight = heights[Math.floor(heights.length / 2)] || 12;
+        const tolerance = Math.max(5, medianHeight * .68);
         words.sort((a,b) => (a.top + a.height / 2) - (b.top + b.height / 2) || a.left - b.left);
         for (const word of words) {
           const cy = word.top + word.height / 2; let line = null;
@@ -1034,65 +1157,117 @@
         }
         lines.sort((a,b) => a.cy - b.cy); lines.forEach(line => line.words.sort((a,b) => a.left - b.left));
         const pageWidth = Number(data.width) || Math.max(...words.map(w => w.left + w.width));
-        const containerEnd = pageWidth * .177, consigneeStart = pageWidth * .36, consigneeEnd = pageWidth * .52;
         const center = w => w.left + w.width / 2;
-        const items = []; const medianHeight = heights[Math.floor(heights.length / 2)] || 12; const continuationGap = Math.max(18, medianHeight * 1.7);
+        let columnRatios = fallbackColumns || { containerEnd: .165, consigneeStart: .34, consigneeEnd: .535 };
+        const headerLines = [];
         for (const line of lines) {
-          const vanWords = line.words.filter(w => center(w) <= containerEnd);
-          const compact = vanWords.map(w => w.text).join('').toUpperCase().replace(/[^A-Z0-9]/g, '');
-          const match = compact.match(/([A-Z0-9]{4})([0-9OQ]{7})/);
-          const consigneeWords = line.words.filter(w => center(w) >= consigneeStart && center(w) < consigneeEnd && !(center(w) > consigneeStart + (consigneeEnd - consigneeStart) * .66 && w.confidence < 58 && /^[A-Z0-9]{1,4}$/i.test(w.text)));
-          const consignee = consigneeWords.map(w => w.text).join(' ').trim();
-          if (match) {
-            const prefix = match[1].replace(/0/g, 'O').replace(/1/g, 'I'); const digits = match[2].replace(/[OQ]/g, '0');
-            items.push({ container: `${prefix} ${digits.slice(0,6)}-${digits[6]}`, consignee, y: line.cy });
-          } else if (consignee && items.length && line.cy - items[items.length - 1].lastY <= continuationGap) {
+          const labelText = line.words.map(w => w.text.toLowerCase()).join(' ').replace(/[^a-z]+/g,' ');
+          if (!labelText.includes('container') || !labelText.includes('seal') || !labelText.includes('shipper') || !labelText.includes('consignee')) continue;
+          const labelWord = expression => line.words.find(w => expression.test(w.text));
+          const container = labelWord(/container/i), seal = labelWord(/seal/i), shipper = labelWord(/shipper/i), consignee = labelWord(/consignee/i), description = labelWord(/description/i);
+          if (container && seal && shipper && consignee && description) {
+            columnRatios = { containerEnd: Math.min(.22, Math.max(.14, seal.left / pageWidth - .003)), consigneeStart: Math.max(.27, consignee.left / pageWidth - .006), consigneeEnd: Math.min(.7, description.left / pageWidth - .006) };
+            headerLines.push(line.cy);
+          }
+        }
+        const columns = { containerEnd: columnRatios.containerEnd * pageWidth, consigneeStart: columnRatios.consigneeStart * pageWidth, consigneeEnd: columnRatios.consigneeEnd * pageWidth };
+        const skippedHeader = y => headerLines.some(headerY => Math.abs(y - headerY) <= medianHeight * 1.5);
+        const correctPrefix = value => value.replace(/[0158]/g, c => ({ '0':'O','1':'I','5':'S','8':'B' }[c]));
+        const normalizeDigit = value => value.replace(/[OQD]/g, '0').replace(/[IL|]/g, '1').replace(/S/g, '5').replace(/Z/g, '2').replace(/B/g, '8');
+        function containerFrom(wordsInColumn) {
+          const compact = wordsInColumn.map(w => w.text).join('').toUpperCase().replace(/[^A-Z0-9]/g, '');
+          if (compact.length < 6) return null;
+          let prefix = correctPrefix(compact.slice(0,4)), numberPart = compact.slice(4);
+          if (!/^[A-Z]{4}$/.test(prefix)) {
+            const partial = compact.match(/^([A-Z0-9]{3})([0-9OQDILSBZ]{3,})/);
+            if (!partial) return null;
+            prefix = correctPrefix(partial[1]); numberPart = partial[2];
+            if (!/^[A-Z]{3}$/.test(prefix)) return null;
+          }
+          const digits = normalizeDigit(numberPart).match(/^\d+/)?.[0] || '';
+          if (digits.length < 3) return null;
+          const captured = digits.slice(0,7);
+          const complete = captured.length === 7;
+          const container = complete && prefix.length === 4 ? `${prefix} ${captured.slice(0,6)}-${captured[6]}` : `${prefix} ${captured}`;
+          return { container, needsReview: !isCompleteContainerNumber(container) };
+        }
+        const items = []; const continuationGap = Math.max(18, medianHeight * 2.15);
+        for (const line of lines) {
+          if (skippedHeader(line.cy)) continue;
+          const vanWords = line.words.filter(w => center(w) <= columns.containerEnd && w.confidence >= 2);
+          const candidate = containerFrom(vanWords);
+          const consigneeWords = line.words.filter(w => center(w) >= columns.consigneeStart && center(w) < columns.consigneeEnd && w.confidence >= 4);
+          const consignee = consigneeWords.map(w => w.text).join(' ').replace(/\s+/g,' ').trim();
+          if (candidate) items.push({ ...candidate, consignee, y: line.cy, lastY: line.cy });
+          else if (consignee && items.length && line.cy - items[items.length - 1].lastY <= continuationGap) {
             const last = items[items.length - 1]; last.consignee = `${last.consignee} ${consignee}`.trim(); last.lastY = line.cy;
           }
         }
-        return { vessel, voyage, items: items.map(({container,consignee}) => ({container,consignee})) };
+        return { vessel, voyage, items: items.map(({container,consignee,needsReview}) => ({container,consignee,needsReview})), columns: columnRatios };
       }
       function groupPhotoItems(items) {
         const grouped = new Map();
         for (const item of items) {
           const key = norm(item.container); if (!key) continue;
-          const prior = grouped.get(key);
-          if (prior) prior.consignee = combineConsignees(prior.consignee, item.consignee);
-          else grouped.set(key, { container: item.container, consignee: item.consignee || '' });
+          const base = key.length >= 10 ? key.slice(0,10) : key;
+          const existing = Array.from(grouped.entries()).find(([,current]) => {
+            const currentKey = norm(current.container); return (key.length >= 10 && currentKey.length >= 10 && currentKey.slice(0,10) === base) || currentKey === key;
+          });
+          const prior = existing?.[1];
+          if (prior) {
+            if (key.length > norm(prior.container).length) prior.container = item.container;
+            prior.consignee = combineConsignees(prior.consignee, item.consignee);
+            prior.needsReview = prior.needsReview && !!item.needsReview;
+          } else grouped.set(key, { container: item.container, consignee: item.consignee || '', needsReview: !!item.needsReview });
         }
-        return Array.from(grouped.values());
+        return Array.from(grouped.values()).map(item => ({ ...item, loadType: deriveLoadType('',item.consignee) }));
+      }
+      function updatePhotoReviewValidation() {
+        const inputs = $$('.photo-container'); let incomplete = 0;
+        inputs.forEach(input => { const invalid = !isCompleteContainerNumber(input.value); input.classList.toggle('invalid',invalid); const note = input.parentElement.querySelector('.photo-validation'); if (note) note.textContent = invalid ? 'Check full container code' : ''; if (invalid) incomplete++; });
+        const warning = $('#photoValidationWarning'); if (warning) warning.textContent = incomplete ? `${incomplete} row${incomplete === 1 ? '' : 's'} need a complete van number before download or import.` : 'All container numbers have the expected full code format.';
+        return incomplete === 0;
       }
       function showPhotoReview(items, files, metadata = {}) {
         if (state.photoObjectUrl) URL.revokeObjectURL(state.photoObjectUrl);
         state.photoObjectUrl = URL.createObjectURL(files[0]);
-        const rows = items.map((item,i) => `<tr><td class="row-num">${i + 1}</td><td><input class="photo-container" aria-label="Van number for row ${i + 1}" value="${escapeHtml(item.container)}"></td><td><input class="photo-consignee" aria-label="Consignee for row ${i + 1}" value="${escapeHtml(item.consignee)}"></td><td><input class="photo-vessel" aria-label="Vessel for row ${i + 1}" value="${escapeHtml(metadata.vessel || '')}"></td><td><input class="photo-voyage" aria-label="Voyage for row ${i + 1}" value="${escapeHtml(metadata.voyage || '')}"></td></tr>`).join('');
+        const rows = items.map((item,i) => `<tr><td class="row-num">${i + 1}</td><td><input class="photo-container ${isCompleteContainerNumber(item.container) ? '' : 'invalid'}" aria-label="Van number for row ${i + 1}" value="${escapeHtml(item.container)}"><small class="photo-validation">${isCompleteContainerNumber(item.container) ? '' : 'Check full container code'}</small></td><td><input class="photo-consignee" aria-label="Consignee for row ${i + 1}" value="${escapeHtml(item.consignee)}"></td><td><select class="photo-load-type" aria-label="Load type for row ${i + 1}"><option value="FCL" ${item.loadType === 'FCL' ? 'selected' : ''}>FCL</option><option value="LCL" ${item.loadType === 'LCL' ? 'selected' : ''}>LCL</option></select></td><td><input class="photo-vessel" aria-label="Vessel for row ${i + 1}" value="${escapeHtml(metadata.vessel || '')}"></td><td><input class="photo-voyage" aria-label="Voyage for row ${i + 1}" value="${escapeHtml(metadata.voyage || '')}"></td></tr>`).join('');
         const sourceNames = files.map(f => f.name).join(', ');
-        modal(`<div class="modal-head"><div><h2>Review extracted rows</h2><p>${items.length} unique vans from ${files.length} ${files.length === 1 ? 'photo' : 'photos'}</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="photo-review-top"><img src="${state.photoObjectUrl}" alt="Uploaded loading guide photo"><span>Extracted from the <b>Container No.</b> and <b>Consignee Name</b> columns. Vessel and voyage are read from the report header. Check each row before downloading or adding it.</span></div><div class="photo-review-list"><table class="photo-table"><thead><tr><th>#</th><th>Van number</th><th>Consignee</th><th>Vessel</th><th>Voyage</th></tr></thead><tbody>${rows}</tbody></table></div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button id="downloadPhotoCsv" class="btn">Download CSV</button><button id="commitPhotoImport" class="btn primary">Add / update vans</button></div><div class="modal-info" style="margin-top:10px">Source pages: ${escapeHtml(sourceNames)}</div></div>`, true);
+        modal(`<div class="modal-head"><div><h2>Review extracted rows</h2><p>${items.length} unique vans from ${files.length} ${files.length === 1 ? 'photo' : 'photos'}</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="photo-review-top"><img src="${state.photoObjectUrl}" alt="Uploaded loading guide photo"><span>Read from <b>Container No.</b> and <b>Consignee Name</b> columns. Multiple consignee entries for one van are marked LCL. Correct any highlighted container number before downloading or importing.</span></div><div class="photo-validation-warning" id="photoValidationWarning"></div><div class="photo-review-list"><table class="photo-table"><thead><tr><th>#</th><th>Container No.</th><th>Consignee</th><th>Type</th><th>Vessel</th><th>Voyage</th></tr></thead><tbody>${rows}</tbody></table></div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button id="downloadPhotoCsv" class="btn">Download CSV</button><button id="commitPhotoImport" class="btn primary">Add / update vans</button></div><div class="modal-info" style="margin-top:10px">Source pages: ${escapeHtml(sourceNames)}</div></div>`, true);
+        updatePhotoReviewValidation();
+        $$('.photo-container').forEach(input => input.addEventListener('input', updatePhotoReviewValidation));
         $('#downloadPhotoCsv').addEventListener('click', () => {
-          const current = readPhotoReviewRows(); downloadGuideCsv(current); toast(`${current.length} rows exported as Container,Consignee CSV`);
+          const current = readPhotoReviewRows(); if (!updatePhotoReviewValidation()) { toast('Correct the highlighted container numbers first'); return; }
+          downloadGuideCsv(current); toast(`${current.length} van records exported in Consignee Finder CSV format`);
         });
         $('#commitPhotoImport').addEventListener('click', () => {
-          const current = readPhotoReviewRows();
-          mergeGuideItems(current.map(item => ({ van: item.container, consignee: item.consignee, vessel: item.vessel, voyage: item.voyage })), files.length === 1 ? files[0].name : `${files.length} guide photos`);
+          const current = readPhotoReviewRows(); if (!updatePhotoReviewValidation()) { toast('Correct the highlighted container numbers first'); return; }
+          mergeGuideItems(current.map(item => ({ van: item.container, consignee: item.consignee, loadType: item.loadType, vessel: item.vessel, voyage: item.voyage })), files.length === 1 ? files[0].name : `${files.length} guide photos`);
         });
       }
       function readPhotoReviewRows() {
-        const containers = $$('.photo-container'), consignees = $$('.photo-consignee'), vessels = $$('.photo-vessel'), voyages = $$('.photo-voyage');
-        return containers.map((input,i) => ({ container: input.value.trim(), consignee: consignees[i].value.trim(), vessel: vessels[i].value.trim(), voyage: voyages[i].value.trim() })).filter(item => item.container);
+        const containers = $$('.photo-container'), consignees = $$('.photo-consignee'), types = $$('.photo-load-type'), vessels = $$('.photo-vessel'), voyages = $$('.photo-voyage');
+        return containers.map((input,i) => ({ container: formatContainerNumber(input.value), consignee: consignees[i].value.trim(), loadType: types[i].value, vessel: vessels[i].value.trim(), voyage: voyages[i].value.trim() })).filter(item => item.container);
       }
       function downloadGuideCsv(items) {
         const cell = value => { const text = String(value ?? ''); return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text; };
-        const csv = ['Van Number,Consignee,Vessel,Voyage', ...items.map(item => `${cell(item.container)},${cell(item.consignee)},${cell(item.vessel)},${cell(item.voyage)}`)].join('\r\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `loading-guide-${new Date().toISOString().slice(0,10)}.csv`; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        const rows = [['Container','Consignee','Type','Bay Location','Checked','Vessel','Voyage']];
+        for (const item of items) {
+          const names = consigneeParts(item.consignee); const lcl = deriveLoadType(item.loadType,item.consignee) === 'LCL';
+          const values = names.length ? names : [''];
+          for (const consignee of values) rows.push([formatContainerNumber(item.container),consignee,lcl ? 'LCL' : 'FCL','','',item.vessel,item.voyage]);
+        }
+        const csv = rows.map(row => row.map(cell).join(',')).join('\r\n');
+        const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `loading-guide-${new Date().toISOString().slice(0,10)}.csv`; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000);
       }
       function detectColumns(rows) {
-        const vanNames = ['vannumber','vanno','vanno.','containernumber','containerno','containerno.','containerid','container','van'];
+        const vanNames = ['vannumber','vanno','containernumber','containerno','containerid','container','van'];
         const consigneeNames = ['consignee','consigneename','customer','receiver'];
-        const vesselNames = ['vessel','vesselname','shipname']; const voyageNames = ['voyage','voyagenumber','voyageno'];
+        const vesselNames = ['vessel','vesselname','shipname']; const voyageNames = ['voyage','voyagenumber','voyageno']; const typeNames = ['type','lclfcl','loadtype'];
         for (let i=0;i<Math.min(rows.length,30);i++) {
-          const vals = (rows[i] || []).map(norm); let van = -1, consignee = -1, vessel = -1, voyage = -1;
-          vals.forEach((v,j) => { if (van < 0 && vanNames.includes(v)) van = j; if (consignee < 0 && consigneeNames.includes(v)) consignee = j; if (vessel < 0 && vesselNames.includes(v)) vessel = j; if (voyage < 0 && voyageNames.includes(v)) voyage = j; });
-          if (van >= 0 && consignee >= 0) return { van, consignee, vessel, voyage, headerRow: i };
+          const vals = (rows[i] || []).map(norm); let van = -1, consignee = -1, vessel = -1, voyage = -1, loadType = -1;
+          vals.forEach((v,j) => { if (van < 0 && vanNames.includes(v)) van = j; if (consignee < 0 && consigneeNames.includes(v)) consignee = j; if (vessel < 0 && vesselNames.includes(v)) vessel = j; if (voyage < 0 && voyageNames.includes(v)) voyage = j; if (loadType < 0 && typeNames.includes(v)) loadType = j; });
+          if (van >= 0 && consignee >= 0) return { van, consignee, vessel, voyage, loadType, headerRow: i };
         }
         return null;
       }
@@ -1100,33 +1275,34 @@
         const previewRow = rows[Math.min(rows.length - 1, 0)] || [];
         const opts = `<option value="-1">Not included</option>${previewRow.map((v,i) => `<option value="${i}">${escapeHtml(String(v || `Column ${i + 1}`).slice(0,60))}</option>`).join('')}`;
         const guessVan = previewRow.findIndex(v => /van|container/i.test(v)); const guessCons = previewRow.findIndex(v => /consignee|customer|receiver/i.test(v));
-        const guessVessel = previewRow.findIndex(v => /vessel/i.test(v)), guessVoyage = previewRow.findIndex(v => /voyage/i.test(v));
-        modal(`<div class="modal-head"><div><h2>Choose loading guide columns</h2><p>${escapeHtml(fileName)} · ${rows.length} rows detected</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><p class="modal-info">Choose the row containing column names, then match the fields. Vessel and voyage are optional.</p><div class="field"><label for="headerRow">Header row</label><input type="number" min="1" value="1" id="headerRow"></div><div class="field"><label for="vanColumn">Van number column</label><select id="vanColumn">${opts}</select></div><div class="field"><label for="consigneeColumn">Consignee column</label><select id="consigneeColumn">${opts}</select></div><div class="field"><label for="vesselColumn">Vessel column</label><select id="vesselColumn">${opts}</select></div><div class="field"><label for="voyageColumn">Voyage column</label><select id="voyageColumn">${opts}</select></div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button id="confirmImport" class="btn primary">Add / update vans</button></div></div>`);
+        const guessVessel = previewRow.findIndex(v => /vessel/i.test(v)), guessVoyage = previewRow.findIndex(v => /voyage/i.test(v)), guessType = previewRow.findIndex(v => /type|lcl\s*\/\s*fcl/i.test(v));
+        modal(`<div class="modal-head"><div><h2>Choose loading guide columns</h2><p>${escapeHtml(fileName)} · ${rows.length} rows detected</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><p class="modal-info">Choose the row containing column names, then match the fields. Vessel, voyage, and type are optional.</p><div class="field"><label for="headerRow">Header row</label><input type="number" min="1" value="1" id="headerRow"></div><div class="field"><label for="vanColumn">Van number column</label><select id="vanColumn">${opts}</select></div><div class="field"><label for="consigneeColumn">Consignee column</label><select id="consigneeColumn">${opts}</select></div><div class="field"><label for="typeColumn">Type (FCL / LCL)</label><select id="typeColumn">${opts}</select></div><div class="field"><label for="vesselColumn">Vessel column</label><select id="vesselColumn">${opts}</select></div><div class="field"><label for="voyageColumn">Voyage column</label><select id="voyageColumn">${opts}</select></div><div class="modal-actions"><button class="btn close-modal">Cancel</button><button id="confirmImport" class="btn primary">Add / update vans</button></div></div>`);
         if (guessVan >= 0) $('#vanColumn').value = String(guessVan); if (guessCons >= 0 && guessCons !== guessVan) $('#consigneeColumn').value = String(guessCons);
-        if (guessVessel >= 0) $('#vesselColumn').value = String(guessVessel); if (guessVoyage >= 0) $('#voyageColumn').value = String(guessVoyage);
-        $('#confirmImport').addEventListener('click', () => { const vanIndex = Number($('#vanColumn').value), consigneeIndex = Number($('#consigneeColumn').value); if (vanIndex < 0 || consigneeIndex < 0) { toast('Choose both the van number and consignee columns'); return; } const headerRow = Math.max(1, Number($('#headerRow').value) || 1)-1; completeImport(rows, vanIndex, consigneeIndex, headerRow, fileName, Number($('#vesselColumn').value), Number($('#voyageColumn').value)); closeModal(); });
+        if (guessVessel >= 0) $('#vesselColumn').value = String(guessVessel); if (guessVoyage >= 0) $('#voyageColumn').value = String(guessVoyage); if (guessType >= 0) $('#typeColumn').value = String(guessType);
+        $('#confirmImport').addEventListener('click', () => { const vanIndex = Number($('#vanColumn').value), consigneeIndex = Number($('#consigneeColumn').value); if (vanIndex < 0 || consigneeIndex < 0) { toast('Choose both the van number and consignee columns'); return; } const headerRow = Math.max(1, Number($('#headerRow').value) || 1)-1; completeImport(rows, vanIndex, consigneeIndex, headerRow, fileName, Number($('#vesselColumn').value), Number($('#voyageColumn').value), Number($('#typeColumn').value)); closeModal(); });
       }
-      function completeImport(rows, vanIndex, consigneeIndex, headerRow, fileName, vesselIndex = -1, voyageIndex = -1) {
+      function completeImport(rows, vanIndex, consigneeIndex, headerRow, fileName, vesselIndex = -1, voyageIndex = -1, loadTypeIndex = -1) {
         const items = [];
-        for (let i = headerRow + 1; i < rows.length; i++) { const row = rows[i] || []; const van = String(row[vanIndex] ?? '').trim(); if (!van) continue; items.push({ van, consignee: String(row[consigneeIndex] ?? '').trim(), vessel: vesselIndex >= 0 ? String(row[vesselIndex] ?? '').trim() : '', voyage: voyageIndex >= 0 ? String(row[voyageIndex] ?? '').trim() : '' }); }
+        for (let i = headerRow + 1; i < rows.length; i++) { const row = rows[i] || []; const van = String(row[vanIndex] ?? '').trim(); if (!van) continue; items.push({ van, consignee: String(row[consigneeIndex] ?? '').trim(), loadType: loadTypeIndex >= 0 ? String(row[loadTypeIndex] ?? '').trim() : '', vessel: vesselIndex >= 0 ? String(row[vesselIndex] ?? '').trim() : '', voyage: voyageIndex >= 0 ? String(row[voyageIndex] ?? '').trim() : '' }); }
         mergeGuideItems(items, fileName);
       }
       function mergeGuideItems(items, fileName) {
         if (!items.length) { toast('No van numbers found in the selected column'); return; }
         const grouped = new Map();
-        for (const item of items) { const id = norm(item.van); if (!id) continue; const prior = grouped.get(id); if (prior) { prior.consignee = combineConsignees(prior.consignee, item.consignee); if (item.vessel) prior.vessel = item.vessel; if (item.voyage) prior.voyage = item.voyage; } else grouped.set(id, { ...item, id }); }
+        for (const item of items) { const id = norm(item.van); if (!id) continue; const prior = grouped.get(id); if (prior) { prior.consignee = combineConsignees(prior.consignee, item.consignee); prior.explicitLcl ||= /lcl/i.test(item.loadType); if (item.vessel) prior.vessel = item.vessel; if (item.voyage) prior.voyage = item.voyage; } else grouped.set(id, { ...item, id, explicitLcl: /lcl/i.test(item.loadType) }); }
+        for (const item of grouped.values()) item.loadType = deriveLoadType(item.explicitLcl ? 'LCL' : item.loadType,item.consignee);
         const byId = new Map(state.records.map(r => [r.id, r])); let added = 0, updated = 0;
         for (const item of grouped.values()) {
           const prior = byId.get(item.id);
           if (prior) {
             const returning = prior.status === 'withdrawn';
-            if (item.consignee) prior.consignee = item.consignee; if (item.vessel) prior.vessel = item.vessel; if (item.voyage) prior.voyage = item.voyage;
+            if (item.consignee) prior.consignee = item.consignee; if (item.vessel) prior.vessel = item.vessel; if (item.voyage) prior.voyage = item.voyage; prior.loadType = deriveLoadType(item.loadType,item.consignee);
             prior.updatedAt = new Date().toISOString();
             if (returning) { prior.status = 'in-yard'; prior.withdrawnAt = ''; prior.cyStrippedAt = ''; prior.bay = ''; prior.face = ''; prior.block = ''; prior.stack = 0; prior.level = 0; addHistory('incoming-full', prior, `Incoming full · returned on ${fileName}`); }
             else addHistory('guide-update', prior, `Updated from ${fileName}`);
             updated++;
           }
-          else { const at = new Date().toISOString(); const record = { id:item.id, van:item.van, consignee:item.consignee || '', vessel:item.vessel || '', voyage:item.voyage || '', bay:'', face:'', block:'', stack:0, level:0, status:'in-yard', cyStrippedAt:'', withdrawnAt:'', createdAt:at, updatedAt:at }; byId.set(item.id, record); addHistory('incoming-full', record, `Incoming full · added from ${fileName}`); added++; }
+          else { const at = new Date().toISOString(); const record = { id:item.id, van:formatContainerNumber(item.van), consignee:item.consignee || '', loadType:item.loadType || 'FCL', vessel:item.vessel || '', voyage:item.voyage || '', bay:'', face:'', block:'', stack:0, level:0, status:'in-yard', cyStrippedAt:'', withdrawnAt:'', createdAt:at, updatedAt:at }; byId.set(item.id, record); addHistory('incoming-full', record, `Incoming full · added from ${fileName}`); added++; }
         }
         state.records = Array.from(byId.values()); state.loadingPage = 1; state.loadingFilter = 'all'; state.sharedSnapshot = false; save(); render(); closeModal(); $('#fileInput').value = '';
         toast(`${added} added${updated ? ` · ${updated} updated` : ''} from ${fileName}`);
@@ -1135,7 +1311,7 @@
         const results = $('#searchResults'); const q = norm(query);
         if (q.length < 2) { results.classList.remove('open'); return; }
         const matches = state.records.filter(r => norm(r.van).includes(q) || norm(r.consignee).includes(q)).slice(0,12);
-        results.innerHTML = `<div class="result-heading">${matches.length ? `Search results · ${matches.length}${state.records.filter(r => norm(r.van).includes(q) || norm(r.consignee).includes(q)).length > 12 ? '+' : ''}` : 'No matching vans'}</div>${matches.length ? matches.map(r => `<div class="result" data-id="${escapeHtml(r.id)}"><div class="result-main"><strong>${escapeHtml(r.van)}</strong><small>${escapeHtml(r.consignee || 'No consignee listed')}${r.status !== 'in-yard' ? ` · ${statusLabel(r)}` : ''}</small><small>${escapeHtml([r.vessel && `Vessel ${r.vessel}`,r.voyage && `Voyage ${r.voyage}`].filter(Boolean).join(' · ') || 'Vessel / voyage not listed')}</small><span class="result-loc">${r.bay ? escapeHtml(locationDetail(r)) : 'Not assigned'}</span></div>${r.status === 'withdrawn' ? '' : `<button class="btn small result-assign" data-id="${escapeHtml(r.id)}">${r.bay ? 'Change location' : 'Assign Bay / Block'}</button>`}</div>`).join('') : '<div class="search-empty">Try another van number or consignee name.</div>'}`;
+        results.innerHTML = `<div class="result-heading">${matches.length ? `Search results · ${matches.length}${state.records.filter(r => norm(r.van).includes(q) || norm(r.consignee).includes(q)).length > 12 ? '+' : ''}` : 'No matching vans'}</div>${matches.length ? matches.map(r => `<div class="result" data-id="${escapeHtml(r.id)}"><div class="result-main"><strong>${escapeHtml(r.van)}${r.loadType === 'LCL' ? '<span class="type-pill">LCL</span>' : ''}</strong><small>${escapeHtml(r.consignee || 'No consignee listed')}${r.status !== 'in-yard' ? ` · ${statusLabel(r)}` : ''}</small><small>${escapeHtml([r.vessel && `Vessel ${r.vessel}`,r.voyage && `Voyage ${r.voyage}`].filter(Boolean).join(' · ') || 'Vessel / voyage not listed')}</small><span class="result-loc">${r.bay ? escapeHtml(locationDetail(r)) : 'Not assigned'}</span></div>${r.status === 'withdrawn' ? '' : `<button class="btn small result-assign" data-id="${escapeHtml(r.id)}">${r.bay ? 'Change location' : 'Assign Bay / Block'}</button>`}</div>`).join('') : '<div class="search-empty">Try another van number or consignee name.</div>'}`;
         results.classList.add('open');
         $$('.result', results).forEach(el => el.addEventListener('click', event => { if (event.target.closest('.result-assign')) return; const rec = state.records.find(r => r.id === el.dataset.id); if (rec?.bay && rec.status !== 'withdrawn') { state.selectedBay = rec.bay; state.selectedFace = rec.face || ''; state.selectedBlock = rec.block; state.highlightRecordId = rec.id; setPage('yard'); } else if (rec?.status === 'withdrawn') { state.historyVanId = rec.id; state.historyFilter = 'outgoing'; setPage('history'); } else setPage('loading'); $('#globalSearch').value = rec?.van || ''; results.classList.remove('open'); }));
         $$('.result-assign', results).forEach(button => button.addEventListener('click', event => { event.stopPropagation(); $('#globalSearch').value = state.records.find(r => r.id === button.dataset.id)?.van || $('#globalSearch').value; showLocationPicker(button.dataset.id); }));
