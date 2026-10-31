@@ -1,4 +1,4 @@
-const CACHE_NAME = 'container-van-locator-shell-v6';
+const CACHE_NAME = 'container-van-locator-shell-v7';
 const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', event => {
