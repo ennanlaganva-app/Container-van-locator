@@ -1,5 +1,5 @@
-const CACHE_NAME = 'container-van-locator-shell-v10';
-const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
+const CACHE_NAME = 'container-van-locator-shell-v11';
+const SHELL_FILES = ['./', './index.html', './firebase-sync.js', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL_FILES)));

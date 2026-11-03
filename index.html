@@ -88,6 +88,9 @@
     .btn.primary { background: var(--yellow); color: #362e10; border-color: var(--yellow); }
     .btn.primary:hover { background: #e9bd20; }
     .btn.small { padding: 6px 9px; font-size: 10px; }
+    .account-btn { max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+    #topSyncStatus[data-state="syncing"] .status-light { background: #d4a91b; }
+    #topSyncStatus[data-state="error"] .status-light { background: #b64e43; }
     .btn.text { border-color: transparent; background: transparent; padding-left: 7px; padding-right: 7px; color: #747c7a; }
     .btn.danger { color: var(--red); }
     .stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 18px; }
@@ -477,8 +480,9 @@
       .nav-btn svg { width: 17px; height: 17px; }
       .topbar { position: sticky; top: 0; z-index: 10; min-height: 55px; padding: 7px 12px; }
       .crumb, .top-status { display: none; }
-      .top-actions { width: 100%; }
-      .search-wrap { width: 100%; }
+      .top-actions { width: 100%; gap: 6px; }
+      .search-wrap { flex: 1; min-width: 0; width: auto; }
+      .account-btn { flex: 0 0 auto; min-height: 40px; max-width: 88px; padding: 7px; }
       .search { height: 42px; font-size: 15px; border-radius: 9px; }
       .search-icon { top: 13px; }
       .kbd { display: none; }
@@ -667,7 +671,7 @@
         <button class="nav-btn" data-page="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10" stroke-linecap="round"/><circle cx="18" cy="18" r="3.4"/><path d="M18 16.5V18l1.1.8" stroke-linecap="round"/></svg>History</button>
       </nav>
       <div class="sidebar-spacer"></div>
-      <div class="storage-card"><div class="storage-top"><i class="storage-dot"></i> Saved on this device</div><div class="storage-copy">Your yard list stays in this browser. Use a share link to send a snapshot.</div></div>
+      <div class="storage-card"><div class="storage-top"><i class="storage-dot"></i> <span id="storageTitle">Saved on this device</span></div><div class="storage-copy" id="storageCopy">Sign in to keep this yard list synced with the team.</div></div>
       <div class="sidebar-foot">Container Van Locator · Free edition</div>
     </aside>
     <main class="main">
@@ -679,7 +683,8 @@
             <input id="globalSearch" class="search" type="search" placeholder="Search van or consignee…" autocomplete="off" aria-label="Search by van number or consignee">
             <span class="kbd">/</span><div id="searchResults" class="search-results"></div>
           </div>
-          <div class="top-status"><span class="status-light"></span> Local workspace</div>
+          <div class="top-status" id="topSyncStatus"><span class="status-light"></span><span id="syncStatusText">Local workspace</span></div>
+          <button class="btn small account-btn" id="accountBtn" type="button">Sign in</button>
         </div>
       </header>
       <div class="content">
@@ -733,7 +738,7 @@
           <section class="panel guide-section" id="guide-picking"><h2>8. Print a picking tag</h2><ol><li>Open the van’s block in Yard view.</li><li>Find the van in the inventory list and choose <b>Picking tag</b>.</li><li>Enter the FL operator name. This field is manually inputted.</li><li>Choose <b>Print picking tag</b> and print or save it from the device’s print dialog.</li></ol><p>The tag includes date, van number, consignee, FCL/LCL type, voyage, vessel, bay, block, stack and position, plus the FL operator.</p></section>
 
           <section class="panel guide-section" id="guide-share"><h2>9. Save, back up, share, and install</h2><div class="guide-grid">
-            <div class="guide-detail"><strong>Saved on this device</strong><p>The app automatically saves the list and History in this browser. It does not use an account or shared database, so another phone or computer will not automatically see your edits.</p></div>
+            <div class="guide-detail"><strong>Shared sign-in and sync</strong><p>Choose Sign in and use the same account on each device. After Firebase is connected, changes sync with the shared yard list. Sign in first on the device that has the current test records or import its JSON backup there; that device seeds the empty shared list. Other devices then load the shared list after sign-in. All accounts can view and edit the same yard records.</p></div>
             <div class="guide-detail"><strong>JSON backup</strong><p>Choose Backup and keep the downloaded JSON file somewhere safe. Import that file later to restore or merge van records and History.</p></div>
             <div class="guide-detail"><strong>Share snapshot</strong><p>Share snapshot creates a link with a copy of the current records and History. The recipient can view it and choose Save to this device. It is a point-in-time copy, not live syncing; later changes require a new link.</p></div>
             <div class="guide-detail"><strong>Android, laptop, and tablet</strong><p>Open the HTTPS app link on Android in Chrome, then choose <b>⋮ → Install app</b> or <b>Add to Home screen</b>. The same link works on laptop/desktop. Tablets can rotate to landscape. No separate APK is required.</p></div>
@@ -766,7 +771,8 @@
       const blocksFor = section => Array.from({ length: SECTION_BY_KEY[section]?.blocks || 0 }, (_, i) => String(i + 1).padStart(2, '0'));
       const STACK_CAPACITIES = [4,4,4,3];
       const PAGE_SIZE = 15;
-      const state = { records: [], history: [], page: 'loading', loadingPage: 1, selectedBay: 'A', selectedFace: '', selectedBlock: '01', manualSection: 'A', manualBlock: '01', manualSlot: '', manualDraft: { van:'', consignee:'', vessel:'', voyage:'', loadType:'' }, manualClearDraft: false, loadingFilter: 'all', historyFilter: 'all', historyVanId: '', pendingRows: null, pendingFile: '', sharedSnapshot: false, photoObjectUrl: null, ocrRunning: false, shiftFromSection: 'A', shiftToSection: 'A', shiftFromScroll: 0, shiftToScroll: 0, highlightRecordId: '', finderQuery: '', finderRecordId: '', finderKeypadOpen: true, finderAlphaMode: false, migratedLocationCount: 0 };
+      const state = { records: [], history: [], deletedRecords: {}, page: 'loading', loadingPage: 1, selectedBay: 'A', selectedFace: '', selectedBlock: '01', manualSection: 'A', manualBlock: '01', manualSlot: '', manualDraft: { van:'', consignee:'', vessel:'', voyage:'', loadType:'' }, manualClearDraft: false, loadingFilter: 'all', historyFilter: 'all', historyVanId: '', pendingRows: null, pendingFile: '', sharedSnapshot: false, photoObjectUrl: null, ocrRunning: false, shiftFromSection: 'A', shiftToSection: 'A', shiftFromScroll: 0, shiftToScroll: 0, highlightRecordId: '', finderQuery: '', finderRecordId: '', finderKeypadOpen: true, finderAlphaMode: false, migratedLocationCount: 0 };
+      let knownRecordIds = new Set();
       let tesseractLoadPromise = null;
       const $ = (selector, root = document) => root.querySelector(selector);
       const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -803,7 +809,8 @@
         bays: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="8" height="7" rx="1"/><rect x="13" y="4" width="8" height="7" rx="1"/><rect x="3" y="13" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/></svg>'
       }[name] || '');
       function loadSaved() {
-        try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); if (saved && Array.isArray(saved.records)) { state.migratedLocationCount = 0; state.records = cleanRecords(saved.records, true); state.history = Array.isArray(saved.history) ? saved.history : []; normalizePositions(); if (state.migratedLocationCount) setTimeout(() => toast(`${state.migratedLocationCount} saved van location${state.migratedLocationCount === 1 ? '' : 's'} need a new block after the yard layout update. The van records are still in your list.`), 450); } } catch { state.records = []; state.history = []; }
+        try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); if (saved && Array.isArray(saved.records)) { state.migratedLocationCount = 0; state.records = cleanRecords(saved.records, true); state.history = Array.isArray(saved.history) ? saved.history : []; state.deletedRecords = saved.deletedRecords && typeof saved.deletedRecords === 'object' ? saved.deletedRecords : {}; normalizePositions(); if (state.migratedLocationCount) setTimeout(() => toast(`${state.migratedLocationCount} saved van location${state.migratedLocationCount === 1 ? '' : 's'} need a new block after the yard layout update. The van records are still in your list.`), 450); } } catch { state.records = []; state.history = []; state.deletedRecords = {}; }
+        knownRecordIds = new Set(state.records.map(record => record.id));
       }
       function cleanRecords(records, trackMigration = false) {
         const seen = new Map();
@@ -828,7 +835,14 @@
         }
         return Array.from(seen.values());
       }
-      function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ records: state.records, history: state.history, updated: new Date().toISOString() })); } catch { toast('This list is too large for browser storage. Export a backup to keep it safe.'); } }
+      function save(skipCloud = false) {
+        const now = new Date().toISOString(); const currentIds = new Set(state.records.map(record => record.id));
+        for (const id of knownRecordIds) if (!currentIds.has(id) && !state.deletedRecords[id]) state.deletedRecords[id] = now;
+        for (const id of currentIds) delete state.deletedRecords[id];
+        knownRecordIds = currentIds;
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ records: state.records, history: state.history, deletedRecords: state.deletedRecords, updated: now })); } catch { toast('This list is too large for browser storage. Export a backup to keep it safe.'); }
+        if (!skipCloud) window.yardFirebase?.saveData({ records: state.records, history: state.history, deletedRecords: state.deletedRecords });
+      }
       function assignedRecords() { return state.records.filter(r => r.bay && r.block && r.status !== 'withdrawn'); }
       function normalizeFace(bay, face) { return bay === 'D' || bay === 'E' ? (face === 'back' ? 'back' : 'front') : ''; }
       function sectionKey(bay, face = '') { if (!BAY_NAMES.includes(bay)) return ''; return (bay === 'D' || bay === 'E') ? `${bay}-${normalizeFace(bay, face)}` : bay; }
@@ -1396,7 +1410,7 @@
       function setPage(page) { state.page = page; updateNav(); if (page === 'yard') renderYard(); else if (page === 'finder') renderFinder(); else if (page === 'shift') renderShift(); else if (page === 'manual') renderManual(); else if (page === 'history') renderHistory(); else if (page !== 'help') renderLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
       function toast(message) { const el = $('#toast'); el.textContent = message; el.classList.add('show'); clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.remove('show'), 2600); }
       function exportBackup() {
-        const blob = new Blob([JSON.stringify({ app: 'Container Van Locator', version: 3, exportedAt: new Date().toISOString(), records: state.records, history: state.history }, null, 2)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify({ app: 'Container Van Locator', version: 3, exportedAt: new Date().toISOString(), records: state.records, history: state.history, deletedRecords: state.deletedRecords }, null, 2)], { type: 'application/json' });
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `container-van-locator-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href); toast('Backup downloaded');
       }
       function bytesToBase64Url(bytes) { let binary = ''; for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000)); return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/,''); }
@@ -1404,7 +1418,7 @@
         if (!state.records.length) { toast('Upload a loading guide before sharing a snapshot'); return; }
         let url = '';
         try {
-          const data = new TextEncoder().encode(JSON.stringify({ v: 3, records: state.records, history: state.history }));
+          const data = new TextEncoder().encode(JSON.stringify({ v: 3, records: state.records, history: state.history, deletedRecords: state.deletedRecords }));
           let bytes = data;
           if ('CompressionStream' in window) { const stream = new Blob([data]).stream().pipeThrough(new CompressionStream('gzip')); bytes = new Uint8Array(await new Response(stream).arrayBuffer()); }
           url = `${location.href.split('#')[0]}#share=${bytesToBase64Url(bytes)}`;
@@ -1428,12 +1442,43 @@
           if (bytes[0] === 0x1f && bytes[1] === 0x8b && 'DecompressionStream' in window) text = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
           else text = new TextDecoder().decode(bytes);
           const parsed = JSON.parse(text); if (!Array.isArray(parsed.records)) throw new Error('Invalid snapshot');
-          state.records = cleanRecords(parsed.records); state.history = Array.isArray(parsed.history) ? parsed.history : state.history; normalizePositions(); state.sharedSnapshot = true;
+          state.records = cleanRecords(parsed.records); state.history = Array.isArray(parsed.history) ? parsed.history : state.history; state.deletedRecords = parsed.deletedRecords && typeof parsed.deletedRecords === 'object' ? parsed.deletedRecords : {}; normalizePositions(); state.sharedSnapshot = true;
           $('#sharedCount').textContent = `${state.records.length} vans · this snapshot is ready to view.`; $('#sharedBanner').classList.add('show');
         } catch { toast('Could not read this shared snapshot link'); }
       }
       function modal(html, wide = false) { const el = $('#modalBackdrop'); el.innerHTML = `<div class="modal ${wide ? 'wide' : ''}">${html}</div>`; el.classList.add('open'); $$('.close-modal', el).forEach(b => b.addEventListener('click', closeModal)); el.addEventListener('click', e => { if (e.target === el) closeModal(); }, { once: true }); }
       function closeModal() { if (state.ocrRunning) return; $('#modalBackdrop').classList.remove('open'); if (state.photoObjectUrl) { URL.revokeObjectURL(state.photoObjectUrl); state.photoObjectUrl = null; } }
+      function firebaseErrorMessage(error) { return ({ 'auth/email-already-in-use':'An account already exists for this email. Sign in instead.', 'auth/invalid-credential':'Email or password is incorrect.', 'auth/invalid-email':'Enter a valid email address.', 'auth/weak-password':'Use a password with at least 6 characters.', 'auth/too-many-requests':'Too many attempts. Wait a little and try again.', 'auth/network-request-failed':'No connection. Check the internet and try again.', 'auth/unauthorized-domain':'This app address is not authorized yet. Add ennanlaganva-app.github.io in Firebase Authentication settings.', 'permission-denied':'Sign-in worked, but Firestore rules still need to be enabled.' })[error?.code] || error?.message || 'Could not complete that request. Try again.'; }
+      function openAccountModal() {
+        const service = window.yardFirebase; if (!service) { toast('Sync is still loading. Check your internet connection and try again.'); return; }
+        const user = service.currentUser();
+        if (user) {
+          modal(`<div class="modal-head"><div><h2>Shared yard account</h2><p>Signed in as ${escapeHtml(user.email || 'team member')}</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><p class="modal-info">All accounts in this project use the same shared yard list and can edit its records.</p><div class="modal-actions"><button class="btn" id="syncNowBtn">Sync now</button><button class="btn danger" id="signOutBtn">Sign out</button></div></div>`);
+          $('#syncNowBtn').addEventListener('click', async () => { try { await service.syncNow(); toast('Shared yard is up to date'); closeModal(); } catch (error) { toast(firebaseErrorMessage(error)); } });
+          $('#signOutBtn').addEventListener('click', async () => { try { await service.signOut(); closeModal(); } catch (error) { toast(firebaseErrorMessage(error)); } });
+          return;
+        }
+        modal(`<div class="modal-head"><div><h2>Sign in to sync</h2><p>Use the same account on each device.</p></div><button class="icon-btn close-modal">×</button></div><div class="modal-body"><div class="field"><label for="accountEmail">Email</label><input id="accountEmail" type="email" autocomplete="username" placeholder="name@example.com"></div><div class="field"><label for="accountPassword">Password</label><input id="accountPassword" type="password" autocomplete="current-password" placeholder="At least 6 characters"></div><p class="modal-info">All accounts in this project use the same shared yard list and can edit its records.</p><div class="modal-actions"><button class="btn" id="createAccountBtn">Create account</button><button class="btn primary" id="signInBtn">Sign in</button></div><button class="btn text small" id="resetPasswordBtn" type="button">Reset password</button></div>`);
+        const email = () => $('#accountEmail').value.trim(), password = () => $('#accountPassword').value;
+        $('#signInBtn').addEventListener('click', async () => { try { await service.signIn(email(),password()); closeModal(); } catch (error) { toast(firebaseErrorMessage(error)); } });
+        $('#createAccountBtn').addEventListener('click', async () => { try { await service.createAccount(email(),password()); closeModal(); toast('Account created. Connecting to the shared yard…'); } catch (error) { toast(firebaseErrorMessage(error)); } });
+        $('#resetPasswordBtn').addEventListener('click', async () => { try { if (!email()) { toast('Enter your email address first'); return; } await service.resetPassword(email()); toast('Password reset email sent'); } catch (error) { toast(firebaseErrorMessage(error)); } });
+      }
+      function updateCloudStatus(detail = {}) {
+        const status = detail.status || 'local', text = ({ loading:'Connecting…', local:'Local workspace', syncing:'Syncing shared yard…', synced:'Shared and up to date', offline:'Offline · saved here', error:'Sync needs attention' })[status] || 'Local workspace';
+        const indicator = $('#topSyncStatus'); if (indicator) { indicator.dataset.state = status; $('#syncStatusText').textContent = text; }
+        const button = $('#accountBtn'); if (button) { button.textContent = detail.user ? 'Account' : 'Sign in'; button.title = detail.user?.email || 'Sign in to enable shared syncing'; button.setAttribute('aria-label',button.title); }
+        const title = $('#storageTitle'), copy = $('#storageCopy'); if (title) title.textContent = detail.user ? (status === 'synced' ? 'Shared yard synced' : 'Shared yard account') : 'Saved on this device';
+        if (copy) copy.textContent = detail.user ? (status === 'synced' ? 'Your changes are saved on this device and shared with the team.' : 'Connecting this device to the team’s shared yard list.') : 'Sign in to keep this yard list synced with the team.';
+        if (status === 'error' && detail.message) toast(detail.message);
+      }
+      window.yardLocatorBridge = {
+        getSnapshot: () => ({ records: state.records, history: state.history, deletedRecords: state.deletedRecords }),
+        applyCloudSnapshot: data => { state.records = cleanRecords(Array.isArray(data.records) ? data.records : []); state.history = Array.isArray(data.history) ? data.history : []; state.deletedRecords = data.deletedRecords && typeof data.deletedRecords === 'object' ? data.deletedRecords : {}; normalizePositions(); save(true); render(); },
+        toast
+      };
+      window.addEventListener('yardfirebase-status', event => updateCloudStatus(event.detail));
+      $('#accountBtn').addEventListener('click', openAccountModal);
       function parseDelimited(text, delimiter) {
         const rows = []; let row = [], cell = '', quoted = false;
         for (let i=0;i<text.length;i++) { const ch=text[i]; if (quoted) { if (ch==='"' && text[i+1]==='"') { cell+='"'; i++; } else if (ch==='"') quoted=false; else cell+=ch; }
@@ -1456,8 +1501,9 @@
             if (!backup || !Array.isArray(backup.records)) { toast('This JSON file is not a Container Van Locator backup'); return; }
             const imported = cleanRecords(backup.records); if (!imported.length) { toast('No van records found in this backup'); return; }
             const byId = new Map(state.records.map(r => [r.id, r])); let added = 0, updated = 0;
+            if (backup.deletedRecords && typeof backup.deletedRecords === 'object') Object.assign(state.deletedRecords, backup.deletedRecords);
             if (Array.isArray(backup.history)) { const known = new Set(state.history.map(event => event.id)); state.history.push(...backup.history.filter(event => !known.has(event.id))); }
-            for (const item of imported) { const prior = byId.get(item.id); if (prior) { prior.consignee = item.consignee; prior.vessel = item.vessel; prior.voyage = item.voyage; if (item.bay && item.block) { prior.bay = item.bay; prior.block = item.block; prior.stack = item.stack; prior.level = item.level; } prior.status = item.status; prior.cyStrippedAt = item.cyStrippedAt; prior.withdrawnAt = item.withdrawnAt; prior.lastPosition = item.lastPosition; updated++; } else { byId.set(item.id, item); added++; } }
+            for (const item of imported) { const at = new Date().toISOString(), prior = byId.get(item.id); if (prior) { prior.consignee = item.consignee; prior.vessel = item.vessel; prior.voyage = item.voyage; if (item.bay && item.block) { prior.bay = item.bay; prior.block = item.block; prior.stack = item.stack; prior.level = item.level; } prior.status = item.status; prior.cyStrippedAt = item.cyStrippedAt; prior.withdrawnAt = item.withdrawnAt; prior.lastPosition = item.lastPosition; prior.updatedAt = at; updated++; } else { item.updatedAt = at; byId.set(item.id, item); added++; } }
             state.records = Array.from(byId.values()); normalizePositions(); state.loadingPage = 1; state.loadingFilter = 'all'; save(); render(); $('#fileInput').value = ''; toast(`Backup restored · ${added} added${updated ? ` · ${updated} updated` : ''}`); return;
           }
           if (isPhotoFile(file)) { await importPhotos([file]); return; }
@@ -1736,5 +1782,6 @@
       loadSaved(); render(); decodeShared().then(() => { if (state.sharedSnapshot) { state.page = 'yard'; const first = assignedRecords()[0]; if (first) { state.selectedBay = first.bay; state.selectedFace = first.face || ''; state.selectedBlock = first.block; } render(); } });
     })();
   </script>
+  <script type="module" src="./firebase-sync.js"></script>
 </body>
 </html>
