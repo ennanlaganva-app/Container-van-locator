@@ -779,14 +779,14 @@
           const van = String(raw.van ?? raw.vanNumber ?? '').trim();
           if (!van) continue;
           const key = norm(van);
-          const stack = Number(raw.stack), level = Number(raw.level);
-          const capacities = capacitiesFor(bay,face);
-          const validSlot = Number.isInteger(stack) && stack >= 1 && stack <= capacities.length && Number.isInteger(level) && level >= 1 && level <= capacities[stack - 1];
           const bay = BAY_NAMES.includes(raw.bay) ? raw.bay : '';
           const rawBlock = String(raw.block ?? '').match(/\d+/)?.[0] || '';
           let blockNumber = Number(rawBlock), face = normalizeFace(bay, raw.face);
           if ((bay === 'D' || bay === 'E') && !raw.face && blockNumber > SECTION_BY_KEY[`${bay}-front`].blocks) { face = 'back'; blockNumber -= SECTION_BY_KEY[`${bay}-front`].blocks; }
           const section = sectionKey(bay, face), validBlock = !!bay && blocksFor(section).includes(String(blockNumber).padStart(2, '0'));
+          const stack = Number(raw.stack), level = Number(raw.level);
+          const capacities = capacitiesFor(section);
+          const validSlot = Number.isInteger(stack) && stack >= 1 && stack <= capacities.length && Number.isInteger(level) && level >= 1 && level <= capacities[stack - 1];
           if (trackMigration && bay && rawBlock && !validBlock) state.migratedLocationCount++;
           const consignee = String(raw.consignee ?? '').trim();
           const item = { id: key, van, consignee, loadType: deriveLoadType(raw.loadType ?? raw.type, consignee), vessel: String(raw.vessel ?? '').trim(), voyage: String(raw.voyage ?? '').trim(), bay: validBlock ? bay : '', face: validBlock ? face : '', block: validBlock ? String(blockNumber).padStart(2, '0') : '', stack: validSlot ? stack : 0, level: validSlot ? level : 0, lastPosition: Number(raw.lastPosition) || 0, status: ['in-yard','cy-stripped','withdrawn'].includes(raw.status) ? raw.status : 'in-yard', cyStrippedAt: String(raw.cyStrippedAt || ''), withdrawnAt: String(raw.withdrawnAt || ''), createdAt: String(raw.createdAt || ''), updatedAt: String(raw.updatedAt || '') };
