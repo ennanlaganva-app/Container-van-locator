@@ -9,7 +9,7 @@ A free, static yard locator for desktop, laptop, Android phones, and tablets.
 - Four physical stack lanes with capacities 3 / 3 / 3 / 2. Position 1 starts at the rear stack bottom, counts upward, then continues lane by lane toward the front. Numbers recalculate after moves.
 - Yard view that highlights a searched van in its exact stack position.
 - Quick shift follows the yard map and moves vans between any two blocks, including across bays and between front/back sections. The current working scroll position stays in place after a move.
-- Search results include direct Bay/side and block assignment.
+- Finder keeps the number pad on the right and uses a QWERTY letter layout for consignee searches. Search results include direct Bay/side and block assignment.
 - Add existing vans manually during setup, including consignee details and the exact open stack and level in any bay/side and block. Existing loading-list records update in place, and each added opening-stock van is recorded in History.
 - A separate installable [Yard Van Mover](https://ennanlaganva-app.github.io/yard-van-mover/) uses step-by-step buttons for source block, van, and destination block, with its own app name and yellow forklift icon. It is hosted outside the original app's link scope so Android can open and install it separately.
 - App guide page with a complete walkthrough of loading guide import, photo review, bay assignment, stack numbering, quick shifting, statuses, History, picking tags, backup, and snapshot sharing.
