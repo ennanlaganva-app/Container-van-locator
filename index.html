@@ -408,13 +408,23 @@
     .history-time { white-space: nowrap; color: var(--muted); font-size: 10px; }
     .tag-paper { display: none; }
     .guide-note { border: 1px solid #eee2b9; background: #fffaf0; color: #776b42; border-radius: 7px; padding: 9px 11px; font-size: 10px; line-height: 1.5; margin-bottom: 14px; }
-    .manual-layout { display: grid; grid-template-columns: minmax(250px,.78fr) minmax(0,1.22fr); gap: 13px; align-items: start; }
+    .manual-layout { display: grid; grid-template-columns: minmax(290px,.7fr) minmax(0,1.5fr); gap: 13px; align-items: start; }
     .manual-form { display: grid; gap: 11px; padding: 14px; }
     .manual-form .field { margin: 0; }
     .manual-slot-panel { padding-bottom: 10px; }
+    .manual-slot-panel #manualSlotPlan { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+    .manual-slot-panel .stack-plan { min-width: 760px; }
+    .manual-slot-panel .stack-bays.dynamic { grid-template-columns: repeat(var(--lane-count,4),minmax(168px,1fr)); gap: 9px; align-items: end; }
+    .manual-slot-panel .stack-pile { height: auto; min-height: 0; align-items: stretch; justify-content: flex-start; gap: 4px; padding: 0; }
+    .manual-slot-panel .stack-pile .stack-slot { height: 52px; min-height: 52px; flex: 0 0 52px; padding: 5px 8px; }
+    .manual-slot-panel .stack-slot-number { font-size: 12px; line-height: 1.2; }
+    .manual-slot-panel .stack-slot-van { font-size: 12px; line-height: 1.2; white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+    .manual-slot-panel .stack-label { font-size: 12px; }
+    .manual-slot-panel .stack-height { font-size: 11px; }
     .manual-selection { padding: 10px 13px; border-top: 1px solid var(--line); color: #665619; background: #fff9e2; font-size: 10px; line-height: 1.45; }
     .manual-selection strong { color: #38321f; }
-    .manual-slot-note { padding: 0 13px 8px; color: var(--muted); font-size: 9px; line-height: 1.45; }
+    .manual-slot-note { padding: 0 13px 8px; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    @media (max-width: 1200px) { .manual-layout { grid-template-columns: minmax(0,1fr); } }
     .modal-backdrop { position: fixed; inset: 0; display: none; place-items: center; background: rgba(28,32,30,.38); z-index: 50; padding: 18px; }
     .modal-backdrop.open { display: grid; }
     .modal { width: min(440px, 100%); background: #fff; border-radius: 11px; box-shadow: 0 20px 70px rgba(0,0,0,.2); overflow: hidden; }
