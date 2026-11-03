@@ -615,6 +615,21 @@
       .stack-slot-van { font-size: 11px; }
     }
 
+    .app.finder-active .topbar .search-wrap { display: none; }
+    .finder-letter-row { display: flex; justify-content: center; gap: 5px; width: 100%; padding: 0 !important; }
+    .finder-letter-row .finder-key { flex: 0 1 36px; width: 36px; min-width: 0; padding: 0; }
+    .finder-layout > .finder-stack-card { padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; }
+    .finder-layout > .finder-stack-card > .panel-head { min-height: 0; padding: 0 0 8px; border: 0; background: transparent; }
+    .finder-layout > .finder-stack-card > .finder-stack-placeholder { padding: 0 0 8px; margin: 0; border: 0; border-radius: 0; background: transparent; }
+    .finder-stack-card .stack-plan { padding: 8px 0 0; }
+    .finder-stack-card .stack-pile { height: auto; min-height: 0; align-items: stretch; gap: 5px; padding: 0; }
+    .finder-stack-card .stack-slot { height: 64px; min-height: 64px; flex: 0 0 64px; padding: 6px 8px; border-radius: 5px; overflow: visible; }
+    .finder-stack-card .stack-slot-number { font-size: 11px; }
+    .finder-stack-card .stack-slot-van { font-size: 12px; line-height: 1.2; white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+    .finder-layout > .finder-stack-card > .yard-paired { padding: 8px 0; gap: 10px; }
+    .finder-layout > .finder-stack-card .paired-face { padding: 6px 4px; border-color: transparent; background: transparent; }
+    .finder-layout > .finder-stack-card .paired-face.active { border-color: transparent; box-shadow: none; background: transparent; }
+
   </style>
 </head>
 <body>
@@ -885,6 +900,7 @@
       }
       function render() { renderLoading(); renderYard(); renderFinder(); renderShift(); renderManual(); renderHistory(); updateNav(); }
       function updateNav() {
+        $('.app').classList.toggle('finder-active', state.page === 'finder');
         $$('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.page === state.page));
         $('#loadingPage').classList.toggle('hidden', state.page !== 'loading');
         $('#yardPage').classList.toggle('hidden', state.page !== 'yard');
@@ -1696,7 +1712,7 @@
       $('#globalSearch').addEventListener('input', e => showSearch(e.target.value));
       $('#globalSearch').addEventListener('focus', e => showSearch(e.target.value));
       document.addEventListener('click', e => { if (!e.target.closest('.search-wrap')) $('#searchResults').classList.remove('open'); });
-      document.addEventListener('keydown', e => { if (e.key === '/' && !/input|textarea|select/i.test(document.activeElement.tagName)) { e.preventDefault(); $('#globalSearch').focus(); } if (e.key === 'Escape') closeModal(); });
+      document.addEventListener('keydown', e => { if (e.key === '/' && !/input|textarea|select/i.test(document.activeElement.tagName)) { e.preventDefault(); (state.page === 'finder' ? $('#finderQuery') : $('#globalSearch'))?.focus(); } if (e.key === 'Escape') closeModal(); });
       $('#saveShared').addEventListener('click', () => { save(); state.sharedSnapshot = false; $('#sharedBanner').classList.remove('show'); history.replaceState(null, '', location.href.split('#')[0]); toast('Shared snapshot saved on this device'); render(); });
       $('#dismissShared').addEventListener('click', () => { state.sharedSnapshot = false; loadSaved(); $('#sharedBanner').classList.remove('show'); history.replaceState(null, '', location.href.split('#')[0]); render(); });
       if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('./sw.js').catch(() => {});
